@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { markdownToSlide } from '@/lib/markdown';
-	import type { Slide } from '@/lib/markdown/type';
+	import { type Slide, createRenderer } from '@/lib/slides';
 
 	let slide = $state<Slide>();
+	let render = createRenderer();
 
 	$effect(() => {
 		const fetchMarkdown = async () => {
 			const res = await fetch('/markdown.md');
 			const text = await res.text();
-			slide = markdownToSlide(text);
+			slide = render(text);
 		};
 
 		fetchMarkdown();
