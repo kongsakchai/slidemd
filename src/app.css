@@ -55,7 +55,6 @@ body {
 
 section {
 	font-family: var(--font-primary);
-	font-size: 1;
 	line-height: 1.5;
 	font-weight: 400;
 
@@ -188,7 +187,8 @@ blockquote > :last-child {
 [class*='language-'] code {
 	display: block;
 	font-family: var(--font-mono);
-	line-height: 1.7;
+	font-size: 14px;
+	line-height: 1.5;
 	padding: 0 20px;
 }
 
@@ -230,7 +230,7 @@ blockquote > :last-child {
 
 :not(pre) > code {
 	font-family: var(--font-mono);
-	color: var(--link-text-color);
+	color: var(--mark-text-color);
 	background-color: var(--code-inline-bg-color);
 	border-radius: 4px;
 	padding: 3px 6px;
