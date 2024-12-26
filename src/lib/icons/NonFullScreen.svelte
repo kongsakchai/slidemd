@@ -1,0 +1,13 @@
+<script lang="ts">
+	let { ...props } = $props();
+</script>
+
+<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21" {...props}>
+	<path
+		fill="none"
+		stroke="currentColor"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		d="m15.5 9.5l-4 .022V5.5m-2 10.023v-4l-4-.023"
+	/>
+</svg>

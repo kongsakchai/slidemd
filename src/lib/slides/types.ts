@@ -10,6 +10,8 @@ export interface Slide {
 	meta?: Meta;
 }
 
-export type HighlightRender = (code: string, lang: string, args: string) => string;
+export type Highlighter = (code: string, lang: string, args: string) => string;
 
-export type SlideRender = (markdown: string) => Slide;
+export interface SlideRenderer {
+	render: (markdown: string) => Slide;
+}

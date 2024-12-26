@@ -1,18 +1,22 @@
 import { createMarkdown } from './markdown';
-import type { Extracted, Meta, Slide, SlideRender } from './types';
+import type { Extracted, Meta, Slide, SlideRenderer } from './types';
 
 /**
- * @returns {Promise<SlideRender>}
+ * @returns {SlideRenderer}
  * @description Creates a slide renderer
  */
-export const createRenderer = (): SlideRender => {
+export const createSlideRenderer = (): SlideRenderer => {
 	const md = createMarkdown();
 
-	return (markdown: string): Slide => {
+	const render = (markdown: string): Slide => {
+		if (!markdown) return { htmls: [] };
+
 		const { body, meta } = extractFrontmatter(markdown);
-		const htmls = body.split('\n---\n').map((slide) => md.render(slide));
+		const htmls = body.split('\n---\n').map((page) => md.render(page));
 		return { htmls, meta };
 	};
+
+	return { render };
 };
 
 /**

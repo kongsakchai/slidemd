@@ -1,26 +1,20 @@
 <script lang="ts">
-	import { type Slide, createRenderer } from '@/lib/slides';
+	import SlideComponent from '@/lib/components/SlideComponent.svelte';
 
-	let slide = $state<Slide>();
-	let render = createRenderer();
+	const fetchMarkdown = async () => {
+		const res = await fetch('/markdown.md');
+		if (!res.ok) {
+			throw new Error(`Failed to fetch markdown: ${res.statusText}`);
+		}
 
-	$effect(() => {
-		const fetchMarkdown = async () => {
-			const res = await fetch('/markdown.md');
-			const text = await res.text();
-			slide = render(text);
-		};
-
-		fetchMarkdown();
-	});
+		return await res.text();
+	};
 </script>
 
-{#each slide?.htmls! as html, i}
-	<svg viewBox="0 0 1280 720">
-		<foreignObject width="1280" height="720">
-			<section>{@html html}</section>
-		</foreignObject>
-	</svg>
-{:else}
+{#await fetchMarkdown()}
 	<p>Loading</p>
-{/each}
+{:then markdown}
+	<SlideComponent {markdown} />
+{:catch error}
+	<p>{error.message}</p>
+{/await}

@@ -1,2 +1,2 @@
-export { createRenderer } from './renderer';
+export { createSlideRenderer } from './renderer';
 export * from './types';
