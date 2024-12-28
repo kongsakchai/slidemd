@@ -1,3 +1,3 @@
-import { createMarkdown } from './markdown';
-
-export const render = createMarkdown();
+export * from './markdown';
+export * from './renderer';
+export * from './types';

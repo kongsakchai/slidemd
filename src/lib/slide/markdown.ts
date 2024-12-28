@@ -1,7 +1,12 @@
+import { alert } from '@mdit/plugin-alert';
+import { attrs } from '@mdit/plugin-attrs';
+import { tasklist } from '@mdit/plugin-tasklist';
 import MarkdownIt from 'markdown-it';
 
-export const createMarkdown = () => {
-	const md = new MarkdownIt({ html: true });
-
-	return (markdown: string) => md.render(markdown);
+export const createMarkdown = (): MarkdownIt => {
+	const md = MarkdownIt({ html: true });
+	md.use(attrs);
+	md.use(tasklist, { disabled: false });
+	md.use(alert, { alertNames: ['tip', 'warning', 'caution', 'important', 'note', 'bug', 'example', 'info'] });
+	return md;
 };

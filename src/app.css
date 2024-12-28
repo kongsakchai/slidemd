@@ -256,6 +256,7 @@ td {
 
 tr {
 	border-top: 1px solid var(--divider-color);
+	background-color: var(--bg-color);
 }
 
 tr:nth-child(2n) {

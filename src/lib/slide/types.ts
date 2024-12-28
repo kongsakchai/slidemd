@@ -6,3 +6,8 @@ export interface Slide {
 	pages: string[];
 	meta: MetaData;
 }
+
+export interface MarkdownData {
+	body: string;
+	meta: MetaData;
+}
