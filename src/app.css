@@ -7,10 +7,10 @@
 	--font-mono: 'Geist Mono', ui-monospace, 'Menlo', 'Monaco', 'Courier New', monospace;
 
 	--bg-color: #ffffff;
-	--main-text-color: #3c3c43;
+	--primary-text-color: #3c3c43;
 	--secondary-text-color: #3c3c43c7;
-	--divider-color: #e2e2e3;
-	--mark-text-color: #f06292;
+	--line-color: #e2e2e3;
+	--action-text-color: #f06292;
 
 	--table-bg-color: #f6f6f7;
 	--table-hover-bg-color: #62b2f024;
@@ -50,7 +50,7 @@ body {
 }
 
 section {
-	color: var(--main-text-color);
+	color: var(--primary-text-color);
 	background-color: var(--bg-color);
 
 	place-content: center;
@@ -109,11 +109,11 @@ em {
 }
 
 s {
-	text-decoration: 2px wavy line-through var(--mark-text-color);
+	text-decoration: 2px wavy line-through var(--action-text-color);
 }
 
 a {
-	color: var(--mark-text-color);
+	color: var(--action-text-color);
 }
 
 /* Image */
@@ -147,7 +147,7 @@ ul.task-list-container {
 blockquote {
 	padding: 0 1em;
 	margin: 16px 0;
-	border-left: 2px solid var(--divider-color);
+	border-left: 2px solid var(--line-color);
 	color: var(--secondary-text-color);
 }
 
@@ -220,7 +220,7 @@ blockquote > :last-child {
 
 :not(pre) > code {
 	font-family: var(--font-mono);
-	color: var(--mark-text-color);
+	color: var(--action-text-color);
 	background-color: var(--code-inline-bg-color);
 	border-radius: 4px;
 	padding: 3px 6px;
@@ -249,13 +249,13 @@ th {
 
 th,
 td {
-	border: 1px solid var(--divider-color);
+	border: 1px solid var(--line-color);
 	font-size: 14px;
 	padding: 8px 16px;
 }
 
 tr {
-	border-top: 1px solid var(--divider-color);
+	border-top: 1px solid var(--line-color);
 	background-color: var(--bg-color);
 }
 
@@ -271,7 +271,7 @@ tbody tr:hover {
 /* iframe */
 
 iframe {
-	border: 1px solid var(--divider-color);
+	border: 1px solid var(--line-color);
 	border-radius: 8px;
 	width: 100%;
 	height: 100%;
@@ -282,7 +282,7 @@ iframe {
 .markdown-alert {
 	padding: 0 1em;
 	margin: 16px 0;
-	border-left: 2px solid var(--divider-color);
+	border-left: 2px solid var(--line-color);
 	color: var(--secondary-text-color);
 }
 
