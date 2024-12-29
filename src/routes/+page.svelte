@@ -1,8 +1,9 @@
 <script lang="ts">
-	import '$lib/components';
+	import Controller from '$lib/components/Controller.svelte';
 	import mermaid from 'mermaid';
 
 	let { data } = $props();
+	let page = $state(1);
 
 	$effect(() => {
 		mermaid.initialize({
@@ -20,6 +21,8 @@
 	<title>{data.meta.title}</title>
 </svelte:head>
 
-{#each data.pages as page}
-	<section>{@html page}</section>
+{#each data.pages as pageData, i}
+	<section class:hidden={i + 1 != page}>{@html pageData}</section>
 {/each}
+
+<Controller bind:page pageCount={data.pages.length} />
