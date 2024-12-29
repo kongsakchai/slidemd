@@ -22,8 +22,9 @@ let slideRenderer: SlideRenderer | null = null;
 export const createSlideRenderer = async () => {
 	if (slideRenderer) return slideRenderer;
 
+	const md = createMarkdown();
 	const highlighter = await createHighlighter();
-	const md = createMarkdown(highlighter.highlight);
+	md.use(highlighter.highlight);
 
 	const render = (markdown: string): Slide => {
 		const { body, meta } = extractFrontmatter(markdown);
