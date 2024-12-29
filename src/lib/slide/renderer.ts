@@ -1,5 +1,6 @@
+import { createHighlighter } from './hightlighter';
 import { createMarkdown } from './markdown';
-import type { MarkdownData, Slide } from './types';
+import type { MarkdownData, Slide, SlideRenderer } from './types';
 
 export const extractFrontmatter = (markdown: string): MarkdownData => {
 	const match = /---\r?\n([\s\S]+?)\r?\n---/.exec(markdown);
@@ -16,8 +17,13 @@ export const extractFrontmatter = (markdown: string): MarkdownData => {
 	return { body, meta };
 };
 
-export const createSlideRenderer = () => {
-	const md = createMarkdown();
+let slideRenderer: SlideRenderer | null = null;
+
+export const createSlideRenderer = async () => {
+	if (slideRenderer) return slideRenderer;
+
+	const highlighter = await createHighlighter();
+	const md = createMarkdown(highlighter.highlight);
 
 	const render = (markdown: string): Slide => {
 		const { body, meta } = extractFrontmatter(markdown);
@@ -27,7 +33,6 @@ export const createSlideRenderer = () => {
 		return { pages, meta };
 	};
 
-	return { render };
+	slideRenderer = { render };
+	return slideRenderer;
 };
-
-export const slideRenderer = createSlideRenderer();

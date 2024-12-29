@@ -38,6 +38,8 @@
     "@mdit/plugin-alert": "^0.14.0",
     "@mdit/plugin-attrs": "^0.14.0",
     "@mdit/plugin-tasklist": "^0.14.0",
-    "markdown-it": "^14.1.0"
+    "@shikijs/markdown-it": "^1.24.4",
+    "markdown-it": "^14.1.0",
+    "shiki": "^1.24.4"
   }
 }
