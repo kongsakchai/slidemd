@@ -1,20 +1,16 @@
 <script lang="ts">
 	import Controller from '$lib/components/Controller.svelte';
-	import mermaid from 'mermaid';
+	import { initMermaid } from '$lib/service/mermaid.js';
+	import { slideStore } from '$lib/store/slide.svelte.js';
 
 	let { data } = $props();
-	let page = $state(1);
 
+	slideStore.setPageCount(data.pages.length);
 	$effect(() => {
-		mermaid.initialize({
-			startOnLoad: true,
-			fontSize: 12,
-			fontFamily: 'Geist Mono, Sarabun',
-			htmlLabels: true
-		});
-
-		mermaid.run({ querySelector: '.mermaid' });
+		initMermaid().then(() => slideStore.setReady(true));
 	});
+
+	$inspect(slideStore.ready);
 </script>
 
 <svelte:head>
@@ -22,7 +18,11 @@
 </svelte:head>
 
 {#each data.pages as pageData, i}
-	<section class:hidden={i + 1 != page}>{@html pageData}</section>
+	<svg viewBox="0 0 1280 720" class:hidden={slideStore.ready && i + 1 != slideStore.page}>
+		<foreignObject width="1280" height="720">
+			<section>{@html pageData}</section>
+		</foreignObject>
+	</svg>
 {/each}
 
-<Controller bind:page pageCount={data.pages.length} />
+<Controller />

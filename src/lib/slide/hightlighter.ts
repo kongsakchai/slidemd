@@ -20,7 +20,7 @@ export const createHighlighter = async () => {
 			}
 
 			if (lang === 'mermaid') {
-				return `<div class="mermaid">${code}</div>`;
+				return mermaid(code, attr);
 			}
 
 			const html = codeToHtml(code, { lang: 'plaintext', themes: THEMES });
@@ -37,4 +37,8 @@ const joinAttrs = (attrs: [string, string][]) => {
 
 const codeblock = (code: string, lang: string, attrs: string) => {
 	return `<div ${attrs}><div class="language-${lang}">${code}</div></div>`;
+};
+
+const mermaid = (code: string, attrs: string) => {
+	return `<div ${attrs}><div class="mermaid">${code}</div></div>`;
 };
