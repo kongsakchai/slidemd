@@ -7,7 +7,7 @@ export class SlideStore {
 
 	setPageCount = (count: number) => {
 		this.pageCount = count;
-		if (this.page > this.pageCount) this.page = this.pageCount;
+		this.page = 1;
 	};
 
 	next = () => {
