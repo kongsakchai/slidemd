@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Folder from '$lib/icons/Folder.svelte';
-	import Markdown from '$lib/icons/Markdown.svelte';
+	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+	import PathItem from '$lib/components/PathItem.svelte';
 
 	let { data } = $props();
 </script>
@@ -11,25 +11,10 @@
 
 <main class="h-full w-full bg-white p-6 px-12">
 	<h1>Directory</h1>
+	<Breadcrumbs paths={data.path.split('/')} />
 	<section class=" flex flex-col gap-2">
-		{#each data.detals as detals}
-			{#if detals.type === 'dir'}
-				<a href={detals.path}>
-					<Folder />
-					<span>{detals.name}</span>
-				</a>
-			{:else}
-				<a href={'/file/' + detals.path}>
-					<Markdown />
-					<span>{detals.name}</span>
-				</a>
-			{/if}
+		{#each data.detals as detail}
+			<PathItem {...detail} />
 		{/each}
 	</section>
 </main>
-
-<style lang="postcss">
-	a {
-		@apply flex items-center gap-2;
-	}
-</style>

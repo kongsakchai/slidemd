@@ -1,5 +1,5 @@
+import { getFile, validatePath } from '$lib/service/file';
 import { createSlideRenderer } from '$lib/service/slide/renderer.js';
-import { loadFile, validatePath } from '$lib/utils/file';
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ params }) => {
@@ -9,7 +9,7 @@ export const load = async ({ params }) => {
 	}
 
 	const slideRenderer = await createSlideRenderer();
-	const slide = slideRenderer.render(loadFile(path));
+	const slide = slideRenderer.render(getFile(path));
 
 	return { slide };
 };

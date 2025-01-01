@@ -3,6 +3,12 @@ import path from 'path';
 
 const prefixPath = 'assets';
 
+export interface PathDetail {
+	name: string;
+	path: string;
+	type: 'file' | 'dir';
+}
+
 export const validatePath = (pathStr: string) => {
 	if (!pathStr) return '';
 	if (isUrl(pathStr) || !isAssetsPath(pathStr)) return null;
@@ -23,13 +29,7 @@ export const isAssetsPath = (pathStr: string) => {
 	return norm.startsWith(prefixPath);
 };
 
-interface PathDetail {
-	name: string;
-	path: string;
-	type: 'file' | 'dir';
-}
-
-export const loadFile = (pathStr: string): string => {
+export const getFile = (pathStr: string): string => {
 	const assetsPath = path.join(prefixPath, pathStr);
 	return fs.readFileSync(assetsPath, 'utf-8');
 };
@@ -89,10 +89,4 @@ export const getDirentType = (dirent: fs.Dirent): 'file' | 'dir' => {
 
 export const isMarkdown = (pathStr: string): boolean => {
 	return path.extname(pathStr) === '.md';
-};
-
-export const sortPathDetails = (details: PathDetail[]): PathDetail[] => {
-	const folders = details.filter((d) => d.type === 'dir').sort();
-	const files = details.filter((d) => d.type === 'file').sort();
-	return [...folders, ...files];
 };

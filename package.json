@@ -4,13 +4,13 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "bunx --bun vite dev",
-    "build": "bunx --bun vite build",
-    "preview": "bunx --bun vite preview",
-    "check": "bunx --bun svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "bunx --bun svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "format": "bunx --bun prettier --write .",
-    "lint": "bunx --bun prettier --check . && eslint ."
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "format": "prettier --write .",
+    "lint": "prettier --check . && eslint ."
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.3",
