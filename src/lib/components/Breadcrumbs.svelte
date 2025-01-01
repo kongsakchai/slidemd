@@ -12,9 +12,11 @@
 </script>
 
 <div class="my-4 flex gap-2 text-sm">
-	<a href="/">Home</a>
+	<a class="text-primary-text underline" href="/">Home</a>
 	{#each paths as path, i}
-		<span>/</span>
-		<a href={getPaths(i)}>{path}</a>
+		{#if path}
+			<span>></span>
+		{/if}
+		<a class="text-primary-text underline" href={getPaths(i)}>{path}</a>
 	{/each}
 </div>

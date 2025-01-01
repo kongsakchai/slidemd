@@ -7,8 +7,6 @@ export const load = async ({ params }) => {
 		error(404, 'Not found');
 	}
 
-	console.log('path', path);
-
 	const detals = getSubPathDetails(path);
 	return {
 		detals,
