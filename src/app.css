@@ -16,8 +16,7 @@
 	--table-hover-bg-color: #62b2f024;
 
 	--code-inline-bg-color: #8e96aa24;
-	--code-light-bg-color: #f6f8fa;
-	--code-dark-bg-color: #1e293b;
+	--code-bg-color: #f6f8fa;
 	--code-diff-add-bg-color: #10b98124;
 	--code-diff-add-text-color: #18794e;
 	--code-diff-remove-bg-color: #f43f5e24;
@@ -164,7 +163,7 @@ blockquote > :last-child {
 /* Code */
 
 [class*='language-'] {
-	background-color: var(--code-light-bg-color);
+	background-color: var(--code-bg-color);
 	border-radius: 8px;
 	margin: 16px 0;
 }
@@ -418,4 +417,29 @@ iframe {
 
 .markdown-alert.markdown-alert-bug .markdown-alert-title::before {
 	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' stroke='%23cf222e' stroke-width='1.5' stroke-linecap='round'%3E %3Cpath d='M19 15V11.9375C19 9.76288 17.2371 8 15.0625 8H8.9375C6.76288 8 5 9.76288 5 11.9375V15C5 18.866 8.13401 22 12 22C15.866 22 19 18.866 19 15Z M16.5 8.1V7.5C16.5 5.01472 14.4853 3 12 3C9.51472 3 7.5 5.01472 7.5 7.5V8 M19 14H22 M5 14H2 M14.5 3.5L17 2 M9.5 3.5L7 2 M20.5 20.0002L18.5 19.2002 M20.5 7.9998L18.5 8.7998 M3.5 20.0002L5.5 19.2002 M3.5 7.9998L5.5 8.7998 M12 21.5V15'%3E %3C/path%3E %3C/svg%3E");
+}
+
+/* Dark Mode */
+
+body.dark {
+	--bg-color: #0f172a;
+	--primary-text-color: #ffffff;
+	--secondary-text-color: #ffffffde;
+	--line-color: #334155;
+
+	--table-bg-color: #1e293b;
+	--table-hover-bg-color: #99c8eb24;
+
+	--code-inline-bg-color: #65758529;
+	--code-bg-color: #1e293b;
+
+	background-color: #000000;
+}
+
+body.dark .shiki span {
+	color: var(--shiki-dark) !important;
+}
+
+* {
+	transition: all 0.15s;
 }
