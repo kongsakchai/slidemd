@@ -163,9 +163,42 @@ blockquote > :last-child {
 /* Code */
 
 [class*='language-'] {
+	position: relative;
 	background-color: var(--code-bg-color);
 	border-radius: 8px;
 	margin: 16px 0;
+}
+
+[class*='language-'] > span.lang {
+	position: absolute;
+	top: 4px;
+	right: 8px;
+	user-select: none;
+	color: var(--secondary-text-color);
+	font-size: 10px;
+	font-family: var(--font-mono);
+	opacity: 0.5;
+}
+
+[class*='language-']:hover > span.lang {
+	opacity: 0;
+	transition: all 0.5s;
+}
+
+[class*='language-'] > button.copy-code {
+	position: absolute;
+	top: 4px;
+	right: 8px;
+	z-index: 100;
+	color: var(--secondary-text-color);
+	font-size: 12px;
+	font-family: var(--font-mono);
+	opacity: 0;
+}
+
+[class*='language-']:hover > button.copy-code {
+	opacity: 1;
+	transition: all 0.5s;
 }
 
 [class*='language-'] pre {

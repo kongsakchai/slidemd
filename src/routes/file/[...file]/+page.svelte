@@ -10,6 +10,32 @@
 		slideStore.initPage(currentPage(), data.count);
 		initMermaid().then(() => slideStore.setReady(true));
 	});
+
+	$effect(() => {
+		const copy = (e: Event) => {
+			if (!e.target) return;
+			const btn = e.target as HTMLElement;
+			const code = btn.parentElement?.querySelector('pre');
+			if (!code || !code.textContent) return;
+
+			navigator.clipboard.writeText(code.textContent);
+			btn.textContent = 'Copied!';
+			setTimeout(() => {
+				btn.textContent = 'Copy';
+			}, 2000);
+		};
+
+		const copyCodeBtn = document.querySelectorAll('button.copy-code');
+		copyCodeBtn.forEach((btn) => {
+			btn.addEventListener('click', copy);
+		});
+
+		return () => {
+			copyCodeBtn.forEach((btn) => {
+				btn.removeEventListener('click', copy);
+			});
+		};
+	});
 </script>
 
 <svelte:head>

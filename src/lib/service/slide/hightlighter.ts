@@ -36,7 +36,7 @@ const joinAttrs = (attrs: [string, string][]) => {
 };
 
 const codeblock = (code: string, lang: string, attrs: string) => {
-	return `<div ${attrs}><div class="language-${lang}">${code}</div></div>`;
+	return `<div ${attrs}><div class="language-${lang}"><span class="lang">${lang}</span><button class="copy-code">Copy</button>${code}</div></div>`;
 };
 
 const mermaid = (code: string, attrs: string) => {
