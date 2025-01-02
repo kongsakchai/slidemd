@@ -24,14 +24,16 @@
 	};
 </script>
 
-<button class="absolute right-4 top-2 h-8 w-8 text-secondary-text opacity-50" onclick={toggleDark}>
-	{#if theme === 'light'}
-		<div class="absolute" in:fly={flyAnimation} out:fly={flyAnimation}>
-			<Light width="28" height="28" />
-		</div>
-	{:else}
-		<div class="absolute" in:fly={flyAnimation} out:fly={flyAnimation}>
-			<Dark width="28" height="28" />
-		</div>
-	{/if}
-</button>
+<div class="absolute right-0 top-0 p-4 opacity-0 transition-opacity duration-300 hover:opacity-50">
+	<button class="relative h-7 w-7 text-secondary-text" onclick={toggleDark}>
+		{#if theme === 'light'}
+			<div class="absolute left-0 top-0" in:fly={flyAnimation} out:fly={flyAnimation}>
+				<Light width="28" height="28" />
+			</div>
+		{:else}
+			<div class="absolute left-0 top-0" in:fly={flyAnimation} out:fly={flyAnimation}>
+				<Dark width="28" height="28" />
+			</div>
+		{/if}
+	</button>
+</div>

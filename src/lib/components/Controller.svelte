@@ -26,8 +26,10 @@
 	};
 </script>
 
-<div class="fixed bottom-4 left-4">
-	<div class="bg-primary-bg flex items-center gap-2 rounded-lg border border-line p-2 text-secondary-text shadow-lg">
+<div class="fixed bottom-0 left-0 w-full p-4 opacity-0 transition-opacity duration-300 hover:opacity-100">
+	<div
+		class="flex w-fit items-center gap-2 rounded-lg border border-line bg-primary-bg p-2 text-secondary-text shadow-lg"
+	>
 		<button onclick={fullscreen}>
 			<Scale />
 		</button>
