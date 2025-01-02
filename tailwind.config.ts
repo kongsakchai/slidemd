@@ -6,7 +6,7 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				bg: 'var(--bg-color)',
+				'primary-bg': 'var(--primary-bg-color)',
 				'primary-text': 'var(--primary-text-color)',
 				'secondary-text': 'var(--secondary-text-color)',
 				line: 'var(--line-color)',
