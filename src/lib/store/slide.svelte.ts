@@ -6,7 +6,7 @@ export class SlideStore {
 	toString = () => `${this.page} of ${this.pageCount}`;
 
 	initPage = (page: number, count: number) => {
-		this.page = page;
+		this.page = Math.max(Math.min(page, count));
 		this.pageCount = count;
 	};
 

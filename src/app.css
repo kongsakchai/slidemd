@@ -13,7 +13,7 @@
 	--action-text-color: #f06292;
 
 	--table-bg-color: #f6f6f7;
-	--table-hover-bg-color: #62b2f024;
+	--table-hover-bg-color: #60b2f040;
 
 	--code-inline-bg-color: #8e96aa24;
 	--code-bg-color: #f6f8fa;
@@ -428,7 +428,6 @@ iframe {
 	--line-color: #334155;
 
 	--table-bg-color: #1e293b;
-	--table-hover-bg-color: #99c8eb24;
 
 	--code-inline-bg-color: #65758529;
 	--code-bg-color: #1e293b;
