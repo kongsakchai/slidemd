@@ -6,7 +6,7 @@
 	--font-primary: 'Sarabun', system-ui, -apple-system, sans-serif;
 	--font-mono: 'Geist Mono', ui-monospace, 'Menlo', 'Monaco', 'Courier New', monospace;
 
-	--bg-color: #ffffff;
+	--primary-bg-color: #ffffff;
 	--primary-text-color: #3c3c43;
 	--secondary-text-color: #3c3c43c7;
 	--line-color: #e2e2e3;
@@ -37,7 +37,7 @@
 
 /* Body */
 body {
-	background: #242424;
+	background: var(--primary-bg-color);
 	font-family: var(--font-primary);
 	line-height: 1.5;
 	font-weight: 400;
@@ -50,7 +50,7 @@ body {
 
 section.slide {
 	color: var(--primary-text-color);
-	background-color: var(--bg-color);
+	background-color: var(--primary-bg-color);
 
 	overflow: auto;
 	place-content: center;
@@ -257,7 +257,7 @@ td {
 
 tr {
 	border-top: 1px solid var(--line-color);
-	background-color: var(--bg-color);
+	background-color: var(--primary-bg-color);
 }
 
 tr:nth-child(2n) {
@@ -421,8 +421,8 @@ iframe {
 
 /* Dark Mode */
 
-body.dark {
-	--bg-color: #0f172a;
+.dark {
+	--primary-bg-color: #0f172a;
 	--primary-text-color: #ffffff;
 	--secondary-text-color: #ffffffde;
 	--line-color: #334155;
@@ -432,14 +432,8 @@ body.dark {
 
 	--code-inline-bg-color: #65758529;
 	--code-bg-color: #1e293b;
-
-	background-color: #000000;
 }
 
-body.dark .shiki span {
+.dark .shiki span {
 	color: var(--shiki-dark) !important;
-}
-
-* {
-	transition: all 0.15s;
 }
