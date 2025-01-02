@@ -27,7 +27,7 @@
 </script>
 
 <div class="fixed bottom-4 left-4">
-	<div class="flex items-center gap-2 rounded-lg border border-line bg-bg p-2 text-secondary-text shadow-lg">
+	<div class="bg-primary-bg flex items-center gap-2 rounded-lg border border-line p-2 text-secondary-text shadow-lg">
 		<button onclick={fullscreen}>
 			<Scale />
 		</button>

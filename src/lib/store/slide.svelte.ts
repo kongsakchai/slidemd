@@ -5,7 +5,8 @@ export class SlideStore {
 
 	toString = () => `${this.page} of ${this.pageCount}`;
 
-	setPageCount = (count: number) => {
+	initPage = (page: number, count: number) => {
+		this.page = page;
 		this.pageCount = count;
 	};
 

@@ -1,4 +1,4 @@
-import { getFile, validatePath } from '$lib/service/file';
+import { getFile, validatePath } from '$lib/server/file';
 import { createSlideRenderer } from '$lib/service/slide/renderer.js';
 import { error } from '@sveltejs/kit';
 
@@ -11,5 +11,5 @@ export const load = async ({ params }) => {
 	const slideRenderer = await createSlideRenderer();
 	const slide = slideRenderer.render(getFile(path));
 
-	return { slide };
+	return { ...slide, count: slide.pages.length };
 };

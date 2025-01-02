@@ -9,7 +9,7 @@
 	<title>Directory</title>
 </svelte:head>
 
-<main class="h-full w-full overflow-auto bg-bg p-6 px-12 text-primary-text">
+<main class="bg-primary-bg h-full w-full overflow-auto p-6 px-12 text-primary-text">
 	<h1>Directory</h1>
 	<Breadcrumbs paths={data.path.split('/')} />
 	<section class=" flex flex-col gap-2">
