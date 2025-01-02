@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
-	import PathItem from '$lib/components/PathItem.svelte';
+	import DirectoryItem from '$lib/components/DirectoryItem.svelte';
 
 	let { data } = $props();
 </script>
@@ -9,12 +9,12 @@
 	<title>Directory</title>
 </svelte:head>
 
-<main class="h-full w-full overflow-auto bg-white p-6 px-12">
+<main class="h-full w-full overflow-auto bg-bg p-6 px-12 text-primary-text">
 	<h1>Directory</h1>
 	<Breadcrumbs paths={data.path.split('/')} />
 	<section class=" flex flex-col gap-2">
 		{#each data.detals as detail}
-			<PathItem {...detail} />
+			<DirectoryItem {...detail} />
 		{/each}
 	</section>
 </main>

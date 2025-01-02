@@ -1,4 +1,4 @@
-import { getSubPathDetails, validatePath } from '$lib/service/file';
+import { getDirectoryItem, validatePath } from '$lib/server/file';
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ params }) => {
@@ -7,7 +7,7 @@ export const load = async ({ params }) => {
 		error(404, 'Not found');
 	}
 
-	const detals = getSubPathDetails(path);
+	const detals = getDirectoryItem(path);
 	return {
 		detals,
 		path

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Folder from '$lib/icons/Folder.svelte';
 	import Markdown from '$lib/icons/Markdown.svelte';
-	import type { PathDetail } from '$lib/service/file';
+	import type { DirectoryItem } from '$lib/types/file';
 
-	let detail: PathDetail = $props();
+	let detail: DirectoryItem = $props();
 </script>
 
 {#if detail.type === 'dir'}

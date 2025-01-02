@@ -1,21 +1,16 @@
+import type { DirectoryItem } from '$lib/types/file';
 import fs from 'fs';
 import path from 'path';
 
 const prefixPath = 'assets';
 
-export interface PathDetail {
-	name: string;
-	path: string;
-	type: 'file' | 'dir';
-}
-
 export const validatePath = (pathStr: string) => {
 	if (!pathStr) return '';
-	if (isUrl(pathStr) || !isAssetsPath(pathStr)) return null;
+	if (isUrlLink(pathStr) || !isAssetsPath(pathStr)) return null;
 	return pathStr;
 };
 
-export const isUrl = (pathStr: string) => {
+export const isUrlLink = (pathStr: string) => {
 	try {
 		new URL(pathStr);
 		return true;
@@ -34,21 +29,20 @@ export const getFile = (pathStr: string): string => {
 	return fs.readFileSync(assetsPath, 'utf-8');
 };
 
-export const getSubPathDetails = (pathStr: string): PathDetail[] => {
+export const getDirectoryItem = (pathStr: string): DirectoryItem[] => {
 	try {
 		const assetsPath = path.join(prefixPath, pathStr);
 		const dirents = fs.readdirSync(assetsPath, { withFileTypes: true });
-		const markdownAndDirectory = dirents.filter(isMarkdownAndDirectory);
+		const markdownAndDirectory = dirents.filter(isMarkdownOrDirectory);
 
-		return direntsToPathDetails(pathStr, markdownAndDirectory);
+		return direntsToDirectoryItems(pathStr, markdownAndDirectory);
 	} catch {
 		return [];
 	}
 };
 
-const isMarkdownAndDirectory = (dirent: fs.Dirent) => {
-	if (isHidden(dirent.name)) return false;
-	if (dirent.isFile() && !isMarkdown(dirent.name)) {
+const isMarkdownOrDirectory = (dirent: fs.Dirent) => {
+	if (isHidden(dirent.name) || (dirent.isFile() && !isMarkdown(dirent.name))) {
 		return false;
 	}
 
@@ -59,13 +53,12 @@ export const isHidden = (pathStr: string): boolean => {
 	return pathStr.startsWith('.');
 };
 
-export const direntsToPathDetails = (curentPath: string, dirent: fs.Dirent[]): PathDetail[] => {
-	const pathDetails: PathDetail[] = [];
-	dirent.forEach((d) => {
+export const direntsToDirectoryItems = (curentPath: string, dirent: fs.Dirent[]): DirectoryItem[] => {
+	const pathDetails = dirent.map((d) => {
 		const name = d.name;
 		const relativePath = path.join(curentPath, name);
 		const type = getDirentType(d);
-		pathDetails.push({ name, path: relativePath, type });
+		return { name, path: relativePath, type };
 	});
 
 	pathDetails.sort((a, b) => {
