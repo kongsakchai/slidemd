@@ -37,7 +37,7 @@
 
 /* Body */
 body {
-	background: var(--primary-bg-color);
+	background: #000000;
 	font-family: var(--font-primary);
 	line-height: 1.5;
 	font-weight: 400;
@@ -67,6 +67,7 @@ h3,
 h4,
 h5,
 h6 {
+	color: var(--action-text-color);
 	font-weight: 700;
 	margin: 24px 0 16px 0;
 }
@@ -148,7 +149,7 @@ ul.task-list-container {
 blockquote {
 	padding: 0 1em;
 	margin: 16px 0;
-	border-left: 2px solid var(--line-color);
+	border-left: 4px solid var(--line-color);
 	color: var(--secondary-text-color);
 }
 
