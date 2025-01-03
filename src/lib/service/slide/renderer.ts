@@ -1,4 +1,4 @@
-import { createHighlighter } from './hightlighter';
+import { createHighlighter } from './highlighter';
 import { createMarkdown } from './markdown';
 import type { MarkdownData, Slide, SlideRenderer } from './types';
 

@@ -17,11 +17,11 @@
 
 	--code-inline-bg-color: #8e96aa24;
 	--code-bg-color: #f6f8fa;
-	--code-diff-add-bg-color: #10b98124;
-	--code-diff-add-text-color: #18794e;
-	--code-diff-remove-bg-color: #f43f5e24;
-	--code-diff-remove-text-color: #b8272c;
-	--code-highlight-bg-color: #8cd7ff24;
+	--code-diff-add-bg-color: #40a02b2b;
+	--code-diff-add-text-color: #40a02b;
+	--code-diff-remove-bg-color: #d20f392b;
+	--code-diff-remove-text-color: #d20f39;
+	--code-highlight-bg-color: #04a5e52b;
 
 	--access-color: #0969da;
 	--success-color: #1a7f37;
@@ -162,6 +162,14 @@ blockquote > :last-child {
 
 /* Code */
 
+.code-container {
+	margin: 16px 0;
+}
+
+.code-container > [class*='language-'] {
+	margin: 0;
+}
+
 [class*='language-'] {
 	position: relative;
 	background-color: var(--code-bg-color);
@@ -182,7 +190,7 @@ blockquote > :last-child {
 
 [class*='language-']:hover > span.lang {
 	opacity: 0;
-	transition: all 0.5s;
+	transition: opacity 0.5s;
 }
 
 [class*='language-'] > button.copy-code {
@@ -198,7 +206,7 @@ blockquote > :last-child {
 
 [class*='language-']:hover > button.copy-code {
 	opacity: 1;
-	transition: all 0.5s;
+	transition: opacity 0.5s;
 }
 
 [class*='language-'] pre {
@@ -206,6 +214,10 @@ blockquote > :last-child {
 	background-color: transparent !important;
 	margin: 0;
 	padding: 20px 0px;
+}
+
+[class*='language-'].has-step pre {
+	display: none;
 }
 
 [class*='language-'] code {
@@ -222,6 +234,7 @@ blockquote > :last-child {
 	width: 100%;
 	padding: 0 20px;
 	margin: 0 -20px;
+	box-sizing: content-box;
 }
 
 [class*='language-'] code .diff::before {
@@ -240,7 +253,7 @@ blockquote > :last-child {
 
 [class*='language-'] code .diff.remove {
 	background-color: var(--code-diff-remove-bg-color);
-	opacity: 0.7;
+	opacity: 0.6;
 }
 
 [class*='language-'] code .diff.remove::before {
@@ -250,6 +263,15 @@ blockquote > :last-child {
 
 [class*='language-'] code .highlighted {
 	background-color: var(--code-highlight-bg-color);
+}
+
+[class*='language-'] .has-focused :not(.focused) {
+	filter: blur(4px);
+	transition: filter 0.3s;
+}
+
+[class*='language-']:hover .has-focused :not(.focused) {
+	filter: none;
 }
 
 :not(pre) > code {
@@ -299,7 +321,7 @@ tr:nth-child(2n) {
 
 tbody tr:hover {
 	background-color: var(--table-hover-bg-color);
-	transition: all 0.3s;
+	transition: background-color 0.3s;
 }
 
 /* iframe */

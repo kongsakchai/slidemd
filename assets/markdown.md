@@ -68,7 +68,7 @@ Inline `Code`
 ```svelte
 <script>
  function greet() {
-  alert('Welcome to Svelte!');
+  alert('Welcome to Svelte!'); // [!code hl]
  }
 </script>
 
@@ -76,31 +76,8 @@ Inline `Code`
 
 <style>
  button {
-  font-size: 2em;
- }
-</style>
-```
-
----
-
-<!-- _class: dark -->
-
-## Code Block Dark
-
-Inline `Code`
-
-```svelte
-<script>
- function greet() {
-  alert('Welcome to Svelte!');
- }
-</script>
-
-<button onclick={greet}>click me</button>
-
-<style>
- button {
-  font-size: 2em;
+  font-size: 2em; /* [!code --] */
+  font-size: 3em; /* [!code ++] */
  }
 </style>
 ```

@@ -15,5 +15,3 @@ export interface MarkdownData {
 export interface SlideRenderer {
 	render: (markdown: string) => Slide;
 }
-
-export type Highlighter = (code: string, lang: string, attrs: string) => string;
