@@ -6,7 +6,7 @@ import {
 	type BundledTheme,
 	type HighlighterGeneric
 } from 'shiki';
-import { joinAttrs } from './highlightHelper';
+import { joinCodeAttrs } from './helper';
 
 const THEMES = { light: 'github-light', dark: 'github-dark' };
 const LANGUAGES = ['javascript', 'typescript', 'js', 'svelte', 'ts', 'html', 'css', 'json', 'go', 'plaintext'];
@@ -23,7 +23,7 @@ export const createHighlighter = async () => {
 		md.renderer.rules.fence = (tokens, idx) => {
 			const token = tokens[idx];
 			const code = token.content.trim();
-			const attr = joinAttrs(token.attrs || []);
+			const attr = joinCodeAttrs(token.attrs || []);
 
 			let lang = token.info.trim();
 			if (lang === 'mermaid') {

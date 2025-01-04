@@ -1,21 +1,7 @@
+import { extractFrontmatter } from './helper';
 import { createHighlighter } from './highlighter';
 import { createMarkdown } from './markdown';
-import type { MarkdownData, Slide, SlideRenderer } from './types';
-
-export const extractFrontmatter = (markdown: string): MarkdownData => {
-	const match = /---\r?\n([\s\S]+?)\r?\n---/.exec(markdown);
-	if (!match) return { body: markdown, meta: {} };
-
-	const frontmatter = match[1];
-	const body = markdown.slice(match[0].length);
-
-	const meta = frontmatter.split('\n').reduce((acc, line) => {
-		const [key, value] = line.split(':').map((x) => x.trim());
-		return { ...acc, [key]: value };
-	}, {});
-
-	return { body, meta };
-};
+import type { Slide, SlideRenderer } from './types';
 
 let slideRenderer: SlideRenderer | null = null;
 
