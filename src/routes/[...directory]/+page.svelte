@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
-	import DirectoryItem from '$lib/components/DirectoryItem.svelte';
+	import DirectoryItem from '$lib/components/DirentItem.svelte';
 	import ThemeSwitch from '$lib/components/ThemeSwitch.svelte';
 
 	let { data } = $props();
@@ -14,8 +14,8 @@
 	<h1>Directory</h1>
 	<Breadcrumbs paths={data.path.split('/')} />
 	<section class=" flex flex-col gap-2">
-		{#each data.detals as detail}
-			<DirectoryItem {...detail} />
+		{#each data.list as item}
+			<DirectoryItem {...item} />
 		{/each}
 	</section>
 	<ThemeSwitch />

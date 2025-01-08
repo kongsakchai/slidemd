@@ -4,16 +4,21 @@
 	import RightArrow from '$lib/icons/RightArrow.svelte';
 	import Scale from '$lib/icons/Scale.svelte';
 
-	import { slideStore } from '$lib/store/slide.svelte.js';
+	interface Props {
+		count: number;
+		current: number;
+	}
+
+	let { count, current }: Props = $props();
 
 	const next = () => {
-		slideStore.next();
-		goto(`#${slideStore.page}`, { replaceState: true });
+		if (current >= count) return;
+		goto(`#${current + 1}`, { replaceState: true });
 	};
 
 	const prev = () => {
-		slideStore.prev();
-		goto(`#${slideStore.page}`, { replaceState: true });
+		if (current <= 1) return;
+		goto(`#${current - 1}`, { replaceState: true });
 	};
 
 	const fullscreen = () => {
@@ -24,6 +29,19 @@
 			document.exitFullscreen();
 		}
 	};
+
+	$effect(() => {
+		const keydown = (e: KeyboardEvent) => {
+			if (e.key === 'ArrowRight') next();
+			if (e.key === 'ArrowLeft') prev();
+		};
+
+		window.addEventListener('keydown', keydown);
+
+		return () => {
+			window.removeEventListener('keydown', keydown);
+		};
+	});
 </script>
 
 <div class="fixed bottom-0 left-0 w-full p-4 opacity-0 transition-opacity duration-300 hover:opacity-100">
@@ -42,7 +60,7 @@
 
 		<div class="vline"></div>
 
-		<span class=" min-w-[60px] text-center text-sm">{slideStore.toString()}</span>
+		<span class=" min-w-[60px] text-center text-sm">{current} of {count}</span>
 
 		<div class="vline"></div>
 

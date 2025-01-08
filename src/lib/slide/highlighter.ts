@@ -1,21 +1,14 @@
 import { transformerNotationDiff, transformerNotationFocus, transformerNotationHighlight } from '@shikijs/transformers';
 import type { PluginSimple } from 'markdown-it';
-import {
-	createHighlighter as createShikiHighlighter,
-	type BundledLanguage,
-	type BundledTheme,
-	type HighlighterGeneric
-} from 'shiki';
-import { joinCodeAttrs } from './helper';
+import { createHighlighter as createShikiHighlighter } from 'shiki';
+import { joinAttrs } from './utils';
 
 const THEMES = { light: 'github-light', dark: 'github-dark' };
 const LANGUAGES = ['javascript', 'typescript', 'js', 'svelte', 'ts', 'html', 'css', 'json', 'go', 'plaintext'];
 
-let shiki: HighlighterGeneric<BundledLanguage, BundledTheme>;
+const shiki = await createShikiHighlighter({ langs: LANGUAGES, themes: Object.values(THEMES) });
 
-export const createHighlighter = async () => {
-	shiki?.dispose();
-	shiki = await createShikiHighlighter({ langs: LANGUAGES, themes: Object.values(THEMES) });
+export const createHighlighter = () => {
 	const transformers = [transformerNotationDiff(), transformerNotationHighlight(), transformerNotationFocus()];
 	const codeToHtml = (code: string, lang: string) => shiki.codeToHtml(code, { lang, themes: THEMES, transformers });
 
@@ -23,19 +16,23 @@ export const createHighlighter = async () => {
 		md.renderer.rules.fence = (tokens, idx) => {
 			const token = tokens[idx];
 			const code = token.content.trim();
-			const attr = joinCodeAttrs(token.attrs || []);
+
+			let attrs = '';
+			if (token.attrs && token.attrs.length > 0) {
+				token.attrJoin('class', 'code-container');
+				attrs = joinAttrs(token.attrs);
+			}
 
 			let lang = token.info.trim();
 			if (lang === 'mermaid') {
-				return mermaid(code, attr);
+				return mermaid(code, attrs);
 			}
-
 			if (!LANGUAGES.includes(lang)) {
 				lang = 'plaintext';
 			}
 
 			const html = codeToHtml(code, lang);
-			return codeblock(html, lang, attr);
+			return codeblock(html, lang, attrs);
 		};
 	};
 

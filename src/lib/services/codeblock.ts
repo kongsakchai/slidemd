@@ -1,4 +1,4 @@
-export const copy = (e: Event) => {
+const copy = (e: Event) => {
 	if (!e.target) return;
 
 	const btn = e.target as HTMLButtonElement;
