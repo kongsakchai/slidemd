@@ -1,27 +1,102 @@
 <script lang="ts">
-	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { page as pageState } from '$app/state';
 	import Controller from '$lib/components/Controller.svelte';
 	import ThemeSwitch from '$lib/components/ThemeSwitch.svelte';
-	import { initCodeCopyButton } from '$lib/services/codeblock';
-	import { initMermaid } from '$lib/services/mermaid';
-	import { clamp, hashToNumber } from '$lib/utils/number';
-	import { fade } from 'svelte/transition';
+	import { allByClass, onAll, removeAll } from '$lib/utils/element.js';
+	import { hashToNumber, strToNumber } from '$lib/utils/number.js';
+	import mermaid from 'mermaid';
+	import { onMount } from 'svelte';
 
 	let { data } = $props();
 
-	let ready = $state(false);
+	let siglePage = $state(false);
+	let page = $state(hashToNumber(pageState.url.hash));
+	let step = $state(strToNumber(pageState.url.searchParams.get('step') || '0'));
 
-	let currentPage = $derived.by(() => {
-		const c = hashToNumber(page.url.hash);
-		return clamp(c, 1, data.count);
+	let pageFragments: Record<string, HTMLElement[]> = {};
+
+	const navigate = (page: number, step: number) => {
+		const url = step > 0 ? `?step=${step}#${page}` : `?#${page}`;
+		goto(url, { replaceState: true, noScroll: false });
+	};
+
+	const next = () => {
+		if (step < pageFragments[page]?.length || 0) {
+			step += 1;
+		} else if (page < data.total) {
+			page += 1;
+			step = 0;
+		}
+
+		navigate(page, step);
+	};
+
+	const prev = () => {
+		if (step > 0) {
+			step -= 1;
+		} else if (page > 1) {
+			page -= 1;
+			step = pageFragments[page]?.length || 0;
+		}
+
+		navigate(page, step);
+	};
+
+	const setupFragment = () => {
+		const pages = allByClass('slide');
+		[...pages].forEach((el, i) => {
+			const fragments = allByClass('fragment', el);
+			if (fragments.length > 0) {
+				pageFragments[el.id] = [...fragments];
+			}
+		});
+	};
+
+	const setupMermaid = () => {
+		mermaid.initialize({
+			startOnLoad: false,
+			fontSize: 12,
+			fontFamily: 'Geist Mono, Sarabun'
+		});
+
+		mermaid.run({ querySelector: '.mermaid' }).then(() => {
+			siglePage = true;
+		});
+	};
+
+	onMount(() => {
+		setupFragment();
+		setupMermaid();
+
+		const copyCodeToClipboard = (event: Event) => {
+			const button = event.target as HTMLButtonElement | null;
+			if (!button) return;
+
+			const codeBlock = button.closest('div')?.querySelector('pre');
+			if (!codeBlock?.textContent) return;
+
+			navigator.clipboard.writeText(codeBlock.textContent).then(() => {
+				button.textContent = 'Copied!';
+				setTimeout(() => {
+					button.textContent = 'Copy';
+				}, 2000);
+			});
+		};
+
+		const btns = allByClass('copy-code');
+		onAll(btns, 'click', copyCodeToClipboard);
+
+		return () => {
+			removeAll(btns, 'click', copyCodeToClipboard);
+		};
 	});
 
 	$effect(() => {
-		initMermaid().then(() => (ready = true));
-		const destroy = initCodeCopyButton();
-		return () => {
-			destroy();
-		};
+		pageFragments[page]?.forEach((el, i) => {
+			const active = i < step || !siglePage ? 'true' : 'false';
+			el.setAttribute('data-fragment-active', active);
+		});
 	});
 </script>
 
@@ -34,12 +109,7 @@
 	<svg viewBox="0 0 1280 720">
 		<foreignObject width="1280" height="720">
 			{#each data.slide as pageData, i}
-				<section
-					in:fade={{ duration: 300 }}
-					out:fade={{ duration: 300 }}
-					class="slide"
-					class:hidden={ready && i + 1 != currentPage}
-				>
+				<section id={(i + 1).toString()} class="slide" class:hidden={siglePage && i + 1 != page}>
 					{@html pageData}
 				</section>
 			{/each}
@@ -47,4 +117,4 @@
 	</svg>
 </main>
 
-<Controller current={currentPage} count={data.count} />
+<Controller current={page} total={data.total} onnext={next} onprev={prev} />

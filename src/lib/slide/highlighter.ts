@@ -4,7 +4,23 @@ import { createHighlighter as createShikiHighlighter } from 'shiki';
 import { joinAttrs } from './utils';
 
 const THEMES = { light: 'github-light', dark: 'github-dark' };
-const LANGUAGES = ['javascript', 'typescript', 'js', 'svelte', 'ts', 'html', 'css', 'json', 'go', 'plaintext'];
+const LANGUAGES = [
+	'javascript',
+	'typescript',
+	'js',
+	'svelte',
+	'ts',
+	'html',
+	'css',
+	'json',
+	'go',
+	'bash',
+	'sh',
+	'yaml',
+	'dockerfile',
+	'makefile',
+	'plaintext'
+];
 
 const shiki = await createShikiHighlighter({ langs: LANGUAGES, themes: Object.values(THEMES) });
 

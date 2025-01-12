@@ -144,6 +144,14 @@ ul.task-list-container {
 	padding-left: 0;
 }
 
+[data-fragment-active='true'] {
+	visibility: visible;
+}
+
+[data-fragment-active='false'] {
+	visibility: hidden;
+}
+
 /* Blockquotes */
 
 blockquote {

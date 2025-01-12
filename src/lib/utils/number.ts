@@ -1,10 +1,14 @@
-export const hashToNumber = (hash: string) => {
+export const hashToNumber = (hash?: string) => {
+	const str = hash || '#1';
+	return strToNumber(str.slice(1));
+};
+
+export const strToNumber = (str: string) => {
 	try {
-		const str = hash || '#1';
-		const number = parseInt(str.slice(1));
-		return isNaN(number) ? 1 : number;
+		const number = parseInt(str);
+		return isNaN(number) ? 0 : number;
 	} catch {
-		return 1;
+		return 0;
 	}
 };
 

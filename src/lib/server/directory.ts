@@ -17,7 +17,11 @@ const direntType = (dirent: Dirent) => {
 	return 'dir';
 };
 
-const withoutHidenFilter = (dirent: Dirent) => {
+const filterDirent = (dirent: Dirent, type: 'dir' | 'file') => {
+	if (type === 'file' && !dirent.name.endsWith('.md')) {
+		return false;
+	}
+
 	return !dirent.name.startsWith('.');
 };
 
@@ -38,15 +42,20 @@ export const loadDirectory = (path: string) => {
 	}
 
 	const dirent = readdirSync(normPath, { withFileTypes: true });
-	const items = dirent.filter(withoutHidenFilter).map((d) => {
+	const items: DirectoryItem[] = [];
+	for (const d of dirent) {
 		const type = direntType(d);
+		if (!filterDirent(d, type)) {
+			continue;
+		}
+
 		const url = type == 'dir' ? join('/', path, d.name) : join('/slide', path, d.name);
-		return {
+		items.push({
 			name: d.name,
-			type: type,
+			type: direntType(d),
 			path: url
-		} as DirectoryItem;
-	});
+		});
+	}
 
 	return items.sort(sortDirectoryItem);
 };

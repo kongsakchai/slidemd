@@ -1,25 +1,16 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import LeftArrow from '$lib/icons/LeftArrow.svelte';
 	import RightArrow from '$lib/icons/RightArrow.svelte';
 	import Scale from '$lib/icons/Scale.svelte';
 
 	interface Props {
-		count: number;
+		total: number;
 		current: number;
+		onnext: () => void;
+		onprev: () => void;
 	}
 
-	let { count, current }: Props = $props();
-
-	const next = () => {
-		if (current >= count) return;
-		goto(`#${current + 1}`, { replaceState: true });
-	};
-
-	const prev = () => {
-		if (current <= 1) return;
-		goto(`#${current - 1}`, { replaceState: true });
-	};
+	let { total: count, current, onnext, onprev }: Props = $props();
 
 	const fullscreen = () => {
 		const root = document.documentElement;
@@ -32,8 +23,8 @@
 
 	$effect(() => {
 		const keydown = (e: KeyboardEvent) => {
-			if (e.key === 'ArrowRight') next();
-			if (e.key === 'ArrowLeft') prev();
+			if (e.key === 'ArrowRight') onnext();
+			if (e.key === 'ArrowLeft') onprev();
 		};
 
 		window.addEventListener('keydown', keydown);
@@ -54,7 +45,7 @@
 
 		<div class="vline"></div>
 
-		<button onclick={prev}>
+		<button onclick={onprev}>
 			<LeftArrow />
 		</button>
 
@@ -64,7 +55,7 @@
 
 		<div class="vline"></div>
 
-		<button onclick={next}>
+		<button onclick={onnext}>
 			<RightArrow />
 		</button>
 	</div>
