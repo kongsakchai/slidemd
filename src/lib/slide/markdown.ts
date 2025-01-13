@@ -19,20 +19,12 @@ export const createMarkdown = (): MarkdownIt => {
 };
 
 export const fragmentRender = (md: MarkdownIt) => {
-	const originalBulletList = md.renderer.rules.bullet_list_open;
-	md.renderer.rules.bullet_list_open = (tokens, idx, options, env, self) => {
-		env.fragmentIndex = 0;
-		return originalBulletList?.(tokens, idx, options, env, self) || self.renderToken(tokens, idx, options);
-	};
-
 	const originalListItem = md.renderer.rules.list_item_open;
 	md.renderer.rules.list_item_open = (tokens, idx, options, env, self) => {
 		const token = tokens[idx];
-		env.fragmentIndex = env.fragmentIndex + 1;
 		if (token.markup === '*') {
-			token.attrJoin('class', 'fragment');
-			token.attrSet('data-fragment-index', env.fragmentIndex.toString());
-			token.attrSet('data-fragment-active', 'false');
+			token.attrJoin('class', 'page-step');
+			token.attrSet('data-step-active', 'false');
 		}
 		return originalListItem?.(tokens, idx, options, env, self) || self.renderToken(tokens, idx, options);
 	};

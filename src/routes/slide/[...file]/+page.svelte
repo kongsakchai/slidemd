@@ -3,7 +3,7 @@
 	import { page as pageState } from '$app/state';
 	import Controller from '$lib/components/Controller.svelte';
 	import ThemeSwitch from '$lib/components/ThemeSwitch.svelte';
-	import { allByClass, onAll, removeAll } from '$lib/utils/element.js';
+	import { byClass, onAll, removeAll } from '$lib/utils/element.js';
 	import { hashToNumber, strToNumber } from '$lib/utils/number.js';
 	import mermaid from 'mermaid';
 	import { onMount } from 'svelte';
@@ -14,7 +14,7 @@
 	let page = $state(hashToNumber(pageState.url.hash));
 	let step = $state(strToNumber(pageState.url.searchParams.get('step') || '0'));
 
-	let pageFragments: Record<string, HTMLElement[]> = {};
+	let pageSteps: Record<string, HTMLElement[]> = {};
 
 	const navigate = (page: number, step: number) => {
 		const url = step > 0 ? `?step=${step}#${page}` : `?#${page}`;
@@ -22,7 +22,7 @@
 	};
 
 	const next = () => {
-		if (step < pageFragments[page]?.length || 0) {
+		if (step < pageSteps[page]?.length || 0) {
 			step += 1;
 		} else if (page < data.total) {
 			page += 1;
@@ -37,18 +37,18 @@
 			step -= 1;
 		} else if (page > 1) {
 			page -= 1;
-			step = pageFragments[page]?.length || 0;
+			step = pageSteps[page]?.length || 0;
 		}
 
 		navigate(page, step);
 	};
 
-	const setupFragment = () => {
-		const pages = allByClass('slide');
+	const setupPageSteps = () => {
+		const pages = byClass('slide');
 		[...pages].forEach((el, i) => {
-			const fragments = allByClass('fragment', el);
-			if (fragments.length > 0) {
-				pageFragments[el.id] = [...fragments];
+			const steps = byClass('page-step', el);
+			if (steps.length > 0) {
+				pageSteps[el.id] = [...steps];
 			}
 		});
 	};
@@ -66,7 +66,7 @@
 	};
 
 	onMount(() => {
-		setupFragment();
+		setupPageSteps();
 		setupMermaid();
 
 		const copyCodeToClipboard = (event: Event) => {
@@ -84,7 +84,7 @@
 			});
 		};
 
-		const btns = allByClass('copy-code');
+		const btns = byClass('copy-code');
 		onAll(btns, 'click', copyCodeToClipboard);
 
 		return () => {
@@ -93,9 +93,9 @@
 	});
 
 	$effect(() => {
-		pageFragments[page]?.forEach((el, i) => {
+		pageSteps[page]?.forEach((el, i) => {
 			const active = i < step || !siglePage ? 'true' : 'false';
-			el.setAttribute('data-fragment-active', active);
+			el.setAttribute('data-step-active', active);
 		});
 	});
 </script>

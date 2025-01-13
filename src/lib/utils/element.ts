@@ -1,4 +1,4 @@
-export const allByClass = <T extends HTMLElement = HTMLElement>(
+export const byClass = <T extends HTMLElement = HTMLElement>(
 	selector: string,
 	parent: Document | HTMLElement = document
 ) => parent.getElementsByClassName(selector) as HTMLCollectionOf<T>;

@@ -15,6 +15,10 @@ export const imageRender: PluginSimple = (md) => {
 		if (style) {
 			token.attrSet('style', style);
 		}
+		const className = extractImageClass(contents);
+		if (className) {
+			token.attrSet('class', className);
+		}
 		token.attrSet('alt', contents[0] || '');
 		token.attrSet('src', resolveImageSrc(src, env.base));
 
@@ -32,6 +36,13 @@ const resolveImageSrc = (src: string, base?: string): string => {
 	} catch {
 		return `/assets/${btoa(path)}`;
 	}
+};
+
+const extractImageClass = (contents: string[]): string => {
+	return contents
+		.filter((content) => content.startsWith('.'))
+		.map((content) => content.slice(1))
+		.join(' ');
 };
 
 const extractImageStyle = (contents: string[]): string => {
