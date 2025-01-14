@@ -1,11 +1,16 @@
 import { createMarkdown } from './markdown';
 
+export interface Slide {
+	content: string;
+}
+
 export const createSlideRenderer = () => {
 	const md = createMarkdown();
-	const render = (body: string, base?: string): string[] => {
-		const env: Record<string, unknown> = { base };
+	const render = (body: string, base?: string): Slide[] => {
+		const env = { base: base };
 		const slide = body.split('\n---\n').map((content) => {
-			return md.render(content, env);
+			const html = md.render(content, env);
+			return { content: html };
 		});
 		return slide;
 	};

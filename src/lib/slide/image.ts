@@ -1,47 +1,110 @@
 import type { PluginSimple } from 'markdown-it';
-import { isAbsolute, join } from 'path';
+import type { Token } from 'markdown-it/index.js';
+import { joinAttrs, resolveAssetUrl } from './utils';
+
+const filterImageToken = (token: Token) => {
+	return token.type === 'image';
+};
+
+const filterInlineToken = (token: Token) => {
+	return token.type === 'inline';
+};
+
+const filterInlineImageToken = (token: Token) => {
+	return filterInlineToken(token) && token.children?.some(filterImageToken);
+};
+
+const removeChildrenToken = (token: Token, children: Token) => {
+	const index = token.children?.indexOf(children);
+	if (index != undefined && index >= 0) {
+		token.children?.splice(index, 1);
+	}
+};
+
+const removeToken = (state: Token[], token: Token) => {
+	const index = state.indexOf(token);
+	if (index && index >= 0) {
+		state.splice(index - 1, 3);
+	}
+};
 
 export const imageRender: PluginSimple = (md) => {
-	const originalImage = md.renderer.rules.image;
-	md.renderer.rules.image = (tokens, idx, options, env, self) => {
+	md.core.ruler.after('inline', 'enhanceImage', (state) => {
+		const background: Token[] = [];
+		const inlineImageTokens = state.tokens.filter(filterInlineImageToken);
+
+		inlineImageTokens.forEach((inlineImage) => {
+			const imageTokens = inlineImage.children!.filter(filterImageToken);
+
+			imageTokens.forEach((token) => {
+				enhanceImage(token, state.env);
+				if (token.attrGet('bg')) {
+					background.push(token);
+					removeChildrenToken(inlineImage, token);
+				}
+			});
+
+			if (inlineImage.children?.length === 0) {
+				removeToken(state.tokens, inlineImage);
+			}
+		});
+
+		if (background.length === 0) return;
+		const token = new state.Token('image', 'bg', 0);
+		token.children = background;
+		state.tokens.push(token);
+	});
+
+	md.renderer.rules.image = (tokens, idx) => {
 		const token = tokens[idx];
-		const contents = token.content.split(' ');
-		const src = token.attrGet('src') || '';
-		if (!src) {
-			return '';
+		if (token.tag === 'bg') {
+			return renderBackgroundContainer(token.children!);
 		}
-
-		const style = extractImageStyle(contents);
-		if (style) {
-			token.attrSet('style', style);
-		}
-		const className = extractImageClass(contents);
-		if (className) {
-			token.attrSet('class', className);
-		}
-		token.attrSet('alt', contents[0] || '');
-		token.attrSet('src', resolveImageSrc(src, env.base));
-
-		return originalImage?.(tokens, idx, options, env, self) || self.renderToken(tokens, idx, options);
+		return renderImage(token);
 	};
 };
 
-const resolveImageSrc = (src: string, base?: string): string => {
-	const absolute = isAbsolute(src);
-	const path = base && !absolute ? join(base, src) : src;
+const renderImage = (token: Token) => {
+	return `<img ${joinAttrs(token.attrs)}>`;
+};
 
-	try {
-		new URL(src);
-		return src;
-	} catch {
-		return `/assets/${btoa(path)}`;
+const renderBackgroundContainer = (tokens: Token[]) => {
+	const backgrounds = tokens.map((token) => renderBackground(token));
+	return `<div class="background-container">${backgrounds.join('\n')}</div>`;
+};
+
+const renderBackground = (token: Token) => {
+	const src = token.attrGet('src') ?? '';
+	token.attrSet('src', '');
+	token.attrJoin('style', 'background-image:url(' + src + ');');
+	token.attrJoin('class', 'background-image');
+	return `<div ${joinAttrs(token.attrs)}></div>`;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const enhanceImage = (token: Token, env: any) => {
+	const src = token.attrGet('src') ?? '';
+	const contents = token.content.split(' ');
+
+	token.attrSet('src', resolveAssetUrl(src, env.base));
+	token.attrSet('style', extractImageStyle(contents));
+	token.attrSet('class', extractImageClass(contents));
+	token.attrSet('alt', contents[0]);
+
+	if (contents.includes('bg')) {
+		token.attrSet('bg', 'true');
 	}
 };
 
 const extractImageClass = (contents: string[]): string => {
+	const convertClass = (content: string) => {
+		if (content === 'bg') return 'background-image';
+		return content.slice(1);
+	};
+
 	return contents
-		.filter((content) => content.startsWith('.'))
-		.map((content) => content.slice(1))
+		.filter((content) => content.startsWith('.') || content === 'bg')
+		.map(convertClass)
 		.join(' ');
 };
 
@@ -49,8 +112,20 @@ const extractImageStyle = (contents: string[]): string => {
 	let style = '';
 	let filter = '';
 
+	let bgImage = false;
+	let bgImageSize = '';
+	let bgImageRepeat = '';
+
+	const percentage = /^\d+%$/;
+	const sizeMap: Record<string, string> = {
+		cover: 'cover',
+		contain: 'contain',
+		fit: 'contain',
+		auto: 'auto'
+	};
+
 	const addSize = (property: string, value: string, defaultUnit = 'px') => {
-		const unit = /\D/.exec(value) ? '' : defaultUnit;
+		const unit = /\D/.test(value) ? '' : defaultUnit;
 		style += `${property}:${value}${unit};`;
 	};
 	const addFilter = (type: string, value: string, defaultValue: string) => {
@@ -82,11 +157,29 @@ const extractImageStyle = (contents: string[]): string => {
 			addFilter('saturate', content.slice(9), '2');
 		} else if (content.startsWith('sepia')) {
 			addFilter('sepia', content.slice(6), '1');
+		} else if (content === 'bg') {
+			bgImage = true;
+		} else if (sizeMap[content]) {
+			bgImageSize = sizeMap[content];
+		} else if (percentage.test(content)) {
+			bgImageSize = content;
+		} else if (content === 'repeat') {
+			bgImageRepeat = 'repeat';
 		}
 	});
 
 	if (filter) {
 		style += `filter:${filter};`;
 	}
+	if (bgImageSize) {
+		style += `background-size:${bgImageSize};`;
+	}
+	if (bgImageRepeat) {
+		style += `background-repeat:${bgImageRepeat};`;
+	}
+	if (bgImage && (style.includes('width') || style.includes('height'))) {
+		style += 'flex:none;';
+	}
+
 	return style;
 };

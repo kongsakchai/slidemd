@@ -22,7 +22,7 @@
 	};
 
 	const next = () => {
-		if (step < pageSteps[page]?.length || 0) {
+		if (step < (pageSteps[page]?.length ?? 0)) {
 			step += 1;
 		} else if (page < data.total) {
 			page += 1;
@@ -37,7 +37,7 @@
 			step -= 1;
 		} else if (page > 1) {
 			page -= 1;
-			step = pageSteps[page]?.length || 0;
+			step = pageSteps[page]?.length ?? 0;
 		}
 
 		navigate(page, step);
@@ -108,9 +108,9 @@
 	<ThemeSwitch />
 	<svg viewBox="0 0 1280 720">
 		<foreignObject width="1280" height="720">
-			{#each data.slide as pageData, i}
+			{#each data.slide as slide, i}
 				<section id={(i + 1).toString()} class="slide" class:hidden={siglePage && i + 1 != page}>
-					{@html pageData}
+					{@html slide.content}
 				</section>
 			{/each}
 		</foreignObject>

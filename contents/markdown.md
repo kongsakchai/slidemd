@@ -96,7 +96,19 @@ Start using Markdown right now by following along with the [Getting Started](htt
 
 ## Image
 
-![image](/favicon.png)
+![image .page-step](/favicon.png)
+
+---
+
+## Background
+
+Image background
+
+![bg w:25% grayscale](https://fakeimg.pl/800x600/0288d1/fff/?text=A)
+
+![bg w:35%](https://fakeimg.pl/800x600/02669d/fff/?text=B)
+
+![bg ](https://fakeimg.pl/800x600/67b8e3/fff/?text=C)
 
 ---
 

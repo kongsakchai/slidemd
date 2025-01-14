@@ -1,8 +1,24 @@
-export const joinAttrs = (attrs: [string, string][]) => {
-	if (!attrs.length || attrs.length == 0) {
+import { isAbsolute, join } from 'path';
+
+export const resolveAssetUrl = (src: string, base?: string): string => {
+	const absolute = isAbsolute(src);
+	const path = base && !absolute ? join(base, src) : src;
+	try {
+		new URL(src);
+		return src;
+	} catch {
+		return `/assets/${btoa(path)}`;
+	}
+};
+
+export const joinAttrs = (attrs: [string, string][] | null) => {
+	if (!attrs || attrs.length == 0) {
 		return '';
 	}
-	return attrs.map(([key, value]) => `${key}="${value}"`).join(' ');
+	return attrs
+		.filter(([, value]) => value)
+		.map(([key, value]) => `${key}="${value}"`)
+		.join(' ');
 };
 
 export const extractFrontmatter = (markdown: string) => {

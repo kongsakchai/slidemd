@@ -59,6 +59,29 @@ section.slide {
 	width: 100%;
 }
 
+/* Background */
+
+section:has(.background-container) {
+	background-color: transparent;
+}
+
+.background-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	z-index: -1;
+}
+
+.background-container .background-image {
+	flex: 1 1 auto;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
 /* Header */
 
 h1,

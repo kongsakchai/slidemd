@@ -26,6 +26,6 @@ export const fragmentRender = (md: MarkdownIt) => {
 			token.attrJoin('class', 'page-step');
 			token.attrSet('data-step-active', 'false');
 		}
-		return originalListItem?.(tokens, idx, options, env, self) || self.renderToken(tokens, idx, options);
+		return originalListItem?.(tokens, idx, options, env, self) ?? self.renderToken(tokens, idx, options);
 	};
 };
