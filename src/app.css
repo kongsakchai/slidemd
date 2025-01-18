@@ -525,3 +525,15 @@ iframe {
 [data-step-active='false'] {
 	visibility: hidden;
 }
+
+/* Paginate */
+
+.paginate {
+	position: absolute;
+	font-size: 1em;
+	bottom: 0.75em;
+	right: 0.75em;
+	padding: 0.75em;
+	margin: 0;
+	color: var(--secondary-text-color);
+}

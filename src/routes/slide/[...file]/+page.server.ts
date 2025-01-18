@@ -11,6 +11,6 @@ export const load = async ({ params }) => {
 
 	const base = dirname(params.file);
 
-	const slide = slideRenderer.render(content.body, base);
+	const slide = slideRenderer.render(content.body, base, content.metadata);
 	return { metadata: content.metadata, slide, total: slide.length };
 };

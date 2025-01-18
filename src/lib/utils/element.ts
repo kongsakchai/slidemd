@@ -1,3 +1,5 @@
+export const byId = <T extends HTMLElement = HTMLElement>(selector: string) => document.getElementById(selector) as T;
+
 export const byClass = <T extends HTMLElement = HTMLElement>(
 	selector: string,
 	parent: Document | HTMLElement = document

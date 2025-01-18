@@ -3,13 +3,14 @@
 	import { page as pageState } from '$app/state';
 	import Controller from '$lib/components/Controller.svelte';
 	import ThemeSwitch from '$lib/components/ThemeSwitch.svelte';
-	import { byClass, onAll, removeAll } from '$lib/utils/element.js';
+	import { byClass, byId, onAll, removeAll } from '$lib/utils/element.js';
 	import { hashToNumber, strToNumber } from '$lib/utils/number.js';
 	import mermaid from 'mermaid';
 	import { onMount } from 'svelte';
 
 	let { data } = $props();
 
+	let ready = $state(false);
 	let siglePage = $state(false);
 	let page = $state(hashToNumber(pageState.url.hash));
 	let step = $state(strToNumber(pageState.url.searchParams.get('step') || '0'));
@@ -22,7 +23,7 @@
 	};
 
 	const next = () => {
-		if (step < (pageSteps[page]?.length ?? 0)) {
+		if (step < (data.slide[page - 1].step ?? 0)) {
 			step += 1;
 		} else if (page < data.total) {
 			page += 1;
@@ -37,20 +38,10 @@
 			step -= 1;
 		} else if (page > 1) {
 			page -= 1;
-			step = pageSteps[page]?.length ?? 0;
+			step = data.slide[page - 1].step ?? 0;
 		}
 
 		navigate(page, step);
-	};
-
-	const setupPageSteps = () => {
-		const pages = byClass('slide');
-		[...pages].forEach((el, i) => {
-			const steps = byClass('page-step', el);
-			if (steps.length > 0) {
-				pageSteps[el.id] = [...steps];
-			}
-		});
 	};
 
 	const setupMermaid = () => {
@@ -62,11 +53,11 @@
 
 		mermaid.run({ querySelector: '.mermaid' }).then(() => {
 			siglePage = true;
+			ready = true;
 		});
 	};
 
 	onMount(() => {
-		setupPageSteps();
 		setupMermaid();
 
 		const copyCodeToClipboard = (event: Event) => {
@@ -93,6 +84,11 @@
 	});
 
 	$effect(() => {
+		if (!pageSteps[page]) {
+			const pageEl = byId(page.toString());
+			const steps = byClass('page-step', pageEl);
+			pageSteps[page] = [...steps];
+		}
 		pageSteps[page]?.forEach((el, i) => {
 			const active = i < step || !siglePage ? 'true' : 'false';
 			el.setAttribute('data-step-active', active);
@@ -108,8 +104,13 @@
 	<ThemeSwitch />
 	<svg viewBox="0 0 1280 720">
 		<foreignObject width="1280" height="720">
-			{#each data.slide as slide, i}
-				<section id={(i + 1).toString()} class="slide" class:hidden={siglePage && i + 1 != page}>
+			{#each data.slide as slide, i (i)}
+				<section
+					id={(i + 1).toString()}
+					class="slide"
+					class:invisible={!ready}
+					class:hidden={siglePage && i + 1 != page}
+				>
 					{@html slide.content}
 				</section>
 			{/each}

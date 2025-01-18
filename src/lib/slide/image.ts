@@ -28,7 +28,7 @@ const removeToken = (state: Token[], token: Token) => {
 	}
 };
 
-export const imageRender: PluginSimple = (md) => {
+export const enhancedImage: PluginSimple = (md) => {
 	md.core.ruler.after('inline', 'enhanceImage', (state) => {
 		const background: Token[] = [];
 		const inlineImageTokens = state.tokens.filter(filterInlineImageToken);
@@ -37,7 +37,7 @@ export const imageRender: PluginSimple = (md) => {
 			const imageTokens = inlineImage.children!.filter(filterImageToken);
 
 			imageTokens.forEach((token) => {
-				enhanceImage(token, state.env);
+				enhanceImageToken(token, state.env);
 				if (token.attrGet('bg')) {
 					background.push(token);
 					removeChildrenToken(inlineImage, token);
@@ -82,7 +82,7 @@ const renderBackground = (token: Token) => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const enhanceImage = (token: Token, env: any) => {
+const enhanceImageToken = (token: Token, env: any) => {
 	const src = token.attrGet('src') ?? '';
 	const contents = token.content.split(' ');
 

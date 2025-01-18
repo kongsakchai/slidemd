@@ -1,8 +1,11 @@
 ---
 title: Hello, SlideMd
+paging: true
 ---
 
-# Hello, SlideMd { .text-red-500 }
+<!-- _paging: skip -->
+
+# Hello, SlideMd { .text-red-500 .test }
 
 Make Presentation by Markdown
 

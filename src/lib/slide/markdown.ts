@@ -3,7 +3,8 @@ import { attrs } from '@mdit/plugin-attrs';
 import { tasklist } from '@mdit/plugin-tasklist';
 import MarkdownIt from 'markdown-it';
 import { createHighlighter } from './highlighter';
-import { imageRender } from './image';
+import { enhancedImage } from './image';
+import { pageOptions } from './options';
 
 export const createMarkdown = (): MarkdownIt => {
 	const md = new MarkdownIt({ html: true, breaks: true });
@@ -13,19 +14,34 @@ export const createMarkdown = (): MarkdownIt => {
 
 	const highlighter = createHighlighter();
 	md.use(highlighter.highlight);
-	md.use(imageRender);
-	md.use(fragmentRender);
+	md.use(enhancedImage);
+	md.use(pageStep);
+	md.use(pageOptions);
+	md.use(paging);
 	return md;
 };
 
-export const fragmentRender = (md: MarkdownIt) => {
+export const pageStep = (md: MarkdownIt) => {
 	const originalListItem = md.renderer.rules.list_item_open;
 	md.renderer.rules.list_item_open = (tokens, idx, options, env, self) => {
 		const token = tokens[idx];
 		if (token.markup === '*') {
 			token.attrJoin('class', 'page-step');
-			token.attrSet('data-step-active', 'false');
+			token.attrSet('data-step-active', 'true');
+			env.step++;
 		}
 		return originalListItem?.(tokens, idx, options, env, self) ?? self.renderToken(tokens, idx, options);
 	};
+};
+
+export const paging = (md: MarkdownIt) => {
+	md.core.ruler.push('paging', (state) => {
+		if (!state.env.paging || state.env.paging === 'skip' || state.env.paging === 'false') {
+			return;
+		}
+
+		const token = new state.Token('html_block', '', 0);
+		token.content = `<div class="paginate">${state.env.page}</div>`;
+		state.tokens.push(token);
+	});
 };
