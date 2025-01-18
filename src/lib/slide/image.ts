@@ -33,15 +33,24 @@ export const enhancedImage: PluginSimple = (md) => {
 		const background: Token[] = [];
 		const inlineImageTokens = state.tokens.filter(filterInlineImageToken);
 
+		const addBackground = (parent: Token, token: Token) => {
+			if (!token.attrGet('bg')) return;
+			background.push(token);
+			removeChildrenToken(parent, token);
+		};
+
+		const addBackgroundContainer = () => {
+			if (background.length === 0) return;
+			const token = new state.Token('image', 'bg', 0);
+			token.children = background;
+			state.tokens.push(token);
+		};
+
 		inlineImageTokens.forEach((inlineImage) => {
 			const imageTokens = inlineImage.children!.filter(filterImageToken);
-
 			imageTokens.forEach((token) => {
 				enhanceImageToken(token, state.env);
-				if (token.attrGet('bg')) {
-					background.push(token);
-					removeChildrenToken(inlineImage, token);
-				}
+				addBackground(inlineImage, token);
 			});
 
 			if (inlineImage.children?.length === 0) {
@@ -49,10 +58,7 @@ export const enhancedImage: PluginSimple = (md) => {
 			}
 		});
 
-		if (background.length === 0) return;
-		const token = new state.Token('image', 'bg', 0);
-		token.children = background;
-		state.tokens.push(token);
+		addBackgroundContainer();
 	});
 
 	md.renderer.rules.image = (tokens, idx) => {
@@ -87,8 +93,8 @@ const enhanceImageToken = (token: Token, env: any) => {
 	const contents = token.content.split(' ');
 
 	token.attrSet('src', resolveAssetUrl(src, env.base));
-	token.attrSet('style', extractImageStyle(contents));
-	token.attrSet('class', extractImageClass(contents));
+	token.attrJoin('style', extractImageStyle(contents));
+	token.attrJoin('class', extractImageClass(contents));
 	token.attrSet('alt', contents[0]);
 
 	if (contents.includes('bg')) {

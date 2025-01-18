@@ -16,7 +16,6 @@ export const createSlideRenderer = () => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const env: Envariable = { base: base, page: 0, header: header };
 		const slide = body.split('\n---\n').map((content) => {
-			env.step = 0;
 			const html = md.render(content, env);
 			return { content: html, page: env.page, paging: env.paging, step: env.step };
 		});
