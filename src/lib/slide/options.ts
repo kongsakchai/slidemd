@@ -18,10 +18,14 @@ const OPTIONS_KEYWORD = ['paging', '_paging'];
 export const pageOptions: PluginSimple = (md) => {
 	md.core.ruler.push('pageOptions', (state) => {
 		const header = state.env.header;
-		const htmlToken = state.tokens.find(filterHTMLComentToken);
-		const options = extractPageOptions(htmlToken?.content || '');
+		const htmlToken = state.tokens.filter(filterHTMLComentToken);
 
-		state.env.paging = options._paging ?? options.paging ?? header.paging;
+		const options: Record<string, string> = htmlToken.reduce((prev, token) => {
+			const options = extractPageOptions(token.content || '');
+			return { ...prev, ...options };
+		}, {});
+
+		state.env.paging = options._paging || options.paging || header.paging;
 		state.env.page = calcPaging(state.env.paging, state.env.page);
 		if (options.paging) {
 			header.paging = options.paging;
