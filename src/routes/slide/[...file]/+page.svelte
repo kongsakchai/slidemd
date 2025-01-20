@@ -23,7 +23,7 @@
 	};
 
 	const next = () => {
-		if (step < (data.slide[page - 1].step ?? 0)) {
+		if (step < (pageSteps[page]?.length ?? 0)) {
 			step += 1;
 		} else if (page < data.total) {
 			page += 1;
@@ -38,7 +38,7 @@
 			step -= 1;
 		} else if (page > 1) {
 			page -= 1;
-			step = data.slide[page - 1].step ?? 0;
+			step = pageSteps[page]?.length ?? 0;
 		}
 
 		navigate(page, step);

@@ -4,7 +4,6 @@ export interface Slide {
 	content: string;
 	page: number;
 	paging: string;
-	step: number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,7 +16,7 @@ export const createSlideRenderer = () => {
 		const env: Envariable = { base: base, page: 0, header: header };
 		const slide = body.split('\n---\n').map((content) => {
 			const html = md.render(content, env);
-			return { content: html, page: env.page, paging: env.paging, step: env.step };
+			return { content: html, page: env.page, paging: env.paging };
 		});
 		return slide;
 	};
