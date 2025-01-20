@@ -11,6 +11,8 @@ Make Presentation by Markdown
 
 ---
 
+<!-- @class: !bg-blue-100 -->
+
 # Header 1
 
 ## Header 2
@@ -34,6 +36,8 @@ Italicized text is the *cat's meow*.
 This text is ***really important***.
 
 ---
+
+<!-- @class: _ -->
 
 ## Blockquotes
 

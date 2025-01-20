@@ -13,7 +13,7 @@ const filterHTMLComentToken = (token: Token) => {
 	return filterHTMLToken(token) && filterCommentContent(token);
 };
 
-const OPTIONS_KEYWORD = ['paging', '_paging'];
+const OPTIONS_KEYWORD = ['paging', '_paging', 'class', '_class'];
 
 export const pageOptions: PluginSimple = (md) => {
 	md.core.ruler.push('pageOptions', (state) => {
@@ -25,10 +25,15 @@ export const pageOptions: PluginSimple = (md) => {
 			return { ...prev, ...options };
 		}, {});
 
-		state.env.paging = options._paging || options.paging || header.paging;
+		state.env.paging = options._paging ?? options.paging ?? header.paging;
 		state.env.page = calcPaging(state.env.paging, state.env.page);
-		if (options.paging) {
+		if (options.paging !== undefined) {
 			header.paging = options.paging;
+		}
+
+		state.env.class = options._class ?? options.class ?? header.class;
+		if (options.class !== undefined) {
+			header.class = options.class;
 		}
 	});
 };
@@ -40,11 +45,12 @@ export const extractPageOptions = (content: string) => {
 	}
 
 	const key = options[1].trim();
+	const value = options[2].trim() == '_' ? '' : options[2].trim();
 	if (!OPTIONS_KEYWORD.includes(key)) {
 		return {};
 	}
 
-	return { [key]: options[2].trim() };
+	return { [key]: value };
 };
 
 const calcPaging = (paging?: string, page: number = 0) => {
