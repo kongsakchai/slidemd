@@ -11,7 +11,7 @@ Make Presentation by Markdown
 
 ---
 
-<!-- @class: !bg-blue-100 -->
+<!-- @class: !bg-blue-100 dark:!bg-gray-500 -->
 
 # Header 1
 
