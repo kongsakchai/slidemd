@@ -9,7 +9,7 @@ import { pageOptions } from './options';
 
 export const createMarkdown = (): MarkdownIt => {
 	const md = new MarkdownIt({ html: true, breaks: true });
-	md.use(attrs);
+	md.use(attrs, { left: '<!--', right: '-->' });
 	md.use(tasklist, { disabled: false });
 	md.use(alert, { alertNames: ['tip', 'warning', 'caution', 'important', 'note', 'bug', 'example', 'info'] });
 

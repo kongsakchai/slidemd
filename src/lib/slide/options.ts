@@ -34,24 +34,17 @@ export const pageOptions: PluginSimple = (md) => {
 };
 
 export const extractPageOptions = (content: string) => {
-	const options = content.match(/<!--\s*([^:]+):([^:]+)\s*-->/g);
+	const options = /<!--\s*@([^:]+):([^:]+)\s*-->/g.exec(content);
 	if (!options) {
 		return {};
 	}
 
-	const result: Record<string, string> = {};
-	options.forEach((option) => {
-		const [key, value] = option
-			.replace('<!--', '')
-			.replace('-->', '')
-			.split(':')
-			.map((v) => v.trim());
-		if (OPTIONS_KEYWORD.includes(key)) {
-			result[key] = value;
-		}
-	});
+	const key = options[1].trim();
+	if (!OPTIONS_KEYWORD.includes(key)) {
+		return {};
+	}
 
-	return result;
+	return { [key]: options[2].trim() };
 };
 
 const calcPaging = (paging?: string, page: number = 0) => {

@@ -93,8 +93,8 @@ const enhanceImageToken = (token: Token, env: any) => {
 	const contents = token.content.split(' ');
 
 	token.attrSet('src', resolveAssetUrl(src, env.base));
-	token.attrJoin('style', extractImageStyle(contents));
-	token.attrJoin('class', extractImageClass(contents));
+	token.attrSet('style', extractImageStyle(contents));
+	token.attrSet('class', extractImageClass(contents));
 	token.attrSet('alt', contents[0]);
 
 	if (contents.includes('bg')) {
