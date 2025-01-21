@@ -43,7 +43,7 @@ export const pageOptions: PluginSimple = (md) => {
 	});
 };
 
-export const extractPageOptions = (content: string) => {
+const extractPageOptions = (content: string) => {
 	const options = /<!--\s*@([^:]+):([\s\S]+)\s*-->/g.exec(content);
 	if (!options) {
 		return {};

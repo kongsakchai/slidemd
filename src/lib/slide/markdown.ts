@@ -21,7 +21,7 @@ export const createMarkdown = (): MarkdownIt => {
 	return md;
 };
 
-export const pageStep = (md: MarkdownIt) => {
+const pageStep = (md: MarkdownIt) => {
 	const originalListItem = md.renderer.rules.list_item_open;
 	md.renderer.rules.list_item_open = (tokens, idx, options, env, self) => {
 		const token = tokens[idx];
@@ -33,7 +33,7 @@ export const pageStep = (md: MarkdownIt) => {
 	};
 };
 
-export const paging = (md: MarkdownIt) => {
+const paging = (md: MarkdownIt) => {
 	md.core.ruler.push('paging', (state) => {
 		if (!state.env.paging || state.env.paging === 'skip' || state.env.paging === 'false') {
 			return;
