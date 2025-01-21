@@ -1,32 +1,13 @@
 import type { PluginSimple } from 'markdown-it';
 import type { Token } from 'markdown-it/index.js';
-import { joinAttrs, resolveAssetUrl } from './utils';
-
-const filterImageToken = (token: Token) => {
-	return token.type === 'image';
-};
-
-const filterInlineToken = (token: Token) => {
-	return token.type === 'inline';
-};
-
-const filterInlineImageToken = (token: Token) => {
-	return filterInlineToken(token) && token.children?.some(filterImageToken);
-};
-
-const removeChildrenToken = (token: Token, children: Token) => {
-	const index = token.children?.indexOf(children);
-	if (index != undefined && index >= 0) {
-		token.children?.splice(index, 1);
-	}
-};
-
-const removeToken = (state: Token[], token: Token) => {
-	const index = state.indexOf(token);
-	if (index && index >= 0) {
-		state.splice(index - 1, 3);
-	}
-};
+import {
+	filterImageToken,
+	filterInlineImageToken,
+	joinAttrs,
+	removeChildrenToken,
+	removeToken,
+	resolveAssetUrl
+} from './utils';
 
 export const enhancedImage: PluginSimple = (md) => {
 	md.core.ruler.after('inline', 'enhanceImage', (state) => {

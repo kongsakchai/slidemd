@@ -1,19 +1,6 @@
 import type { PluginSimple } from 'markdown-it';
-import type { Token } from 'markdown-it/index.js';
-
-const filterCommentContent = (token: Token) => {
-	return token.content.startsWith('<!--') && token.content.endsWith('-->\n');
-};
-
-const filterHTMLToken = (token: Token) => {
-	return token.type === 'html_block';
-};
-
-const filterHTMLComentToken = (token: Token) => {
-	return filterHTMLToken(token) && filterCommentContent(token);
-};
-
-const OPTIONS_KEYWORD = ['paging', '_paging', 'class', '_class', 'style', '_style'];
+import type { SlideEnv } from './types';
+import { filterHTMLComentToken, isGlobalOption, isLocalOption, OPTIONS_KEY, PREFIX_LOCAL_KEY } from './utils';
 
 export const pageOptions: PluginSimple = (md) => {
 	md.core.ruler.push('pageOptions', (state) => {
@@ -25,21 +12,15 @@ export const pageOptions: PluginSimple = (md) => {
 			return { ...prev, ...options };
 		}, {});
 
-		state.env.paging = options._paging ?? options.paging ?? header.paging;
-		state.env.page = calcPaging(state.env.paging, state.env.page);
-		if (options.paging !== undefined) {
-			header.paging = options.paging;
+		for (const key of OPTIONS_KEY) {
+			const localKey = PREFIX_LOCAL_KEY + key;
+			state.env[key] = options[localKey] ?? options[key] ?? header[key];
+			if (options[key] != undefined) {
+				header[key] = options[key];
+			}
 		}
 
-		state.env.class = options._class ?? options.class ?? header.class;
-		if (options.class !== undefined) {
-			header.class = options.class;
-		}
-
-		state.env.style = options._style ?? options.style ?? header.style;
-		if (options.style !== undefined) {
-			header.style = options.style;
-		}
+		state.env.page = calcPaging(state.env);
 	});
 };
 
@@ -51,20 +32,20 @@ const extractPageOptions = (content: string) => {
 
 	const key = options[1].trim();
 	const value = options[2].trim() == '_' ? '' : options[2].trim();
-	if (!OPTIONS_KEYWORD.includes(key)) {
-		return {};
+	if (isLocalOption(key) || isGlobalOption(key)) {
+		return { [key]: value };
 	}
 
-	return { [key]: value };
+	return {};
 };
 
-const calcPaging = (paging?: string, page: number = 0) => {
-	switch (paging) {
+const calcPaging = (env: SlideEnv) => {
+	switch (env.paging) {
 		case 'skip':
-			return page;
+			return env.page;
 		case 'hold':
-			return page;
+			return env.page;
 		default:
-			return page + 1;
+			return env.page + 1;
 	}
 };
