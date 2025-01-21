@@ -13,7 +13,7 @@ const filterHTMLComentToken = (token: Token) => {
 	return filterHTMLToken(token) && filterCommentContent(token);
 };
 
-const OPTIONS_KEYWORD = ['paging', '_paging', 'class', '_class'];
+const OPTIONS_KEYWORD = ['paging', '_paging', 'class', '_class', 'style', '_style'];
 
 export const pageOptions: PluginSimple = (md) => {
 	md.core.ruler.push('pageOptions', (state) => {
@@ -34,6 +34,11 @@ export const pageOptions: PluginSimple = (md) => {
 		state.env.class = options._class ?? options.class ?? header.class;
 		if (options.class !== undefined) {
 			header.class = options.class;
+		}
+
+		state.env.style = options._style ?? options.style ?? header.style;
+		if (options.style !== undefined) {
+			header.style = options.style;
 		}
 	});
 };

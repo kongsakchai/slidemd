@@ -107,6 +107,7 @@
 			{#each data.slide as slide, i (i)}
 				<section
 					id={(i + 1).toString()}
+					style={slide.style}
 					class="slide {slide.class}"
 					class:invisible={!ready}
 					class:hidden={siglePage && i + 1 != page}
