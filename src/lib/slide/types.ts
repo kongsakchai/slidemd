@@ -8,3 +8,5 @@ export interface Slide {
 }
 
 export type SlideEnv = Record<string, any>;
+
+export type PageOptionRule = (env: SlideEnv, rule?: string) => any;

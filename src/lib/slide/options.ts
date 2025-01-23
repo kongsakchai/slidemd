@@ -1,6 +1,19 @@
 import type { PluginSimple } from 'markdown-it';
-import type { SlideEnv } from './types';
+import type { PageOptionRule } from './types';
 import { filterHTMLComentToken, isGlobalOption, isLocalOption, OPTIONS_KEY, PREFIX_LOCAL_KEY } from './utils';
+
+export const rules: Record<string, PageOptionRule> = {};
+
+rules.page = (env) => {
+	switch (env.paging) {
+		case 'skip':
+			return env.page;
+		case 'hold':
+			return env.page;
+		default:
+			return env.page + 1;
+	}
+};
 
 export const pageOptions: PluginSimple = (md) => {
 	md.core.ruler.push('pageOptions', (state) => {
@@ -20,7 +33,9 @@ export const pageOptions: PluginSimple = (md) => {
 			}
 		}
 
-		state.env.page = calcPaging(state.env);
+		for (const key in rules) {
+			state.env[key] = rules[key](state.env, key);
+		}
 	});
 };
 
@@ -37,15 +52,4 @@ const extractPageOptions = (content: string) => {
 	}
 
 	return {};
-};
-
-const calcPaging = (env: SlideEnv) => {
-	switch (env.paging) {
-		case 'skip':
-			return env.page;
-		case 'hold':
-			return env.page;
-		default:
-			return env.page + 1;
-	}
 };
