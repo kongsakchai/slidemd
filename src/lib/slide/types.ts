@@ -1,3 +1,5 @@
+import type { StateCore } from 'markdown-it/index.js';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Slide {
 	content: string;
@@ -9,4 +11,4 @@ export interface Slide {
 
 export type SlideEnv = Record<string, any>;
 
-export type PageOptionRule = (env: SlideEnv, rule?: string) => any;
+export type PageOptionRule = (env: SlideEnv, rule?: string, state?: StateCore) => any;

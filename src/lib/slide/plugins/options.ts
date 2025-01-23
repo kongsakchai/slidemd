@@ -1,21 +1,14 @@
 import type { PluginSimple } from 'markdown-it';
-import type { PageOptionRule } from './types';
-import { filterHTMLComentToken, isGlobalOption, isLocalOption, OPTIONS_KEY, PREFIX_LOCAL_KEY } from './utils';
+import { OPTIONS_KEY, PREFIX_LOCAL_KEY } from '../constants';
+import type { PageOptionRule } from '../types';
+import { filterHTMLComentToken, isGlobalOption, isLocalOption } from './helper';
+import { pageRule } from './rule_options/page';
 
 export const rules: Record<string, PageOptionRule> = {};
 
-rules.page = (env) => {
-	switch (env.paging) {
-		case 'skip':
-			return env.page;
-		case 'hold':
-			return env.page;
-		default:
-			return env.page + 1;
-	}
-};
-
 export const pageOptions: PluginSimple = (md) => {
+	rules.page = pageRule;
+
 	md.core.ruler.push('pageOptions', (state) => {
 		const header = state.env.header;
 		const htmlToken = state.tokens.filter(filterHTMLComentToken);

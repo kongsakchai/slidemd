@@ -2,9 +2,10 @@ import { alert } from '@mdit/plugin-alert';
 import { attrs } from '@mdit/plugin-attrs';
 import { tasklist } from '@mdit/plugin-tasklist';
 import MarkdownIt from 'markdown-it';
-import { createHighlighter } from './highlighter';
-import { enhancedImage } from './image';
-import { pageOptions } from './options';
+import { createHighlighter } from './plugins/highlighter';
+import { enhancedImage } from './plugins/image';
+import { pageOptions } from './plugins/options';
+import { pageStep, paging } from './plugins/page';
 
 export const createMarkdown = (): MarkdownIt => {
 	const md = new MarkdownIt({ html: true, breaks: true });
@@ -21,26 +22,17 @@ export const createMarkdown = (): MarkdownIt => {
 	return md;
 };
 
-const pageStep = (md: MarkdownIt) => {
-	const originalListItem = md.renderer.rules.list_item_open;
-	md.renderer.rules.list_item_open = (tokens, idx, options, env, self) => {
-		const token = tokens[idx];
-		if (token.markup === '*') {
-			token.attrJoin('class', 'page-step');
-			token.attrSet('data-step-active', 'true');
-		}
-		return originalListItem?.(tokens, idx, options, env, self) ?? self.renderToken(tokens, idx, options);
-	};
-};
+export const extractFrontmatter = (markdown: string) => {
+	const match = /---\r?\n([\s\S]+?)\r?\n---/.exec(markdown);
+	if (!match) {
+		return { body: markdown, metadata: {} };
+	}
+	const frontmatter = match[1];
+	const body = markdown.slice(match[0].length);
+	const metadata = frontmatter.split('\n').reduce((acc, line) => {
+		const [key, value] = line.split(':').map((x) => x.trim());
+		return { ...acc, [key]: value };
+	}, {});
 
-const paging = (md: MarkdownIt) => {
-	md.core.ruler.push('paging', (state) => {
-		if (!state.env.paging || state.env.paging === 'skip' || state.env.paging === 'false') {
-			return;
-		}
-
-		const token = new state.Token('html_block', '', 0);
-		token.content = `<div class="paginate">${state.env.page}</div>`;
-		state.tokens.push(token);
-	});
+	return { body, metadata };
 };

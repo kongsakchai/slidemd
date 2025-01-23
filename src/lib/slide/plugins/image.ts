@@ -7,7 +7,7 @@ import {
 	removeChildrenToken,
 	removeToken,
 	resolveAssetUrl
-} from './utils';
+} from './helper';
 
 export const enhancedImage: PluginSimple = (md) => {
 	md.core.ruler.after('inline', 'enhanceImage', (state) => {

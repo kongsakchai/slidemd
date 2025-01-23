@@ -1,7 +1,8 @@
 import { transformerNotationDiff, transformerNotationFocus, transformerNotationHighlight } from '@shikijs/transformers';
 import type { PluginSimple } from 'markdown-it';
 import { createHighlighter as createShikiHighlighter } from 'shiki';
-import { joinAttrs, LANGUAGES, THEMES } from './utils';
+import { LANGUAGES, THEMES } from '../constants';
+import { joinAttrs } from './helper';
 
 const shiki = await createShikiHighlighter({ langs: LANGUAGES, themes: Object.values(THEMES) });
 
