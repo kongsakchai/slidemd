@@ -1,6 +1,7 @@
 import { alert } from '@mdit/plugin-alert';
 import { attrs } from '@mdit/plugin-attrs';
 import { tasklist } from '@mdit/plugin-tasklist';
+import jsyaml from 'js-yaml';
 import MarkdownIt from 'markdown-it';
 import { createHighlighter } from './plugins/highlighter';
 import { enhancedImage } from './plugins/image';
@@ -23,16 +24,12 @@ export const createMarkdown = (): MarkdownIt => {
 };
 
 export const extractFrontmatter = (markdown: string) => {
-	const match = /---\r?\n([\s\S]+?)\r?\n---/.exec(markdown);
+	const match = /^[\r\n]?---\r?\n([\s\S]+?)\r?\n---/.exec(markdown);
 	if (!match) {
 		return { body: markdown, metadata: {} };
 	}
-	const frontmatter = match[1];
-	const body = markdown.slice(match[0].length);
-	const metadata = frontmatter.split('\n').reduce((acc, line) => {
-		const [key, value] = line.split(':').map((x) => x.trim());
-		return { ...acc, [key]: value };
-	}, {});
+	const metadata = jsyaml.load(match[1]);
+	const body = markdown.slice(match[0].length).trim();
 
 	return { body, metadata };
 };
