@@ -18,6 +18,6 @@ export const LANGUAGES = [
 	'plaintext'
 ];
 
-export const OPTIONS_KEY = ['paging', 'class', 'style', 'color'];
+export const OPTIONS_KEY = ['paging', 'class', 'style', 'color', 'backgroundImage'];
 
 export const PREFIX_LOCAL_KEY = '_';

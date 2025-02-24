@@ -1,12 +1,12 @@
 import type { PageOptionRule } from '../../types';
 
-export const pageRule: PageOptionRule = (env) => {
-	switch (env.paging) {
+export const pageRule: PageOptionRule = (val, state) => {
+	switch (state.env.paging) {
 		case 'skip':
-			return env.page;
+			return val;
 		case 'hold':
-			return env.page;
+			return val;
 		default:
-			return env.page + 1;
+			return (val ?? 0) + 1;
 	}
 };

@@ -115,7 +115,7 @@ Image background
 
 ![bg w:35%](https://fakeimg.pl/800x600/02669d/fff/?text=B)
 
-![bg ](https://fakeimg.pl/800x600/67b8e3/fff/?text=C)
+![bg ](fakeimg.pl/800x600/67b8e3/fff/?text=C)
 
 ---
 

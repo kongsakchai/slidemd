@@ -15,7 +15,7 @@ export const filterInlineImageToken = (token: Token) => {
 };
 
 export const filterCommentContent = (token: Token) => {
-	return token.content.startsWith('<!--') && token.content.endsWith('-->\n');
+	return /<!--\s*([\s\S]+?)\s*-->/g.test(token.content);
 };
 
 export const filterHTMLToken = (token: Token) => {
@@ -35,9 +35,17 @@ export const removeChildrenToken = (token: Token, children: Token) => {
 
 export const removeToken = (state: Token[], token: Token) => {
 	const index = state.indexOf(token);
-	if (index && index >= 0) {
-		state.splice(index - 1, 3);
+	if (index >= 0) {
+		state.splice(index, 1);
 	}
+};
+
+export const clearEmptyParagraphToken = (state: Token[]) => {
+	state.forEach((token, i) => {
+		if (token.type === 'paragraph_open' && state[i + 1].type === 'paragraph_close') {
+			state.splice(i, 2);
+		}
+	});
 };
 
 export const isLocalOption = (key: string) => {
@@ -59,12 +67,12 @@ export const joinAttrs = (attrs: [string, string][] | null) => {
 };
 
 export const resolveAssetUrl = (src: string, base?: string): string => {
-	const absolute = isAbsolute(src);
-	const path = base && !absolute ? join(base, src) : src;
 	try {
 		new URL(src);
 		return src;
 	} catch {
-		return `/assets/${btoa(path)}`;
+		const absolute = isAbsolute(src);
+		const path = base && !absolute ? join(base, src) : src;
+		return `/assets/${btoa(path.trim())}`;
 	}
 };

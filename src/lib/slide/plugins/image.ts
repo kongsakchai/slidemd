@@ -1,6 +1,7 @@
 import type { PluginSimple } from 'markdown-it';
 import type { Token } from 'markdown-it/index.js';
 import {
+	clearEmptyParagraphToken,
 	filterImageToken,
 	filterInlineImageToken,
 	joinAttrs,
@@ -36,6 +37,7 @@ export const enhancedImage: PluginSimple = (md) => {
 
 			if (inlineImage.children?.length === 0) {
 				removeToken(state.tokens, inlineImage);
+				clearEmptyParagraphToken(state.tokens);
 			}
 		});
 
@@ -61,17 +63,17 @@ const renderBackgroundContainer = (tokens: Token[]) => {
 };
 
 const renderBackground = (token: Token) => {
-	const src = token.attrGet('src') ?? '';
+	const src = token.attrGet('src');
 	token.attrSet('src', '');
+	token.attrSet('alt', '');
 	token.attrJoin('style', 'background-image:url(' + src + ');');
-	token.attrJoin('class', 'background-image');
 	return `<div ${joinAttrs(token.attrs)}></div>`;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const enhanceImageToken = (token: Token, env: any) => {
+export const enhanceImageToken = (token: Token, env: any) => {
 	const src = token.attrGet('src') ?? '';
-	const contents = token.content.split(' ');
+	const contents = token.content.trim().split(' ');
 
 	token.attrSet('src', resolveAssetUrl(src, env.base));
 	token.attrSet('style', extractImageStyle(contents));
@@ -127,7 +129,7 @@ const extractImageStyle = (contents: string[]): string => {
 		} else if (content.startsWith('blur')) {
 			addFilter('blur', content.slice(5), '10px');
 		} else if (content.startsWith('brightness')) {
-			addFilter('brightness', content.slice(10), '1.5');
+			addFilter('brightness', content.slice(11), '1.5');
 		} else if (content.startsWith('contrast')) {
 			addFilter('contrast', content.slice(8), '2');
 		} else if (content.startsWith('drop-shadow')) {

@@ -39,21 +39,20 @@ export const createHighlighter = () => {
 
 const codeblock = (code: string, lang: string, attrs: string) => {
 	const block = `
-        <div class="language-${lang}">
-            <span class="lang">${lang}</span>
-            <button class="copy-code">Copy</button>
-            ${code}
-        </div>
-    `;
+<div class="language-${lang}">
+    <span class="lang">${lang}</span>
+    <button class="copy-code">Copy</button>
+    ${code}
+</div>`;
 
 	return attrs ? `<div ${attrs}>${block}</div>` : block;
 };
 
 const mermaid = (code: string, attrs: string) => {
 	return `
-    <div ${attrs}>
-        <div class="mermaid">
-            ${code}
-        </div>
-    </div>`;
+<div ${attrs}>
+    <div class="mermaid">
+        ${code}
+    </div>
+</div>`;
 };
