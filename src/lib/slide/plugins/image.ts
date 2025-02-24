@@ -126,14 +126,14 @@ const extractImageStyle = (contents: string[]): string => {
 			addSize('width', content.slice(2));
 		} else if (content.startsWith('h:')) {
 			addSize('height', content.slice(2));
-		} else if (content.startsWith('blur')) {
-			addFilter('blur', content.slice(5), '10px');
+		} else if (content.startsWith('blur-sm')) {
+			addFilter('blur-sm', content.slice(5), '10px');
 		} else if (content.startsWith('brightness')) {
 			addFilter('brightness', content.slice(11), '1.5');
 		} else if (content.startsWith('contrast')) {
 			addFilter('contrast', content.slice(8), '2');
-		} else if (content.startsWith('drop-shadow')) {
-			addFilter('drop-shadow', content.slice(11), '0 5px 10px rgba(0,0,0,.4)');
+		} else if (content.startsWith('drop-shadow-sm')) {
+			addFilter('drop-shadow-sm', content.slice(11), '0 5px 10px rgba(0,0,0,.4)');
 		} else if (content.startsWith('grayscale')) {
 			addFilter('grayscale', content.slice(9), '1');
 		} else if (content.startsWith('hue-rotate')) {

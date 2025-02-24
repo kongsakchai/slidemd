@@ -35,7 +35,7 @@ describe('enhancedImageToken', () => {
 
 	test('should return image token with style', () => {
 		const token = new Token('image', 'img', 0);
-		token.content = `alt w:50 h:50px blur brightness:1 contrast drop-shadow grayscale hue-rotate invert opacity saturate sepia`;
+		token.content = `alt w:50 h:50px blur-sm brightness:1 contrast drop-shadow-sm grayscale hue-rotate invert opacity saturate sepia`;
 		const expected = `width:50px;height:50px;filter:blur(10px) brightness(1) contrast(2) drop-shadow(0 5px 10px rgba(0,0,0,.4)) grayscale(1) hue-rotate(180deg) invert(1) opacity(0.5) saturate(2) sepia(1) ;`;
 
 		enhanceImageToken(token, {});
