@@ -7,7 +7,7 @@
 </script>
 
 {#if type === 'dir'}
-	<a href={path} class="flex items-center gap-2">
+	<a href={path} class="color-[#444444] flex items-center gap-2">
 		<Folder />
 		<span>{name}</span>
 	</a>

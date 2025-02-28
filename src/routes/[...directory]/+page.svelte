@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
-	import DirectoryItem from '$lib/components/DirentItem.svelte';
-	import ThemeSwitch from '$lib/components/ThemeSwitch.svelte';
+	import Breadcrumbs from '$lib/components/breadcrumbs.svelte';
+	import DirectoryItem from '$lib/components/dirent-item.svelte';
+	import ThemeSwitch from '$lib/components/theme-switch.svelte';
 
 	let { data } = $props();
 </script>

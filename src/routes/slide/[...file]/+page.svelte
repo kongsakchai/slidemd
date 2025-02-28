@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page as pageState } from '$app/state';
-	import Controller from '$lib/components/Controller.svelte';
-	import ThemeSwitch from '$lib/components/ThemeSwitch.svelte';
+	import Controller from '$lib/components/controller.svelte';
+	import ThemeSwitch from '$lib/components/theme-switch.svelte';
 	import { byClass, byId, onAll, removeAll } from '$lib/utils/element.js';
 	import { hashToNumber, strToNumber } from '$lib/utils/number.js';
 	import mermaid from 'mermaid';

@@ -14,7 +14,7 @@ const createContents = async (markdowns: Record<string, string>, base: string) =
 		const file = key.replace(base, '');
 		const text = await read(markdowns[key].split('?')[0]).text();
 		const { body, metadata } = extractFrontmatter(text);
-		contents.push({ file: file, metadata: metadata, body });
+		contents.push({ file: file, metadata: metadata as { [key: string]: string }, body });
 	}
 	return contents;
 };

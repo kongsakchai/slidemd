@@ -1,5 +1,5 @@
 export const hashToNumber = (hash?: string) => {
-	const str = hash ?? '#1';
+	const str = hash || '#1';
 	return strToNumber(str.slice(1));
 };
 
