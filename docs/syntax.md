@@ -15,6 +15,8 @@
 | `backgroundPosition` | Position of the background image (e.g., center, top left). |
 | `backgroundRepeat` | How the background image should repeat (e.g., no-repeat, repeat). |
 | `transition` | Type of transition effect (e.g., fade, slide). |
+| `in` | Applies the transition effect when the slide is entered. |
+| `out` | Applies the transition effect when the slide is exited. |
 | `transitionDuration` | Duration of the transition effect in milliseconds. |
 | `transitionTimingFunction` | Timing function for the transition (e.g., ease-in, ease-out). |
 
