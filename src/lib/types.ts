@@ -21,7 +21,10 @@ export interface PageProperties {
 	color?: string
 }
 
-export interface SlideProperties extends BackgroundProperties, TransitionProperties, PageProperties {
+export interface SlideProperties
+	extends BackgroundProperties,
+		TransitionProperties,
+		PageProperties {
 	title?: string
 }
 
