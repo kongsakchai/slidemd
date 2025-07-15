@@ -9,16 +9,16 @@
 | `class` | Custom CSS class for the slide. |
 | `style` | Inline CSS styles for the slide. |
 | `color` | Text color for the slide. |
-| `backgroundImg` | URL of the background image. |
-| `backgroundColor` | Background color of the slide. |
-| `backgroundSize` | Size of the background image (e.g., cover, contain). |
-| `backgroundPosition` | Position of the background image (e.g., center, top left). |
-| `backgroundRepeat` | How the background image should repeat (e.g., no-repeat, repeat). |
+| `bgImg` | URL of the bg image. |
+| `bgColor` | bg color of the slide. |
+| `bgSize` | Size of the bg image (e.g., cover, contain). |
+| `bgPosition` | Position of the bg image (e.g., center, top left). |
+| `bgRepeat` | How the bg image should repeat (e.g., no-repeat, repeat). |
 | `transition` | Type of transition effect (e.g., fade, slide). |
 | `in` | Applies the transition effect when the slide is entered. |
 | `out` | Applies the transition effect when the slide is exited. |
-| `transitionDuration` | Duration of the transition effect in milliseconds. |
-| `transitionTimingFunction` | Timing function for the transition (e.g., ease-in, ease-out). |
+| `duration` | Duration of the transition effect in milliseconds. |
+| `timing` | Timing function for the transition (e.g., ease-in, ease-out). |
 
 ### ✨ Usage
 
@@ -31,14 +31,14 @@ paging: true
 class: custom-class
 style: font-size: 16px; color: #333;
 color: #ff0000
-backgroundImg: url('path/to/image.jpg')
-backgroundColor: #ffffff
-backgroundSize: cover
-backgroundPosition: center
-backgroundRepeat: no-repeat
+bgImg: url('path/to/image.jpg')
+bgColor: #ffffff
+bgSize: cover
+bgPosition: center
+bgRepeat: no-repeat
 transition: fade
-transitionDuration: 500
-transitionTimingFunction: ease-in-out
+duration: 500ms
+timing: ease-in-out
 ---
 ```
 
@@ -60,8 +60,8 @@ transitionTimingFunction: ease-in-out
 | `transition` | Type of transition effect (e.g., fade, slide). |
 | `in` | Applies the transition effect when the slide is entered. |
 | `out` | Applies the transition effect when the slide is exited. |
-| `transitionDuration` | Duration of the transition effect in milliseconds. |
-| `transitionTimingFunction` | Timing function for the transition (e.g., ease-in, ease-out). |
+| `duration` | Duration of the transition effect in milliseconds. |
+| `timing` | Timing function for the transition (e.g., ease-in, ease-out). |
 
 ### ✨ Usage
 
