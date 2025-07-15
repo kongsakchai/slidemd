@@ -1,1 +1,28 @@
 @import 'tailwindcss';
+
+:root {
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+body {
+	background: #000000;
+	font-family: var(--font-primary);
+	line-height: 1.5;
+	font-weight: 400;
+
+	place-content: center;
+	height: 100vh;
+	margin: 0;
+	padding: 0;
+}
+
+section.slide {
+	overflow: auto;
+	place-content: center;
+	aspect-ratio: 16 / 9;
+	padding: 50px;
+	width: 100%;
+}

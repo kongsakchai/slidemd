@@ -1,17 +1,9 @@
 export interface BackgroundProperties {
-	backgroundImg?: string
-	backgroundColor?: string
-	backgroundSize?: string
-	backgroundPosition?: string
-	backgroundRepeat?: string
-}
-
-export interface TransitionProperties {
-	in?: string
-	out?: string
-	transition?: string
-	transitionDuration?: number
-	transitionTimingFunction?: string
+	bgImg?: string
+	bgColor?: string
+	bgSize?: string
+	bgPosition?: string
+	bgRepeat?: string
 }
 
 export interface PageProperties {
@@ -21,13 +13,20 @@ export interface PageProperties {
 	color?: string
 }
 
-export interface SlideProperties
-	extends BackgroundProperties,
-		TransitionProperties,
-		PageProperties {
+export interface SlideProperties extends BackgroundProperties, PageProperties {
 	title?: string
 }
 
-export type Directive = BackgroundProperties & TransitionProperties & PageProperties
+export type Directive = BackgroundProperties & PageProperties
 
 export type DirectiveKey = Extract<keyof Directive, string>
+
+export interface Slide {
+	properties: SlideProperties
+	pages: SlidePage[]
+}
+
+export interface SlidePage {
+	html: string
+	directive?: Directive
+}

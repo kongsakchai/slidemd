@@ -1,7 +1,7 @@
 import type { Parent, Root, RootContent, RootContentMap } from 'mdast'
 
 const regexp = {
-	parseAttributes: /([^\s=]+)=(".*?"|[^\s]+)/g,
+	attributes: /([^\s=]+)=(".*?"|[^\s]+)/g,
 	quote: /^["']|["']$/g,
 	shortClass: /\.[^\s]+/g,
 	shortId: /#[^\s]+/g
@@ -22,20 +22,30 @@ const filterAttributes = (node: RootContent): boolean => {
 
 // Extracts IDs from a string, ignoring the leading hash
 // This handles cases where IDs are defined in attributes like #id-name
-const shortId = (value: string) => {
-	return value.match(regexp.shortId)?.map((id) => id.slice(1))
+const shortId = (value: string): string => {
+	return (
+		value
+			.match(regexp.shortId)
+			?.map((id) => id.slice(1))
+			.join(' ') || ''
+	)
 }
 
 // Extracts class names from a string, ignoring the leading dot
 // This handles cases where class names are defined in attributes like .class-name
-const shortClass = (value: string) => {
-	return value.match(regexp.shortClass)?.map((className) => className.slice(1))
+const shortClass = (value: string): string => {
+	return (
+		value
+			.match(regexp.shortClass)
+			?.map((className) => className.slice(1))
+			.join(' ') || ''
+	)
 }
 
 const parseAttributes = (value: string): Record<string, string> => {
 	const attrs: Record<string, string> = {}
 
-	for (const match of value.matchAll(regexp.parseAttributes)) {
+	for (const match of value.matchAll(regexp.attributes)) {
 		const key = match[1]
 		const val = match[2].replace(regexp.quote, '')
 		attrs[key] = val
@@ -57,17 +67,11 @@ export const attrPlugin = () => {
 				...parseAttributes(lastChild.value)
 			}
 
-			const classNames = shortClass(lastChild.value)?.join(' ')
-			if (classNames) {
-				const oldClass = node.data.hProperties.class || ''
-				node.data.hProperties.class = `${classNames} ${oldClass}`.trim()
-			}
+			const classNames = shortClass(lastChild.value)
+			node.data.hProperties.class = classNames || node.data.hProperties.class
 
-			const ids = shortId(lastChild.value)?.join(' ')
-			if (ids) {
-				const oldId = node.data.hProperties.id || ''
-				node.data.hProperties.id = `${ids} ${oldId}`.trim()
-			}
+			const id = shortId(lastChild.value)
+			node.data.hProperties.id = id || node.data.hProperties.id
 		})
 	}
 }

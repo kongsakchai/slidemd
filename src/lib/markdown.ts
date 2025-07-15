@@ -3,14 +3,15 @@ import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
-import { attrPlugin } from './plugins/attr'
-import type { SlideProperties } from './types'
+import { attrPlugin } from './plugins/attrs'
+import { directivePlugin } from './plugins/directive'
+import type { Directive, Slide, SlidePage, SlideProperties } from './types'
 
 const regexp = {
 	// [\r\n]* match 0 or more of leading newlines
 	// [\s\S]+? match any character (including newlines) in a non-greedy way
 	// [\r\n]? match an optional trailing newline
-	frontMatter: /^[\r\n]*---\r?\n(.+?)[\r\n]?---/
+	frontMatter: /^[\r\n]*---\r?\n([\s\S]+?)[\r\n]?---/g
 }
 
 // Markdown
@@ -20,6 +21,7 @@ const regexp = {
 const processor = unified()
 	.use(remarkParse)
 	.use(attrPlugin)
+	.use(directivePlugin)
 	.use(remarkRehype, { allowDangerousHtml: true })
 	.use(rehypeStringify, { allowDangerousHtml: true })
 
@@ -31,6 +33,7 @@ const extractFrontmatter = (markdown: string) => {
 	if (!match) {
 		return { body: markdown, metadata: {} }
 	}
+	regexp.frontMatter.lastIndex = 0 // Reset the lastIndex for the next match
 
 	// match[0] contains the entire match including the frontmatter
 	// match[1] contains the frontmatter content
@@ -40,24 +43,38 @@ const extractFrontmatter = (markdown: string) => {
 	return { body, metadata }
 }
 
-const markdownToHtml = async (markdown: string): Promise<string> => {
-	try {
-		const file = await processor.process(markdown)
-		return String(file)
-	} catch (error) {
-		console.error('Error processing markdown:', error)
-		return ''
+// Convert markdown to HTML and extract directives
+// The global directive is merged with the base directive
+// The local directive overrides the global directive
+const markdownToPage = async (
+	markdown: string,
+	baseDirective?: Directive
+): Promise<{ html: string; globalDirective: Directive; localDirective: Directive }> => {
+	const file = await processor.process(markdown)
+	const { local, global } = file.data.directives as { global: Directive; local: Directive }
+
+	const globalDirective = { ...baseDirective, ...global }
+	const localDirective = { ...globalDirective, ...local }
+
+	return {
+		html: file.toString(),
+		globalDirective,
+		localDirective
 	}
 }
 
-const markdownToSlide = async (markdown: string) => {
+const markdownToSlide = async (markdown: string): Promise<Slide> => {
 	const { body, metadata } = extractFrontmatter(markdown)
 	const bodyList = body.split('---')
 
-	const pages: string[] = []
-	for (const page of bodyList) {
-		const html = await markdownToHtml(page.trim())
-		pages.push(html)
+	const pages: SlidePage[] = []
+	let directive = metadata as Directive
+
+	for (const str of bodyList) {
+		const { html, globalDirective, localDirective } = await markdownToPage(str.trim(), directive)
+		directive = globalDirective
+
+		pages.push({ html, directive: localDirective })
 	}
 
 	return {
@@ -66,4 +83,4 @@ const markdownToSlide = async (markdown: string) => {
 	}
 }
 
-export { extractFrontmatter, markdownToHtml, markdownToSlide }
+export { extractFrontmatter, markdownToPage, markdownToSlide }

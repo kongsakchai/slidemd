@@ -1,8 +1,10 @@
-import { markdownToHtml } from '$lib/markdown'
+import { markdownToSlide } from '$lib/markdown'
+
+export const prerender = true
 
 export const load = async () => {
 	const content = await import('../contents/example.md?raw')
 	return {
-		body: await markdownToHtml(content.default)
+		slide: await markdownToSlide(content.default)
 	}
 }
