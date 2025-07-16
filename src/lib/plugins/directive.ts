@@ -2,7 +2,7 @@ import type { Root, RootContent, RootContentMap } from 'mdast'
 import type { VFile } from 'vfile'
 
 const regexp = {
-	attributes: /([^\s:]+):[\s]*(".*?"|[^\s]+)/g,
+	attributes: /([^\s:]+):\s*(^["'].*?["']$|[^\s]+)/g,
 	quote: /^["']|["']$/g
 }
 
@@ -39,9 +39,9 @@ const parseDirectives = (value: string): Directives => {
 
 export const directivePlugin = () => {
 	return (tree: Root, file: VFile) => {
-		const children = tree.children.filter(filterComments)
+		const filter = tree.children.filter(filterComments)
 
-		const directives = children.reduce(
+		const directives = filter.reduce(
 			(acc, node) => {
 				const { global, local } = parseDirectives((node as RootContentMap['html']).value)
 				acc.global = { ...acc.global, ...global }

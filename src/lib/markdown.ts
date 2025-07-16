@@ -5,6 +5,7 @@ import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
 import { attrPlugin } from './plugins/attrs'
 import { directivePlugin } from './plugins/directive'
+import { imagePlugin } from './plugins/image'
 import type { Directive, Slide, SlidePage, SlideProperties } from './types'
 
 const regexp = {
@@ -22,6 +23,7 @@ const processor = unified()
 	.use(remarkParse)
 	.use(attrPlugin)
 	.use(directivePlugin)
+	.use(imagePlugin)
 	.use(remarkRehype, { allowDangerousHtml: true })
 	.use(rehypeStringify, { allowDangerousHtml: true })
 

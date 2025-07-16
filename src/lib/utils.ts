@@ -1,5 +1,12 @@
 import type { Directive } from './types'
 
+export const join = (arr: string[], separator: string): string => {
+	const result = arr.filter(Boolean).join(separator)
+	const replaceRex = new RegExp(`${separator};{2,}`, 'g')
+
+	return result.replaceAll(replaceRex, ';')
+}
+
 const multipleImages = (img: string): string => {
 	return img
 		.split(',')
@@ -34,5 +41,5 @@ export const directiveToStyle = (directive?: Directive): string => {
 		styles.push(`background-repeat: ${directive.bgRepeat}`)
 	}
 
-	return styles.join(';').replaceAll(/;{2,}/g, ';')
+	return join(styles, ';')
 }

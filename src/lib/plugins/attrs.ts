@@ -1,7 +1,7 @@
 import type { Parent, Root, RootContent, RootContentMap } from 'mdast'
 
 const regexp = {
-	attributes: /([^\s=]+)=(".*?"|[^\s]+)/g,
+	attributes: /([^\s=]+)=(^["'].*?["']$|[^\s]+)/g,
 	quote: /^["']|["']$/g,
 	shortClass: /\.[^\s]+/g,
 	shortId: /#[^\s]+/g
@@ -56,8 +56,8 @@ const parseAttributes = (value: string): Record<string, string> => {
 
 export const attrPlugin = () => {
 	return (tree: Root) => {
-		const children = tree.children.filter(filterAttributes)
-		children.forEach((node) => {
+		const filter = tree.children.filter(filterAttributes)
+		filter.forEach((node) => {
 			const parent = node as Parent
 			const lastChild = parent.children.pop() as RootContentMap['html']
 
