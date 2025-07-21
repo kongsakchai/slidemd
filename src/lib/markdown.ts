@@ -3,9 +3,7 @@ import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
-import { attrPlugin } from './plugins/attrs'
-import { directivePlugin } from './plugins/directive'
-import { imagePlugin } from './plugins/image'
+import { slideTransform } from './transforms'
 import type { Directive, Slide, SlidePage, SlideProperties } from './types'
 
 const regexp = {
@@ -16,21 +14,16 @@ const regexp = {
 }
 
 // Markdown
-// remark-parse -> mdast (Markdown AST)
-// remark-rehype -> hast (HTML AST)
-// rehype-stringify -> HTML string
+// - remark-parse -> mdast (Markdown AST).
+// - remark-rehype -> hast (HTML AST)
+// - rehype-stringify -> HTML string
 const processor = unified()
 	.use(remarkParse)
-	.use(attrPlugin)
-	.use(directivePlugin)
-	.use(imagePlugin)
+	.use(slideTransform)
 	.use(remarkRehype, { allowDangerousHtml: true })
 	.use(rehypeStringify, { allowDangerousHtml: true })
 
 const extractFrontmatter = (markdown: string) => {
-	// [\r\n]* match 0 or more of leading newlines
-	// [\s\S]+? match any character (including newlines) in a non-greedy way
-	// [\r\n]? match an optional trailing newline
 	const match = regexp.frontMatter.exec(markdown)
 	if (!match) {
 		return { body: markdown, metadata: {} }
@@ -46,17 +39,17 @@ const extractFrontmatter = (markdown: string) => {
 }
 
 // Convert markdown to HTML and extract directives
-// The global directive is merged with the base directive
-// The local directive overrides the global directive
+// - The global directive is merged with the base directive
+// - The local directive overrides the global directive
 const markdownToPage = async (
 	markdown: string,
 	baseDirective?: Directive
 ): Promise<{ html: string; globalDirective: Directive; localDirective: Directive }> => {
 	const file = await processor.process(markdown)
-	const { local, global } = file.data.directives as { global: Directive; local: Directive }
+	const directive = (file.data.directives || {}) as { global: Directive; local: Directive }
 
-	const globalDirective = { ...baseDirective, ...global }
-	const localDirective = { ...globalDirective, ...local }
+	const globalDirective = { ...baseDirective, ...directive.global }
+	const localDirective = { ...globalDirective, ...directive.local }
 
 	return {
 		html: file.toString(),
@@ -67,7 +60,7 @@ const markdownToPage = async (
 
 const markdownToSlide = async (markdown: string): Promise<Slide> => {
 	const { body, metadata } = extractFrontmatter(markdown)
-	const bodyList = body.split('---')
+	const bodyList = body.split(/^[\r\n]*---[\r\n]?/) // Split by "---" and filter out empty strings
 
 	const pages: SlidePage[] = []
 	let directive = metadata as Directive

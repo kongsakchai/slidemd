@@ -11,6 +11,8 @@ export interface PageProperties {
 	class?: string
 	style?: string
 	color?: string
+	left?: string
+	right?: string
 }
 
 export interface SlideProperties extends BackgroundProperties, PageProperties {

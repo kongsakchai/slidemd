@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { directiveToStyle } from '$lib/utils.js'
+	import { directiveToStyle } from '$lib/helper'
 
 	let { data } = $props()
 </script>
