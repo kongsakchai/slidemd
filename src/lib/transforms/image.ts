@@ -1,25 +1,6 @@
 import type { RootContentMap } from 'mdast'
 import { join } from '../helper'
-import { parseClass, parseId } from './helper'
-import { regexp } from './regexp'
-
-const defaultFilters: Record<string, string> = {
-	blur: '10px',
-	brightness: '1.5',
-	contrast: '2',
-	grayscale: '1',
-	'hue-rotate': '180deg',
-	invert: '1',
-	opacity: '0.5',
-	saturate: '2',
-	sepia: '1',
-	'drop-shadow': '2px 2px 5px rgba(0, 0, 0, 0.5)'
-}
-
-const dimensionsKey: Record<string, string> = {
-	w: 'width',
-	h: 'height'
-}
+import { defaultFilters, parseClass, parseId, regexp } from './helper'
 
 // Parses filters from a string and returns them as a CSS property
 // It handles cases like blur: 2px, brightness: 1.5, contrast: 2
@@ -43,7 +24,7 @@ const parseFilters = (value: string): string => {
 // It returns a string like "object-fit: cover"
 // If no object-fit is found, it returns an empty string
 const parseObjectFit = (value: string): string => {
-	const match = value.match(regexp.objectFit)
+	const match = value.match(regexp.size)
 	return match ? `object-fit: ${match[0]}` : ''
 }
 
@@ -58,10 +39,32 @@ const parseDimensions = (value: string): string => {
 		const key = match[1]
 		const val = match[2].replace(regexp.quote, '')
 
-		dimensions.push(`${dimensionsKey[key]}: ${val}`)
+		switch (key) {
+			case 'w':
+				dimensions.push(`width: ${val}`)
+				break
+			case 'h':
+				dimensions.push(`height: ${val}`)
+				break
+		}
 	}
 
 	return dimensions.join(';')
+}
+
+// Parses position from a string and returns it as a CSS property
+// It handles cases like top: 10px, right: 20px, bottom: 30px, left: 40px
+// It returns a string like "top: 10px; right: 20px; bottom: 30px; left: 40px"
+const parsePosition = (value: string): string => {
+	const positions = []
+	for (const match of value.matchAll(regexp.position)) {
+		const key = match[1]
+		const val = match[2].replace(regexp.quote, '')
+
+		positions.push(`${key}: ${val}`)
+	}
+
+	return positions.join('; ')
 }
 
 export const processImage = (image: RootContentMap['image']) => {
@@ -72,6 +75,7 @@ export const processImage = (image: RootContentMap['image']) => {
 	const filters = parseFilters(restAlt)
 	const objectFit = parseObjectFit(restAlt)
 	const dimensions = parseDimensions(restAlt)
+	const position = parsePosition(restAlt)
 
 	let absolute = ''
 	if (rest.includes('absolute')) {
@@ -84,7 +88,7 @@ export const processImage = (image: RootContentMap['image']) => {
 	const style = (image.data.hProperties?.style as string) || ''
 	image.data.hProperties = {
 		...image.data.hProperties,
-		style: join([style, filters, objectFit, dimensions, absolute], '; ')
+		style: join([style, filters, objectFit, dimensions, absolute, position], '; ')
 	}
 
 	image.data.hProperties.class = parseClass(restAlt) || image.data.hProperties.class

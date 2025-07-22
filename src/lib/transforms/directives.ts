@@ -1,10 +1,10 @@
 import type { RootContentMap } from 'mdast'
 import type { VFile } from 'vfile'
-import { regexp } from './regexp'
+import { regexp } from './helper'
 
 type DirectiveMap = {
-	global: Record<string, string>
-	local: Record<string, string>
+	global: Record<string, unknown>
+	local: Record<string, unknown>
 }
 
 // Parses directives from a string and returns them as an object.
@@ -14,8 +14,8 @@ type DirectiveMap = {
 // - It also handles cases where directives are defined in the form of key="value" or key='value'
 // - For example, \<!-- key1="value1" key2='value2' --> will also return { key1: 'value1', key2: 'value2' }
 const parseDirectives = (value: string): DirectiveMap => {
-	const global: Record<string, string> = {}
-	const local: Record<string, string> = {}
+	const global: Record<string, unknown> = {}
+	const local: Record<string, unknown> = {}
 
 	for (const match of value.matchAll(regexp.attributes)) {
 		const key = match[1]

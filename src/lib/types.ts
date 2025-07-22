@@ -11,6 +11,7 @@ export interface PageProperties {
 	class?: string
 	style?: string
 	color?: string
+	split?: string
 	left?: string
 	right?: string
 }

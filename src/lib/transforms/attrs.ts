@@ -1,6 +1,5 @@
 import type { RootContentMap } from 'mdast'
-import { parseClass, parseId } from './helper'
-import { regexp } from './regexp'
+import { parseClass, parseId, regexp } from './helper'
 
 // Parses attributes from a string and returns them as an object
 // This handles cases where attributes are defined in HTML comments like <!-- attr: value -->
