@@ -15,7 +15,7 @@ export const slideTransform = () => {
 		// Visit all HTM
 		visit(tree, 'html', (node, _, parent) => {
 			if (isHtmlComment(node) && parent?.type != 'root') {
-				processAttrs(node)
+				processAttrs(node, parent as Parent)
 			} else if (isHtmlComment(node) && parent?.type === 'root') {
 				processDirectives(node, file)
 			}
@@ -25,10 +25,11 @@ export const slideTransform = () => {
 		// Visit Image
 		visit(tree, 'image', (node, index, parent) => {
 			const data = processImage(node)
-			if (data.isAbsolute && index !== undefined && parent) {
+			if (data.isAbsolute) {
+				if (index == undefined || !parent) return
+
 				const extract = parent.children.splice(index, 1)
 				appendAfter(tree, parent, ...extract)
-				parentCheckList.push(parent)
 			}
 		})
 

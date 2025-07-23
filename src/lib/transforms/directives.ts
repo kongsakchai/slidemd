@@ -1,6 +1,6 @@
 import type { RootContentMap } from 'mdast'
 import type { VFile } from 'vfile'
-import { regexp } from './helper'
+import { parseAttributes } from './helper'
 
 type DirectiveMap = {
 	global: Record<string, unknown>
@@ -17,16 +17,14 @@ const parseDirectives = (value: string): DirectiveMap => {
 	const global: Record<string, unknown> = {}
 	const local: Record<string, unknown> = {}
 
-	for (const match of value.matchAll(regexp.attributes)) {
-		const key = match[1]
-		const val = match[2].replace(regexp.quote, '')
-
+	const attrs = parseAttributes(value)
+	for (const [key, value] of Object.entries(attrs)) {
 		// If the key starts with an underscore, it's a local property
 		// Otherwise, it's a global property
 		if (key.startsWith('_')) {
-			local[key.slice(1)] = val
+			local[key.slice(1)] = value
 		} else {
-			global[key] = val
+			global[key] = value
 		}
 	}
 

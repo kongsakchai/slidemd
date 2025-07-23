@@ -1,101 +1,107 @@
 import type { RootContentMap } from 'mdast'
 import { join } from '../helper'
-import { defaultFilters, parseClass, parseId, regexp } from './helper'
+import {
+	parseAxis,
+	parseClass,
+	parseDimensions,
+	parseFilters,
+	parseFit,
+	parseId,
+	parsePositionKey,
+	parsePositions
+} from './helper'
 
-// Parses filters from a string and returns them as a CSS property
-// It handles cases like blur: 2px, brightness: 1.5, contrast: 2
-// It returns a string like "filter: blur(2px); brightness(1.5); contrast(2)"
-// If no filters are found, it returns an empty string
-const parseFilters = (value: string): string => {
-	const filters: string[] = []
-	for (const match of value.matchAll(regexp.filter)) {
-		const key = match[1]
-		const val = match[2]?.replace(regexp.quote, '') || defaultFilters[key]
-		filters.push(`${key}(${val})`)
+const parseFilterStyle = (value: string): string => {
+	const filterValue = parseFilters(value)
+	return filterValue ? `filter: ${filterValue}` : ''
+}
+
+const parseObjectFit = (value: string): string => {
+	const fitValue = parseFit(value)
+	return fitValue ? `object-fit: ${fitValue}` : 'object-fit: none'
+}
+
+const parseObjectPosition = (value: string): string => {
+	const positionKey = parsePositionKey(value)
+	if (positionKey) {
+		return `object-position: ${positionKey}`
 	}
-	if (filters.length === 0) {
+
+	const positions = parseAxis(value)
+	if (Object.keys(positions).length === 0) {
 		return ''
 	}
-	return `filter: ${filters.join(' ')}`
+
+	const x = positions.x || '50%'
+	const y = positions.y || '50%'
+	return `object-position: ${x} ${y}`
 }
 
-// Parses object-fit from a string and returns it as a CSS property
-// It handles cases like object-fit: cover, object-fit: contain
-// It returns a string like "object-fit: cover"
-// If no object-fit is found, it returns an empty string
-const parseObjectFit = (value: string): string => {
-	const match = value.match(regexp.size)
-	return match ? `object-fit: ${match[0]}` : ''
+const parseWidthHeight = (value: string): string[] => {
+	const dimensions = parseDimensions(value)
+	const width = dimensions.w ? `width: ${dimensions.w}` : ''
+	const height = dimensions.h ? `height: ${dimensions.h}` : ''
+	return [width, height]
 }
 
-// Parses dimensions from a string and returns them as a CSS property
-// It handles cases like w:100px, h:200px, w:50%, h:50%
-// It returns a string like "width: 100px; height: 200px"
-// or "width: 50%; height: 50%"
-// If no dimensions are found, it returns an empty string
-const parseDimensions = (value: string): string => {
-	const dimensions = []
-	for (const match of value.matchAll(regexp.dimensions)) {
-		const key = match[1]
-		const val = match[2].replace(regexp.quote, '')
-
-		switch (key) {
-			case 'w':
-				dimensions.push(`width: ${val}`)
-				break
-			case 'h':
-				dimensions.push(`height: ${val}`)
-				break
-		}
+const parsePositionStyles = (value: string): string[] => {
+	const positions = parsePositions(value)
+	const positionStyle: string[] = []
+	for (const [positionKey, positionVal] of Object.entries(positions)) {
+		positionStyle.push(`${positionKey}: ${positionVal}`)
 	}
-
-	return dimensions.join(';')
+	return positionStyle
 }
 
-// Parses position from a string and returns it as a CSS property
-// It handles cases like top: 10px, right: 20px, bottom: 30px, left: 40px
-// It returns a string like "top: 10px; right: 20px; bottom: 30px; left: 40px"
-const parsePosition = (value: string): string => {
-	const positions = []
-	for (const match of value.matchAll(regexp.position)) {
-		const key = match[1]
-		const val = match[2].replace(regexp.quote, '')
+// const advanceBackground = (image: RootContentMap['image'], options: ImageEnhanceOptions) => {
+// 	image.data = image.data || {}
 
-		positions.push(`${key}: ${val}`)
-	}
+// 	const url = 'background-image: url(' + image.url + ')'
+// 	const filter = options.filters ? `background-filter: ${options.filters}` : ''
 
-	return positions.join('; ')
-}
+// 	const fit = options.fit ?? ''
+// 	const width = options.dimensions?.width ?? 'auto'
+// 	const height = options.dimensions?.height ?? 'auto'
+// 	const size = fit || width || height ? `background-size: ${fit} ${width} ${height}` : ''
+
+// 	const x = options.axis?.x ?? '0%'
+// 	const y = options.axis?.y ?? '0%'
+// 	const position = `background-position: ${x} ${y}`
+
+// 	const style = (image.data.hProperties?.style as string) || ''
+// 	const newStyles = [style, url, filter, size, position]
+
+// 	image.data.hProperties = {
+// 		...image.data.hProperties,
+// 		style: join(newStyles, '; ')
+// 	}
+// }
 
 export const processImage = (image: RootContentMap['image']) => {
 	const imageAlt = image.alt || ''
-	const [alt, ...rest] = imageAlt.split(' ')
-	const restAlt = rest.join(' ')
+	image.alt = imageAlt.split(' ')[0] || ''
 
-	const filters = parseFilters(restAlt)
-	const objectFit = parseObjectFit(restAlt)
-	const dimensions = parseDimensions(restAlt)
-	const position = parsePosition(restAlt)
+	const filter = parseFilterStyle(imageAlt)
+	const fit = parseObjectFit(imageAlt)
+	const objectPos = parseObjectPosition(imageAlt)
+	const widthHeight = parseWidthHeight(imageAlt)
+	const positionStyle = parsePositionStyles(imageAlt)
 
-	let absolute = ''
-	if (rest.includes('absolute')) {
-		absolute = 'position: absolute;'
-	}
+	const isAbsolute = /absolute/g.test(imageAlt)
+	const absolute = isAbsolute ? 'position: absolute' : ''
 
-	image.alt = alt
 	image.data = image.data || {}
 
 	const style = (image.data.hProperties?.style as string) || ''
+	const newStyles = [style, filter, fit, objectPos, absolute, ...positionStyle, ...widthHeight]
+
 	image.data.hProperties = {
 		...image.data.hProperties,
-		style: join([style, filters, objectFit, dimensions, absolute, position], '; ')
+		style: join(newStyles, '; ')
 	}
 
-	image.data.hProperties.class = parseClass(restAlt) || image.data.hProperties.class
-	image.data.hProperties.id = parseId(restAlt) || image.data.hProperties.id
+	image.data.hProperties.class = `${image.data.hProperties.class || ''} ${parseClass(imageAlt)}`.trim()
+	image.data.hProperties.id = `${image.data.hProperties.id || ''} ${parseId(imageAlt)}`.trim()
 
-	return {
-		isAbsolute: absolute !== '',
-		properties: image.data.hProperties
-	}
+	return { isAbsolute }
 }

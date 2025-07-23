@@ -1,6 +1,6 @@
 import type { Directive } from './types'
 
-export const join = (arr: string[], separator: string): string => {
+export const join = (arr: (string | undefined)[], separator: string): string => {
 	const result = arr.filter(Boolean).join(separator)
 	const replaceRex = new RegExp(`${separator};{2,}`, 'g')
 
