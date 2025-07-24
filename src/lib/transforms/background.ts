@@ -13,11 +13,13 @@ import {
 	regexp
 } from './parser'
 
+// default is empty string
 const parseBackgroundFilter = (value: string): string => {
 	const filterValue = parseFilters(value)
 	return filterValue ? `background-filter: ${filterValue}` : ''
 }
 
+// default is empty
 const parseBackgroundSize = (value: string): string => {
 	const key = 'background-size:'
 	const fitValue = parseFit(value)
@@ -35,6 +37,7 @@ const parseBackgroundSize = (value: string): string => {
 	return key + `${width} ${height}`
 }
 
+// default is center
 const parseBackgroundPosition = (value: string): string => {
 	const key = 'background-position:'
 	const pos = parsePositionKey(value)
@@ -43,7 +46,6 @@ const parseBackgroundPosition = (value: string): string => {
 	}
 
 	const positions = parseAxis(value)
-	// If no positions are specified, default to center
 	if (Object.keys(positions).length === 0) {
 		return key + 'center'
 	}
@@ -53,6 +55,7 @@ const parseBackgroundPosition = (value: string): string => {
 	return key + `${x} ${y}`
 }
 
+// default is no-repeat
 const parseBackgroundRepeat = (value: string): string => {
 	const key = 'background-repeat:'
 	const repeat = parseRepeat(value)
@@ -61,7 +64,6 @@ const parseBackgroundRepeat = (value: string): string => {
 	}
 
 	const repeatAxis = parseRepeatAxis(value)
-	// If no repeat axis is specified, default to no-repeat
 	if (Object.keys(repeatAxis).length === 0) {
 		return key + 'no-repeat'
 	}
@@ -81,23 +83,26 @@ export const processBackground = (image: RootContentMap['image'], parent: Parent
 	const repeat = parseBackgroundRepeat(imageAlt) // default no-repeat
 
 	image.data = image.data || {}
+	image.data.hProperties = image.data.hProperties || {}
 
 	const style = (image.data.hProperties?.style as string) || ''
 	const newStyles = [style, url, filter, size, position, repeat]
 
 	const isVertical = regexp.verticalKey.test(imageAlt)
 
-	image.data.hProperties = {
-		...image.data.hProperties,
-		isVertical,
-		style: join(newStyles, '; ')
-	}
-
 	const baseClass = (image.data.hProperties.class as string) || ''
-	image.data.hProperties.class = parseClass(imageAlt, baseClass) + ' background-image'
+	const className = parseClass(imageAlt, baseClass) + ' background-image'
 
 	const baseId = (image.data.hProperties.id as string) || ''
-	image.data.hProperties.id = parseId(imageAlt, baseId)
+	const id = parseId(imageAlt, baseId)
+
+	image.data.hProperties = {
+		...image.data.hProperties,
+		style: join(newStyles, '; '),
+		isVertical,
+		class: className,
+		id
+	}
 
 	const index = parent.children.indexOf(image)
 	parent.children.splice(index, 1)

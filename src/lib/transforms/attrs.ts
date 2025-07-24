@@ -10,12 +10,9 @@ export const processAttrs = (node: RootContentMap['html'], parent: Parent) => {
 		...parseAttributes(value)
 	}
 
-	const className = parseClass(value)
-	if (className) {
-		parent.data.hProperties.class = `${className} ${parent.data.hProperties.class || ''}`.trim()
-	}
-	const id = parseId(value)
-	if (id) {
-		parent.data.hProperties.id = `${id} ${parent.data.hProperties.id || ''}`.trim()
-	}
+	const baseClass = (parent.data.hProperties.class as string) || ''
+	parent.data.hProperties.class = parseClass(value, baseClass)
+
+	const baseId = (parent.data.hProperties.id as string) || ''
+	parent.data.hProperties.id = parseId(value, baseId)
 }

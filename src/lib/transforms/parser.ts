@@ -142,7 +142,7 @@ export const parseRepeat = (value: string): string => {
 }
 
 // Parses repeat axis from a string and returns it as an object
-// It handles cases like xrepeat: repeat, yrepeat: no-repeat
+// It handles cases like repeat-x: repeat, repeat-y: no-repeat
 export const parseRepeatAxis = (value: string): Record<string, string> => {
 	const repeatAxis: Record<string, string> = {}
 	for (const match of value.matchAll(regexp.repeatAxis)) {

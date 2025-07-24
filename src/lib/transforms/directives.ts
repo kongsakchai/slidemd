@@ -17,9 +17,10 @@ const parseDirectives = (value: string): DirectiveMap => {
 		// Otherwise, it's a global property
 		if (key.startsWith('_')) {
 			local[key.slice(1)] = value
-		} else {
-			global[key] = value
+			continue
 		}
+
+		global[key] = value
 	}
 
 	return { global, local }

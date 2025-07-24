@@ -68,23 +68,22 @@ export const processImage = (image: RootContentMap['image'], parent: Parent) => 
 	const absolute = isAbsolute ? 'position: absolute' : ''
 
 	image.data = image.data || {}
+	image.data.hProperties = image.data.hProperties || {}
 
 	const style = (image.data.hProperties?.style as string) || ''
 	const newStyles = [style, filter, fit, objectPos, absolute, ...positionStyle, ...widthHeight]
+
+	const baseClass = (image.data.hProperties.class as string) || ''
+	const className = parseClass(imageAlt, baseClass)
+
+	const baseId = (image.data.hProperties.id as string) || ''
+	const id = parseId(imageAlt, baseId)
+
 	image.data.hProperties = {
 		...image.data.hProperties,
-		isAbsolute,
-		style: join(newStyles, '; ')
-	}
-
-	const className = parseClass(imageAlt)
-	if (className) {
-		image.data.hProperties.class = `${className} ${image.data.hProperties.class || ''}`.trim()
-	}
-
-	const id = parseId(imageAlt)
-	if (id) {
-		image.data.hProperties.id = `${id} ${image.data.hProperties.id || ''}`.trim()
+		style: join(newStyles, '; '),
+		class: className,
+		id
 	}
 
 	if (isAbsolute) {
