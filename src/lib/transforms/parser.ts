@@ -89,7 +89,7 @@ export const parseFilters = (value: string): string => {
 // It handles cases like cover, contain, none
 export const parseFit = (value: string): string => {
 	const match = value.match(regexp.fit)
-	return match ? match[0] : ''
+	return match?.pop() || ''
 }
 
 // Parses axis from a string and returns it as an object
@@ -120,7 +120,7 @@ export const parseAxis = (value: string): Record<string, string> => {
 // It handles cases like top, right, bottom, left
 export const parsePositionKey = (value: string): string => {
 	const match = value.match(regexp.positionKey)
-	return match ? match[0] : ''
+	return match?.pop() || ''
 }
 
 // Parses positions from a string and returns them as an object
@@ -139,7 +139,7 @@ export const parsePositions = (value: string): Record<string, string> => {
 // It handles cases like repeat, no-repeat, repeat-x, repeat-y, space, round
 export const parseRepeat = (value: string): string => {
 	const match = value.match(regexp.repeatKey)
-	return match ? match[0] : ''
+	return match?.pop() || ''
 }
 
 // Parses repeat axis from a string and returns it as an object
@@ -158,5 +158,5 @@ export const parseRepeatAxis = (value: string): Record<string, string> => {
 // It handles cases like 100px, 50%, 1.5em, 2rem
 export const parseValueWithUnit = (value: string): string => {
 	const match = value.match(regexp.value)
-	return match ? match[0] : ''
+	return match?.pop() || ''
 }

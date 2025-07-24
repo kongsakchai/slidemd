@@ -14,7 +14,7 @@ tags:
 This is a simple Markdown file that can be used to test the SlideMD application. You can write your content here, and it will be rendered as slides.
 
 ![bg cover](https://picsum.photos/id/2/300)
-![bg cover](https://picsum.photos/id/1/300)
+![bg 60% cover](https://picsum.photos/id/3/300)
 
 | Syntax      | Description |
 | ----------- | ----------- |

@@ -22,20 +22,25 @@ export const slideTransform = () => {
 	return (tree: Root, file: VFile) => {
 		// Visit all HTM
 		visit(tree, 'html', (node, _, parent) => {
-			if (isHtmlComment(node) && parent?.type != 'root') {
-				processAttrs(node, parent as Parent)
-			} else if (isHtmlComment(node) && parent?.type === 'root') {
-				processDirectives(node, file)
+			if (isHtmlComment(node)) {
+				if (parent && parent.type === 'root') {
+					// Process directives
+					processDirectives(node, file)
+				} else if (parent) {
+					// Process attributes
+					processAttrs(node, parent as Parent)
+				}
 			}
 		})
 
 		// Visit Image
 		const background: Node[] = []
 		visit(tree, 'image', (node, _, parent) => {
+			console.log('Processing image node:', node)
 			if (isImageBackground(node)) {
 				const bg = processBackground(node, parent as Parent)
 				background.push(bg)
-				emptyParent(parent as Parent, tree)
+				clearParent(parent as Parent, tree)
 				return
 			}
 
@@ -46,9 +51,16 @@ export const slideTransform = () => {
 	}
 }
 
-const emptyParent = (parent: Parent, tree: Root) => {
+const clearParent = (parent: Parent, tree: Root) => {
 	while (true) {
-		if (!parent || parent.children.length > 0) return
+		if (!parent || parent.children.length > 0) {
+			const empty = parent.children.every((child) => {
+				return child.type === 'text' && child.value.trim() === ''
+			})
+
+			if (!empty) return
+		}
+
 		visit(tree, parent, (_, index, parentNode) => {
 			parentNode?.children.splice(index || -1, 1)
 			parent = parentNode as Parent
