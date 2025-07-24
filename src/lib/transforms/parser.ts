@@ -7,6 +7,7 @@ export const regexp = {
 	quote: /^["']|["'](?=\s|$)/,
 	class: /(?<=^|\s)\.[^\s]+(?=\s|$)/g,
 	id: /(?<=^|\s)#[^\s]+(?=\s|$)/g,
+	value: /(?<=^|\s)\d+(px|pt|em|rem|%)(?=\s|$)/g,
 
 	// image
 	filter: /(?<=^|\s)(blur|brightness|contrast|grayscale|hue-rotate|invert|opacity|saturate|sepia|drop-shadow)(?::(^["'].*?["']$|[^\s]+))?(?=\s|$)/g,
@@ -151,4 +152,11 @@ export const parseRepeatAxis = (value: string): Record<string, string> => {
 		repeatAxis[key] = val
 	}
 	return repeatAxis
+}
+
+// Parses a value with unit from a string and returns it as a string
+// It handles cases like 100px, 50%, 1.5em, 2rem
+export const parseValueWithUnit = (value: string): string => {
+	const match = value.match(regexp.value)
+	return match ? match[0] : ''
 }

@@ -50,6 +50,6 @@ section.slide-grid > section {
 	height: 100%;
 	z-index: -999;
 	display: grid;
-	grid-template-columns: repeat(var(--bg-columns, 1), 1fr);
-	grid-template-rows: repeat(var(--bg-rows, 1), 1fr);
+	grid-template-columns: var(--bg-columns);
+	grid-template-rows: var(--bg-rows);
 }

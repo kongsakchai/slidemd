@@ -10,6 +10,7 @@ import {
 	parsePositionKey,
 	parseRepeat,
 	parseRepeatAxis,
+	parseValueWithUnit,
 	regexp
 } from './parser'
 
@@ -81,6 +82,7 @@ export const processBackground = (image: RootContentMap['image'], parent: Parent
 	const size = parseBackgroundSize(imageAlt) // default no size
 	const position = parseBackgroundPosition(imageAlt) // default center
 	const repeat = parseBackgroundRepeat(imageAlt) // default no-repeat
+	const sizeGrid = parseValueWithUnit(imageAlt) // default empty string
 
 	image.data = image.data || {}
 	image.data.hProperties = image.data.hProperties || {}
@@ -100,6 +102,7 @@ export const processBackground = (image: RootContentMap['image'], parent: Parent
 		...image.data.hProperties,
 		style: join(newStyles, '; '),
 		isVertical,
+		sizeGrid,
 		class: className,
 		id
 	}
@@ -113,14 +116,16 @@ export const processBackground = (image: RootContentMap['image'], parent: Parent
 export const appendBackgroundContainer = (images: Node[], tree: Root) => {
 	const className = 'background-container'
 	const vertical = images.some((image) => image.data?.hProperties?.isVertical)
-	const sizeGrid = (vertical ? '--bg-rows: ' : '--bg-columns: ') + images.length
+
+	const sizeGrids = images.map((image) => image.data?.hProperties?.sizeGrid || '1fr')
+	const gridTemplate = (vertical ? '--bg-rows: ' : '--bg-columns: ') + sizeGrids.join(' ')
 
 	const container: Parent = {
 		type: 'bg-container',
 		data: {
 			hProperties: {
 				class: className,
-				style: sizeGrid
+				style: gridTemplate
 			}
 		},
 		children: images as RootContent[]
