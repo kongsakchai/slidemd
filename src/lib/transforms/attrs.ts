@@ -1,5 +1,5 @@
 import type { Parent, RootContentMap } from 'mdast'
-import { parseAttributes, parseClass, parseId } from './helper'
+import { parseAttributes, parseClass, parseId } from './parser'
 
 export const processAttrs = (node: RootContentMap['html'], parent: Parent) => {
 	const value = node.value.trim()

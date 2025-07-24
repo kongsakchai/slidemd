@@ -10,7 +10,7 @@ import {
 	parsePositionKey,
 	parsePositions,
 	regexp
-} from './helper'
+} from './parser'
 
 const parseFilterStyle = (value: string): string => {
 	const filterValue = parseFilters(value)
@@ -64,7 +64,7 @@ export const processImage = (image: RootContentMap['image'], parent: Parent) => 
 	const widthHeight = parseWidthHeight(imageAlt)
 	const positionStyle = parsePositionStyles(imageAlt)
 
-	const isAbsolute = regexp.absoluteCheck.test(imageAlt)
+	const isAbsolute = regexp.absoluteKey.test(imageAlt)
 	const absolute = isAbsolute ? 'position: absolute' : ''
 
 	image.data = image.data || {}

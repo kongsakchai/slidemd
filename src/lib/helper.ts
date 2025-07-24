@@ -4,7 +4,7 @@ export const join = (arr: (string | undefined)[], separator: string): string => 
 	const result = arr.filter(Boolean).join(separator)
 	const replaceRex = new RegExp(`${separator};{2,}`, 'g')
 
-	return result.replaceAll(replaceRex, ';')
+	return result.replaceAll(replaceRex, ';').trim()
 }
 
 const multipleImages = (img: string): string => {
@@ -43,17 +43,3 @@ export const directiveToStyle = (directive?: Directive): string => {
 
 	return join(styles, ';')
 }
-
-// const calcSplit = (split: string): string[] => {
-// 	if (!split) return []
-
-// 	try {
-// 		const n = parseInt(split.trim(), 10)
-// 		if (n <= 1) return []
-
-// 		return ['display: grid', 'grid-template-columns: repeat(' + n + ', 1fr)']
-// 	} catch {
-// 		console.warn(`Invalid split value: ${split}`)
-// 		return []
-// 	}
-// }

@@ -5,8 +5,8 @@ import type { VFile } from 'vfile'
 import { processAttrs } from './attrs'
 import { appendBackgroundContainer, processBackground } from './background'
 import { processDirectives } from './directives'
-import { regexp } from './helper'
 import { processImage } from './image'
+import { regexp } from './parser'
 
 export const isHtmlComment = (node: RootContentMap['html']): boolean => {
 	// Check if the node is an HTML comment that starts with <!-- and ends with -->
@@ -15,7 +15,7 @@ export const isHtmlComment = (node: RootContentMap['html']): boolean => {
 
 export const isImageBackground = (node: RootContentMap['image']): boolean => {
 	// Check if the image node's alt text matches the background image pattern
-	return regexp.bgCheck.test(node.alt || '')
+	return regexp.bgKey.test(node.alt || '')
 }
 
 export const slideTransform = () => {

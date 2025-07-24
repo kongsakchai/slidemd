@@ -1,6 +1,6 @@
 import type { RootContentMap } from 'mdast'
 import type { VFile } from 'vfile'
-import { parseAttributes } from './helper'
+import { parseAttributes } from './parser'
 
 type DirectiveMap = {
 	global: Record<string, unknown>

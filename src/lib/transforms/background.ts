@@ -9,8 +9,9 @@ import {
 	parseId,
 	parsePositionKey,
 	parseRepeat,
-	parseRepeatAxis
-} from './helper'
+	parseRepeatAxis,
+	regexp
+} from './parser'
 
 const parseBackgroundFilter = (value: string): string => {
 	const filterValue = parseFilters(value)
@@ -18,77 +19,85 @@ const parseBackgroundFilter = (value: string): string => {
 }
 
 const parseBackgroundSize = (value: string): string => {
+	const key = 'background-size:'
 	const fitValue = parseFit(value)
-	const dimensions = parseDimensions(value)
-	const width = dimensions.w || 'auto'
-	const height = dimensions.h || 'auto'
+	if (fitValue) {
+		return key + fitValue
+	}
 
-	if (!fitValue && width === 'auto' && height === 'auto') {
+	const dimensions = parseDimensions(value)
+	if (Object.keys(dimensions).length === 0) {
 		return ''
 	}
 
-	return `background-size: ${fitValue} ${width} ${height}`
+	const width = dimensions.w || 'auto'
+	const height = dimensions.h || 'auto'
+	return key + `${width} ${height}`
 }
 
 const parseBackgroundPosition = (value: string): string => {
+	const key = 'background-position:'
 	const pos = parsePositionKey(value)
 	if (pos) {
-		return `background-position: ${pos}`
+		return key + pos
 	}
 
 	const positions = parseAxis(value)
+	// If no positions are specified, default to center
 	if (Object.keys(positions).length === 0) {
-		return ''
+		return key + 'center'
 	}
 
-	const x = positions.x || '0%'
-	const y = positions.y || '0%'
-	return `background-position: ${x} ${y}`
+	const x = positions.x || '50%'
+	const y = positions.y || '50%'
+	return key + `${x} ${y}`
 }
 
 const parseBackgroundRepeat = (value: string): string => {
+	const key = 'background-repeat:'
 	const repeat = parseRepeat(value)
 	if (repeat) {
-		return `background-repeat: ${repeat}`
+		return key + repeat
 	}
 
 	const repeatAxis = parseRepeatAxis(value)
+	// If no repeat axis is specified, default to no-repeat
 	if (Object.keys(repeatAxis).length === 0) {
-		return ''
+		return key + 'no-repeat'
 	}
 
 	const x = repeatAxis['repeat-x'] || 'no-repeat'
 	const y = repeatAxis['repeat-y'] || 'no-repeat'
-	return `background-repeat: ${x} ${y}`
+	return key + `${x} ${y}`
 }
 
 export const processBackground = (image: RootContentMap['image'], parent: Parent) => {
 	const imageAlt = image.alt || ''
 
 	const url = 'background-image: url(' + image.url + ')'
-	const filter = parseBackgroundFilter(imageAlt)
-	const size = parseBackgroundSize(imageAlt)
-	const position = parseBackgroundPosition(imageAlt)
-	const repeat = parseBackgroundRepeat(imageAlt)
+	const filter = parseBackgroundFilter(imageAlt) // default no filter
+	const size = parseBackgroundSize(imageAlt) // default no size
+	const position = parseBackgroundPosition(imageAlt) // default center
+	const repeat = parseBackgroundRepeat(imageAlt) // default no-repeat
 
 	image.data = image.data || {}
 
 	const style = (image.data.hProperties?.style as string) || ''
 	const newStyles = [style, url, filter, size, position, repeat]
 
+	const isVertical = regexp.verticalKey.test(imageAlt)
+
 	image.data.hProperties = {
 		...image.data.hProperties,
+		isVertical,
 		style: join(newStyles, '; ')
 	}
 
-	const className = parseClass(imageAlt) + ' background-image'
-	if (className) {
-		image.data.hProperties.class = `${className} ${image.data.hProperties.class || ''}`.trim()
-	}
-	const id = parseId(imageAlt)
-	if (id) {
-		image.data.hProperties.id = `${id} ${image.data.hProperties.id || ''}`.trim()
-	}
+	const baseClass = (image.data.hProperties.class as string) || ''
+	image.data.hProperties.class = parseClass(imageAlt, baseClass) + ' background-image'
+
+	const baseId = (image.data.hProperties.id as string) || ''
+	image.data.hProperties.id = parseId(imageAlt, baseId)
 
 	const index = parent.children.indexOf(image)
 	parent.children.splice(index, 1)
@@ -97,11 +106,16 @@ export const processBackground = (image: RootContentMap['image'], parent: Parent
 }
 
 export const appendBackgroundContainer = (images: Node[], tree: Root) => {
+	const className = 'background-container'
+	const vertical = images.some((image) => image.data?.hProperties?.isVertical)
+	const sizeGrid = (vertical ? '--bg-rows: ' : '--bg-columns: ') + images.length
+
 	const container: Parent = {
 		type: 'bg-container',
 		data: {
 			hProperties: {
-				class: 'background-container'
+				class: className,
+				style: sizeGrid
 			}
 		},
 		children: images as RootContent[]

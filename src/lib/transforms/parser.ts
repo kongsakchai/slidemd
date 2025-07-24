@@ -1,3 +1,5 @@
+import { join } from '$lib/helper'
+
 // (?<=^|\s) is used to ensure that the regex matches only at the start of a line or after a space
 // (?=\s|$) is used to ensure that the regex matches only at the end of a line or before a space
 export const regexp = {
@@ -6,17 +8,20 @@ export const regexp = {
 	class: /(?<=^|\s)\.[^\s]+(?=\s|$)/g,
 	id: /(?<=^|\s)#[^\s]+(?=\s|$)/g,
 
+	// image
 	filter: /(?<=^|\s)(blur|brightness|contrast|grayscale|hue-rotate|invert|opacity|saturate|sepia|drop-shadow)(?::(^["'].*?["']$|[^\s]+))?(?=\s|$)/g,
 	fit: /(?<=^|\s)(cover|contain)(?=\s|$)/,
 	dimensions: /(?<=^|\s)(w|h):([^\s]+)(?=\s|$)/g,
 	axis: /(?<=^|\s)(x|y):([^\s]+)(?=\s|$)/g,
 	positionKey: /(?<=^|\s)(top|right|bottom|left|center)(?=\s|$)/,
-	position: /(?<=^|\s)(top|right|bottom|left):\s*([^\s]+)(?=\s|$)/g,
-	repeatKey: /(?<=^|\s)(repeat|no-repeat|repeat-x|repeat-y|space|round)(?=\s|$)/,
-	repeatAxis: /(?<=^|\s)(repeat-x|repeat-y):\s*(repeat|no-repeat|space|round)(?=\s|$)/g,
+	position: /(?<=^|\s)(top|right|bottom|left):([^\s]+)(?=\s|$)/g,
 
-	bgCheck: /(?<=^|\s)bg(?=\s|$)/,
-	absoluteCheck: /(?<=^|\s)absolute(?=\s|$)/
+	// background
+	repeatKey: /(?<=^|\s)(repeat|no-repeat|repeat-x|repeat-y|space|round)(?=\s|$)/,
+	repeatAxis: /(?<=^|\s)(repeat-x|repeat-y):(repeat|no-repeat|space|round)(?=\s|$)/g,
+	bgKey: /(?<=^|\s)bg(?=\s|$)/,
+	absoluteKey: /(?<=^|\s)absolute(?=\s|$)/,
+	verticalKey: /(?<=^|\s)vertical(?=\s|$)/
 }
 
 export const defaultFilters: Record<string, string> = {
@@ -52,24 +57,16 @@ export const parseAttributes = (value: string): Record<string, string> => {
 }
 
 // This handles cases where IDs are defined in attributes like #id-name
-export const parseId = (value: string): string => {
-	return (
-		value
-			.match(regexp.id)
-			?.map((id) => id.slice(1))
-			.join(' ') || ''
-	)
+export const parseId = (value: string, base?: string): string => {
+	const val = value.match(regexp.id)?.map((id) => id.slice(1)) || []
+	return join([...val, base], ' ')
 }
 
 // Extracts class names from a string, ignoring the leading dot.
 // This handles cases where class names are defined in attributes like .class-name
-export const parseClass = (value: string): string => {
-	return (
-		value
-			.match(regexp.class)
-			?.map((className) => className.slice(1))
-			.join(' ') || ''
-	)
+export const parseClass = (value: string, base?: string): string => {
+	const val = value.match(regexp.class)?.map((cls) => cls.slice(1)) || []
+	return join([...val, base], ' ')
 }
 
 // Parses filters from a string and returns them as a CSS property
