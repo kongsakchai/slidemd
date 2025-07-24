@@ -1,4 +1,4 @@
-import type { RootContentMap } from 'mdast'
+import type { Parent, RootContentMap } from 'mdast'
 import { join } from '../helper'
 import {
 	parseAxis,
@@ -8,7 +8,8 @@ import {
 	parseFit,
 	parseId,
 	parsePositionKey,
-	parsePositions
+	parsePositions,
+	regexp
 } from './helper'
 
 const parseFilterStyle = (value: string): string => {
@@ -53,31 +54,7 @@ const parsePositionStyles = (value: string): string[] => {
 	return positionStyle
 }
 
-// const advanceBackground = (image: RootContentMap['image'], options: ImageEnhanceOptions) => {
-// 	image.data = image.data || {}
-
-// 	const url = 'background-image: url(' + image.url + ')'
-// 	const filter = options.filters ? `background-filter: ${options.filters}` : ''
-
-// 	const fit = options.fit ?? ''
-// 	const width = options.dimensions?.width ?? 'auto'
-// 	const height = options.dimensions?.height ?? 'auto'
-// 	const size = fit || width || height ? `background-size: ${fit} ${width} ${height}` : ''
-
-// 	const x = options.axis?.x ?? '0%'
-// 	const y = options.axis?.y ?? '0%'
-// 	const position = `background-position: ${x} ${y}`
-
-// 	const style = (image.data.hProperties?.style as string) || ''
-// 	const newStyles = [style, url, filter, size, position]
-
-// 	image.data.hProperties = {
-// 		...image.data.hProperties,
-// 		style: join(newStyles, '; ')
-// 	}
-// }
-
-export const processImage = (image: RootContentMap['image']) => {
+export const processImage = (image: RootContentMap['image'], parent: Parent) => {
 	const imageAlt = image.alt || ''
 	image.alt = imageAlt.split(' ')[0] || ''
 
@@ -87,21 +64,46 @@ export const processImage = (image: RootContentMap['image']) => {
 	const widthHeight = parseWidthHeight(imageAlt)
 	const positionStyle = parsePositionStyles(imageAlt)
 
-	const isAbsolute = /absolute/g.test(imageAlt)
+	const isAbsolute = regexp.absoluteCheck.test(imageAlt)
 	const absolute = isAbsolute ? 'position: absolute' : ''
 
 	image.data = image.data || {}
 
 	const style = (image.data.hProperties?.style as string) || ''
 	const newStyles = [style, filter, fit, objectPos, absolute, ...positionStyle, ...widthHeight]
-
 	image.data.hProperties = {
 		...image.data.hProperties,
+		isAbsolute,
 		style: join(newStyles, '; ')
 	}
 
-	image.data.hProperties.class = `${image.data.hProperties.class || ''} ${parseClass(imageAlt)}`.trim()
-	image.data.hProperties.id = `${image.data.hProperties.id || ''} ${parseId(imageAlt)}`.trim()
+	const className = parseClass(imageAlt)
+	if (className) {
+		image.data.hProperties.class = `${className} ${image.data.hProperties.class || ''}`.trim()
+	}
 
-	return { isAbsolute }
+	const id = parseId(imageAlt)
+	if (id) {
+		image.data.hProperties.id = `${id} ${image.data.hProperties.id || ''}`.trim()
+	}
+
+	if (isAbsolute) {
+		setParentContents(parent)
+	}
+}
+
+const setParentContents = (parent: Parent) => {
+	const contents = parent.children.every((child) => {
+		return child.type === 'image' && child.data?.hProperties?.isAbsolute
+	})
+	if (!contents) return
+
+	parent.data = parent.data || {}
+
+	const styles = `display:contents; ${parent.data.hProperties?.style || ''}`
+
+	parent.data.hProperties = {
+		...parent.data.hProperties,
+		style: styles
+	}
 }

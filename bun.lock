@@ -4,7 +4,6 @@
     "": {
       "name": "slidemd",
       "dependencies": {
-        "@flex-development/unist-util-visit": "^1.1.0",
         "js-yaml": "^4.1.0",
         "npm": "^11.4.2",
         "rehype-stringify": "^10.0.1",
@@ -12,6 +11,7 @@
         "remark-parse": "^11.0.0",
         "remark-rehype": "^11.1.2",
         "unified": "^11.0.5",
+        "unist-util-visit": "^5.0.0",
       },
       "devDependencies": {
         "@eslint/compat": "^1.2.5",
@@ -21,7 +21,6 @@
         "@sveltejs/kit": "^2.22.5",
         "@sveltejs/vite-plugin-svelte": "^6.0.0",
         "@tailwindcss/vite": "^4.0.0",
-        "@types/hast": "^3.0.4",
         "@types/js-yaml": "^4.0.9",
         "@types/unist": "^3.0.3",
         "@vitest/browser": "^3.2.3",
@@ -124,12 +123,6 @@
     "@eslint/object-schema": ["@eslint/object-schema@2.1.6", "", {}, "sha512-RBMg5FRL0I0gs51M/guSAj5/e14VQ4tpZnQNWwuDT66P14I43ItmPfIZRhO9fUVIPOAQXU47atlywZ/czoqFPA=="],
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.3.3", "", { "dependencies": { "@eslint/core": "^0.15.1", "levn": "^0.4.1" } }, "sha512-1+WqvgNMhmlAambTvT3KPtCl/Ibr68VldY2XY40SL1CE0ZXiakFR/cbTspaF5HsnpDMvcYYoJHfl4980NBjGag=="],
-
-    "@flex-development/tutils": ["@flex-development/tutils@6.0.0-alpha.25", "", { "peerDependencies": { "typescript": ">=5.0.4" }, "optionalPeers": ["typescript"] }, "sha512-zkO/tZZY/fesyMiawn00hQFKOWpxjOESZXQTA2Pu0kfuGiqNbo3UfpE0KFYVhQG5s2QZVjILed9CcmnAs/aCNA=="],
-
-    "@flex-development/unist-util-types": ["@flex-development/unist-util-types@1.3.1", "", { "peerDependencies": { "@types/unist": ">=3.0.2" } }, "sha512-53b0xRv/6PEtoQ3He7i/X3AXaLgC3QmYslaDJ/rE0TLhNrwR+4RGbV4N//Vy1hzqpTnSYnWwbbBKkvweyjeGqA=="],
-
-    "@flex-development/unist-util-visit": ["@flex-development/unist-util-visit@1.1.0", "", { "dependencies": { "@flex-development/tutils": "6.0.0-alpha.25", "@flex-development/unist-util-types": "1.3.1", "unist-util-is": "6.0.0" }, "peerDependencies": { "@types/unist": ">=3.0.2" }, "optionalPeers": ["@types/unist"] }, "sha512-4TCGUNbKxAkswWuAQ7wgP5ozT5cGKCPUwyaEiuwSrJ7QFAtGdZmAwuJJM9MFXmSdH6vY007S6vTJGvgNLf/BqA=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 
