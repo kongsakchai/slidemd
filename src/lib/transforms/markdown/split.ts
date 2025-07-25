@@ -1,5 +1,5 @@
-import type { Parent, RootContent } from 'mdast'
-import { join, parseSplit } from './parser'
+import type { Parent, RootContent, RootContentMap } from 'mdast'
+import { parseSplit } from './parser'
 
 export const splitSize = (children: RootContent[]) => {
 	if (children.length === 0) {
@@ -18,29 +18,23 @@ export const splitSize = (children: RootContent[]) => {
 	return split
 }
 
-export const processSplit = (splitIndex: number[], root: Parent) => {
-	const splitRoot: Parent[] = []
-	const size: string[] = []
+export const processSplit = (node: RootContentMap['html']) => {
+	const split = parseSplit(node.value)
+	if (!split) {
+		return '1fr'
+	}
 
-	splitIndex.reduce((prevIndex, currentIndex) => {
-		const children = root.children.slice(prevIndex, currentIndex + 1)
-		size.push(splitSize(children))
+	return split
+}
 
-		const splitNode: Parent = {
-			type: 'split',
-			children: children,
-			data: {
-				hProperties: {
-					class: 'slide'
-				}
+export const makeSplitParent = (node: RootContent[]) => {
+	return {
+		type: 'split',
+		children: node,
+		data: {
+			hProperties: {
+				class: 'slide-child'
 			}
 		}
-		splitRoot.push(splitNode)
-
-		return currentIndex + 1
-	}, 0)
-
-	root.children = splitRoot as RootContent[]
-
-	return join(size, ' ')
+	} as Parent
 }

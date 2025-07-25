@@ -1,4 +1,5 @@
 import type { Node, Parent, RootContent, RootContentMap } from 'mdast'
+import { visit } from 'unist-util-visit'
 import {
 	join,
 	parseAxis,
@@ -74,7 +75,7 @@ const parseBackgroundRepeat = (value: string): string => {
 	return key + `${x} ${y}`
 }
 
-export const processBackground = (image: RootContentMap['image'], index: number, parent: Parent) => {
+export const processBackground = (image: RootContentMap['image'], index: number, parent: Parent, root: Parent) => {
 	const imageAlt = image.alt || ''
 
 	const url = 'background-image: url(' + image.url + ')'
@@ -107,18 +108,40 @@ export const processBackground = (image: RootContentMap['image'], index: number,
 		id
 	}
 	parent.children.splice(index, 1)
+	clearParent(root, parent)
 
 	return { type: 'bg', data: image.data } as Node
 }
 
-export const appendBackgroundContainer = (images: Node[], root: Parent) => {
+const clearParent = (root: Parent, parent?: Parent) => {
+	while (true) {
+		if (!parent) return
+
+		if (parent.children.length > 0) {
+			const emptyChildren = parent.children.every((child) => {
+				return child.type === 'text' && child.value.trim() === ''
+			})
+
+			if (!emptyChildren) return
+		}
+
+		visit(root, parent, (_, index, parentNode) => {
+			if (typeof index !== 'number' || !parentNode) return
+
+			parentNode.children.splice(index, 1)
+			parent = parentNode
+		})
+	}
+}
+
+export const makeBackgroundContainer = (images: Node[]) => {
 	const className = 'background-container'
 	const vertical = images.some((image) => image.data?.hProperties?.isVertical)
 
 	const sizeGrids = images.map((image) => image.data?.hProperties?.sizeGrid || '1fr')
 	const gridTemplate = (vertical ? '--bg-rows: ' : '--bg-columns: ') + sizeGrids.join(' ')
 
-	const container: Parent = {
+	return {
 		type: 'bg-container',
 		data: {
 			hProperties: {
@@ -127,6 +150,5 @@ export const appendBackgroundContainer = (images: Node[], root: Parent) => {
 			}
 		},
 		children: images as RootContent[]
-	}
-	root.children.push(container as RootContent)
+	} as Parent
 }

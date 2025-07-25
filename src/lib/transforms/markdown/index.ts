@@ -1,14 +1,14 @@
 import { visit } from 'unist-util-visit'
 
-import type { Node, Parent, Root, RootContentMap } from 'mdast'
+import type { Node, Parent, Root, RootContent, RootContentMap } from 'mdast'
 import type { VFile } from 'vfile'
 import { processAttrs } from './attrs'
-import { appendBackgroundContainer, processBackground } from './background'
+import { makeBackgroundContainer, processBackground } from './background'
 import { processCode } from './code'
-import { processDirectives, type DirectiveContext } from './directives'
+import { processDirectives, type DirectiveContext as DirectiveStore } from './directives'
 import { processImage } from './image'
-import { regexp } from './parser'
-import { processSplit } from './split'
+import { join, regexp } from './parser'
+import { makeSplitParent, processSplit } from './split'
 
 export const isComment = (node: RootContentMap['html']): boolean => {
 	// Check if the node is an HTML comment that starts with <!-- and ends with -->
@@ -25,89 +25,90 @@ export const isSplit = (node: RootContentMap['html']): boolean => {
 	return regexp.split.test(node.value)
 }
 
-export const slideTransform = () => {
-	return (tree: Root, file: VFile) => {
-		const directives: DirectiveContext = {
-			global: {},
-			local: {}
-		}
-		const splitIndex: number[] = []
+const htmlComment = (splitList: Map<number, string>, store: DirectiveStore) => {
+	return (node: RootContentMap['html'], index?: number, parent?: Parent) => {
+		if (typeof index !== 'number' || !parent) return
 
-		// Visit all HTM
-		visit(tree, 'html', (node, index, parent) => {
-			if (typeof index !== 'number' || !parent) return
-
-			if (isComment(node)) {
-				if (parent.type === 'root' && isSplit(node)) {
-					// Process split directive
-					splitIndex.push(index)
-				} else if (parent.type === 'root') {
-					// Process directives
-					processDirectives(node, directives)
-				} else if (index === parent.children.length - 1) {
-					// Process attributes
-					processAttrs(node, parent)
-				}
+		if (isComment(node)) {
+			if (isSplit(node)) {
+				splitList.set(index, processSplit(node))
+				return
 			}
-		})
 
-		if (splitIndex.length > 0) {
-			splitIndex.push(tree.children.length) // Add the end index for the last split
-			const size = processSplit(splitIndex, tree)
+			if (parent.type === 'root') {
+				processDirectives(node, store)
+				return
+			}
 
-			directives.local['split'] = true
-			directives.local['splitSize'] = size
-
-			tree.children.forEach((child) => elementTransform(child as Parent))
-		} else {
-			// Process the entire tree without splitting
-			elementTransform(tree)
+			if (index === parent.children.length - 1) {
+				processAttrs(node, parent)
+				return
+			}
 		}
-
-		file.data.directives = directives
 	}
 }
 
-const elementTransform = (root: Parent) => {
-	// Visit Code
-	visit(root, 'code', (node, index, parent) => {
-		if (typeof index !== 'number' || !parent) return
-		processCode(node, index as number, parent as Parent)
-	})
+export const slideTransform = () => {
+	return (tree: Root, file: VFile) => {
+		const splitList = new Map<number, string>()
+		const store: DirectiveStore = { global: {}, local: {} }
 
-	// Visit Image
-	const background: Node[] = []
-	visit(root, 'image', (node, index, parent) => {
+		visit(tree, 'html', htmlComment(splitList, store))
+
+		if (splitList.size > 0) {
+			transformNode(tree)
+		} else {
+			const roots: Parent[] = []
+			splitList.set(tree.children.length, '1fr')
+
+			const indexs = Array.from(splitList.keys())
+			const sizes = Array.from(splitList.values())
+
+			indexs.reduce((prevIndex, currentIndex) => {
+				const children = tree.children.slice(prevIndex, currentIndex + 1)
+				const root = makeSplitParent(children)
+
+				transformNode(root)
+				roots.push(root)
+
+				return currentIndex + 1
+			}, 0)
+
+			tree.children = roots as RootContent[]
+			store.local['split'] = true
+			store.local['splitSize'] = join(sizes, ' ')
+		}
+
+		file.data.directives = store
+	}
+}
+
+const image = (root: Parent, bgList: Node[]) => {
+	return (node: RootContentMap['image'], index?: number, parent?: Parent) => {
 		if (typeof index !== 'number' || !parent) return
 
 		if (isBackground(node)) {
-			const bg = processBackground(node, index, parent)
-			background.push(bg)
-			clearParent(root, parent)
+			const bg = processBackground(node, index, parent, root)
+			bgList.push(bg)
 			return
 		}
 
 		processImage(node, parent)
-	})
-
-	appendBackgroundContainer(background, root)
+	}
 }
 
-const clearParent = (root: Parent, parent?: Parent) => {
-	while (true) {
-		if (!parent) return
+const transformNode = (root: Parent) => {
+	// Visit Code
+	visit(root, 'code', (node, index, parent) => {
+		if (typeof index !== 'number' || !parent) return
 
-		if (parent.children.length > 0) {
-			const empty = parent.children.every((child) => {
-				return child.type === 'text' && child.value.trim() === ''
-			})
+		processCode(node, index, parent)
+	})
 
-			if (!empty) return
-		}
+	// Visit Image
+	const bgList: Node[] = []
+	visit(root, 'image', image(root, bgList))
 
-		visit(root, parent, (_, index, parentNode) => {
-			parentNode?.children.splice(index || -1, 1)
-			parent = parentNode
-		})
-	}
+	const bgContainer = makeBackgroundContainer(bgList)
+	root.children.push(bgContainer as RootContent)
 }
