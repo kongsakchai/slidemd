@@ -14,6 +14,7 @@ export const regexp = {
 	id: /(?<=^|\s)#[^\s]+(?=\s|$)/g,
 	value: /(?<=^|\s)\d+(px|pt|em|rem|%)(?=\s|$)/g,
 	split: /(?<=^|\s)split(?::([^\s]+))?(?=\s|$)/,
+	comment: /(?<=^|\s)<!--[\s\S]*?-->(?=\s|$)/g,
 
 	// image
 	filter: /(?<=^|\s)(blur|brightness|contrast|grayscale|hue-rotate|invert|opacity|saturate|sepia|drop-shadow)(?::(["'].*?["']|[^\s]+))?(?=\s|$)/g,

@@ -74,7 +74,7 @@ const parseBackgroundRepeat = (value: string): string => {
 	return key + `${x} ${y}`
 }
 
-export const processBackground = (image: RootContentMap['image'], parent: Parent) => {
+export const processBackground = (image: RootContentMap['image'], index: number, parent: Parent) => {
 	const imageAlt = image.alt || ''
 
 	const url = 'background-image: url(' + image.url + ')'
@@ -106,8 +106,6 @@ export const processBackground = (image: RootContentMap['image'], parent: Parent
 		class: className,
 		id
 	}
-
-	const index = parent.children.indexOf(image)
 	parent.children.splice(index, 1)
 
 	return { type: 'bg', data: image.data } as Node

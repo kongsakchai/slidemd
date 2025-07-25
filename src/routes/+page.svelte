@@ -1,7 +1,15 @@
 <script lang="ts">
 	import { directiveToStyle } from '$lib/helper'
+	import mermaid from 'mermaid'
 
 	let { data } = $props()
+
+	mermaid.initialize({
+		startOnLoad: true,
+		theme: 'default',
+		htmlLabels: false,
+		fontFamily: 'mali'
+	})
 </script>
 
 <svg viewBox="0 0 1280 720" class="bg-white">

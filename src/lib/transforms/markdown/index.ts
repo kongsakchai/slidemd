@@ -4,6 +4,7 @@ import type { Node, Parent, Root, RootContentMap } from 'mdast'
 import type { VFile } from 'vfile'
 import { processAttrs } from './attrs'
 import { appendBackgroundContainer, processBackground } from './background'
+import { processCode } from './code'
 import { processDirectives, type DirectiveContext } from './directives'
 import { processImage } from './image'
 import { regexp } from './parser'
@@ -11,7 +12,7 @@ import { processSplit } from './split'
 
 export const isComment = (node: RootContentMap['html']): boolean => {
 	// Check if the node is an HTML comment that starts with <!-- and ends with -->
-	return node.value.startsWith('<!--') && node.value.endsWith('-->')
+	return regexp.comment.test(node.value)
 }
 
 export const isBackground = (node: RootContentMap['image']): boolean => {
@@ -34,18 +35,18 @@ export const slideTransform = () => {
 
 		// Visit all HTM
 		visit(tree, 'html', (node, index, parent) => {
+			if (typeof index !== 'number' || !parent) return
+
 			if (isComment(node)) {
-				if (parent && parent.type === 'root' && isSplit(node)) {
+				if (parent.type === 'root' && isSplit(node)) {
 					// Process split directive
-					if (index !== undefined) {
-						splitIndex.push(index)
-					}
-				} else if (parent && parent.type === 'root') {
+					splitIndex.push(index)
+				} else if (parent.type === 'root') {
 					// Process directives
 					processDirectives(node, directives)
-				} else if (parent && index === parent.children.length - 1) {
+				} else if (index === parent.children.length - 1) {
 					// Process attributes
-					processAttrs(node, parent as Parent)
+					processAttrs(node, parent)
 				}
 			}
 		})
@@ -68,25 +69,35 @@ export const slideTransform = () => {
 }
 
 const elementTransform = (root: Parent) => {
+	// Visit Code
+	visit(root, 'code', (node, index, parent) => {
+		if (typeof index !== 'number' || !parent) return
+		processCode(node, index as number, parent as Parent)
+	})
+
 	// Visit Image
 	const background: Node[] = []
-	visit(root, 'image', (node, _, parent) => {
+	visit(root, 'image', (node, index, parent) => {
+		if (typeof index !== 'number' || !parent) return
+
 		if (isBackground(node)) {
-			const bg = processBackground(node, parent as Parent)
+			const bg = processBackground(node, index, parent)
 			background.push(bg)
-			clearParent(parent as Parent, root)
+			clearParent(root, parent)
 			return
 		}
 
-		processImage(node, parent as Parent)
+		processImage(node, parent)
 	})
 
 	appendBackgroundContainer(background, root)
 }
 
-const clearParent = (parent: Parent, root: Parent) => {
+const clearParent = (root: Parent, parent?: Parent) => {
 	while (true) {
-		if (!parent || parent.children.length > 0) {
+		if (!parent) return
+
+		if (parent.children.length > 0) {
 			const empty = parent.children.every((child) => {
 				return child.type === 'text' && child.value.trim() === ''
 			})
@@ -96,7 +107,7 @@ const clearParent = (parent: Parent, root: Parent) => {
 
 		visit(root, parent, (_, index, parentNode) => {
 			parentNode?.children.splice(index || -1, 1)
-			parent = parentNode as Parent
+			parent = parentNode
 		})
 	}
 }
