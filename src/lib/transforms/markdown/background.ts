@@ -1,6 +1,6 @@
-import { join } from '$lib/helper'
 import type { Node, Parent, RootContent, RootContentMap } from 'mdast'
 import {
+	join,
 	parseAxis,
 	parseClass,
 	parseDimensions,

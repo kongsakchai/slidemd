@@ -1,6 +1,5 @@
-import { join } from '$lib/helper'
 import type { Parent, RootContent } from 'mdast'
-import { parseSplit } from './parser'
+import { join, parseSplit } from './parser'
 
 export const splitSize = (children: RootContent[]) => {
 	if (children.length === 0) {

@@ -1,6 +1,6 @@
 import type { Parent, RootContentMap } from 'mdast'
-import { join } from '../helper'
 import {
+	join,
 	parseAxis,
 	parseClass,
 	parseDimensions,

@@ -4,7 +4,8 @@ import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
-import { slideTransform } from './transforms'
+import { shiki, shikiOptions } from './transforms/html/shiki'
+import { slideTransform } from './transforms/markdown'
 import type { Directive, Slide, SlidePage, SlideProperties } from './types'
 
 const regexp = {
@@ -24,6 +25,7 @@ const processor = unified()
 	.use(remarkGfm)
 	.use(slideTransform)
 	.use(remarkRehype, { allowDangerousHtml: true })
+	.use(shiki, shikiOptions)
 	.use(rehypeStringify, { allowDangerousHtml: true })
 
 const extractFrontmatter = (markdown: string) => {

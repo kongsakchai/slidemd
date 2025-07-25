@@ -1,4 +1,9 @@
-import { join } from '$lib/helper'
+export const join = (arr: (string | undefined)[], separator: string): string => {
+	const result = arr.filter(Boolean).join(separator)
+	const replaceRex = new RegExp(`${separator};{2,}`, 'g')
+
+	return result.replaceAll(replaceRex, separator).trim()
+}
 
 // (?<=^|\s) is used to ensure that the regex matches only at the start of a line or after a space
 // (?=\s|$) is used to ensure that the regex matches only at the end of a line or before a space

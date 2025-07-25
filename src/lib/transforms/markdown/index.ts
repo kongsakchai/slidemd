@@ -9,12 +9,12 @@ import { processImage } from './image'
 import { regexp } from './parser'
 import { processSplit } from './split'
 
-export const isHtmlComment = (node: RootContentMap['html']): boolean => {
+export const isComment = (node: RootContentMap['html']): boolean => {
 	// Check if the node is an HTML comment that starts with <!-- and ends with -->
 	return node.value.startsWith('<!--') && node.value.endsWith('-->')
 }
 
-export const isImageBackground = (node: RootContentMap['image']): boolean => {
+export const isBackground = (node: RootContentMap['image']): boolean => {
 	// Check if the image node's alt text matches the background image pattern
 	return regexp.bgKey.test(node.alt || '')
 }
@@ -34,7 +34,7 @@ export const slideTransform = () => {
 
 		// Visit all HTM
 		visit(tree, 'html', (node, index, parent) => {
-			if (isHtmlComment(node)) {
+			if (isComment(node)) {
 				if (parent && parent.type === 'root' && isSplit(node)) {
 					// Process split directive
 					if (index !== undefined) {
@@ -71,7 +71,7 @@ const elementTransform = (root: Parent) => {
 	// Visit Image
 	const background: Node[] = []
 	visit(root, 'image', (node, _, parent) => {
-		if (isImageBackground(node)) {
+		if (isBackground(node)) {
 			const bg = processBackground(node, parent as Parent)
 			background.push(bg)
 			clearParent(parent as Parent, root)

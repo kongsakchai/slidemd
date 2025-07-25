@@ -11,18 +11,23 @@ tags:
 
 This is a simple Markdown file that can be used to test the SlideMD application. You can write your content here, and it will be rendered as slides.
 
-![bg cover](https://picsum.photos/id/2/300)
-
-<!-- split:70% -->
+![cover](https://picsum.photos/id/2/300)
 
 | Syntax      | Description |
 | - | - |
 | Header      | Title       |
 | Paragraph   | Text        |
 
-```js
-console.log('This is a code block');
+```mermaid
+
+flowchart LR
+    markdown["`This **is** _Markdown_`"]
+    newLines["`Line1
+    Line 2
+    Line 3`"]
+    markdown --> newLines
+
 ```
 
-* [ ] to do
-* [x] done
+- [ ] to do
+- [x] done
