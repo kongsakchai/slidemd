@@ -3,6 +3,8 @@ import type { Parent, RootContent } from 'mdast'
 import { parseSplit } from './parser'
 
 export const splitSize = (children: RootContent[]) => {
+	console.log('splitSize', { children })
+
 	if (children.length === 0) {
 		return '1fr'
 	}
@@ -24,7 +26,7 @@ export const processSplit = (splitIndex: number[], root: Parent) => {
 	const size: string[] = []
 
 	splitIndex.reduce((prevIndex, currentIndex) => {
-		const children = root.children.slice(prevIndex, currentIndex)
+		const children = root.children.slice(prevIndex, currentIndex + 1)
 		size.push(splitSize(children))
 
 		const splitNode: Parent = {

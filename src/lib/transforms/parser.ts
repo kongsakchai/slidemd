@@ -165,5 +165,5 @@ export const parseValueWithUnit = (value: string): string => {
 // Parses split directive from a string and returns it as an object
 export const parseSplit = (value: string): string => {
 	const match = value.match(regexp.split)
-	return match?.pop()?.replace(regexp.quote, '') || ''
+	return match?.pop() || ''
 }

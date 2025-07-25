@@ -13,7 +13,7 @@ This is a simple Markdown file that can be used to test the SlideMD application.
 
 ![bg cover](https://picsum.photos/id/2/300)
 
-<!-- split -->
+<!-- split:70% -->
 
 | Syntax      | Description |
 | ----------- | ----------- |
