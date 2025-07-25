@@ -38,23 +38,33 @@ const extractFrontmatter = (markdown: string) => {
 	return { body, metadata }
 }
 
+interface MarkdownToPageResult {
+	html: string
+	split: boolean
+	directive: {
+		global: Directive
+		local: Directive
+	}
+}
+
 // Convert markdown to HTML and extract directives
 // - The global directive is merged with the base directive
 // - The local directive overrides the global directive
-const markdownToPage = async (
-	markdown: string,
-	baseDirective?: Directive
-): Promise<{ html: string; globalDirective: Directive; localDirective: Directive }> => {
+const markdownToPage = async (markdown: string, baseDirective?: Directive): Promise<MarkdownToPageResult> => {
 	const file = await processor.process(markdown)
-	const directive = (file.data.directives || {}) as { global: Directive; local: Directive }
+	const directives = (file.data.directives || {}) as { global: Directive; local: Directive }
+	const split = file.data.split as boolean | false
 
-	const globalDirective = { ...baseDirective, ...directive.global }
-	const localDirective = { ...globalDirective, ...directive.local }
+	const global = { ...baseDirective, ...directives.global }
+	const local = { ...global, ...directives.local }
 
 	return {
 		html: file.toString(),
-		globalDirective,
-		localDirective
+		directive: {
+			global,
+			local
+		},
+		split
 	}
 }
 
@@ -63,13 +73,13 @@ const markdownToSlide = async (markdown: string): Promise<Slide> => {
 	const bodyList = body.split(/^[\r\n]*---[\r\n]?/) // Split by "---" and filter out empty strings
 
 	const pages: SlidePage[] = []
-	let directive = metadata as Directive
+	let globalDirective = metadata as Directive
 
 	for (const str of bodyList) {
-		const { html, globalDirective, localDirective } = await markdownToPage(str.trim(), directive)
-		directive = globalDirective
+		const { html, directive } = await markdownToPage(str.trim(), globalDirective)
+		globalDirective = directive.global
 
-		pages.push({ html, directive: localDirective })
+		pages.push({ html, directive: directive.local })
 	}
 
 	return {

@@ -40,6 +40,16 @@ export const directiveToStyle = (directive?: Directive): string => {
 	if (directive.bgRepeat) {
 		styles.push(`background-repeat: ${directive.bgRepeat}`)
 	}
+	if (directive.split) {
+		switch (directive.splitDir) {
+			case 'vertical':
+				styles.push(`--split-row: ${directive.splitSize}`)
+				break
+			default:
+				styles.push(`--split-col: ${directive.splitSize}`)
+				break
+		}
+	}
 
 	return join(styles, ';')
 }

@@ -1,5 +1,5 @@
 import { join } from '$lib/helper'
-import type { Node, Parent, Root, RootContent, RootContentMap } from 'mdast'
+import type { Node, Parent, RootContent, RootContentMap } from 'mdast'
 import {
 	parseAxis,
 	parseClass,
@@ -113,7 +113,7 @@ export const processBackground = (image: RootContentMap['image'], parent: Parent
 	return { type: 'bg', data: image.data } as Node
 }
 
-export const appendBackgroundContainer = (images: Node[], tree: Root) => {
+export const appendBackgroundContainer = (images: Node[], root: Parent) => {
 	const className = 'background-container'
 	const vertical = images.some((image) => image.data?.hProperties?.isVertical)
 
@@ -130,5 +130,5 @@ export const appendBackgroundContainer = (images: Node[], tree: Root) => {
 		},
 		children: images as RootContent[]
 	}
-	tree.children.push(container as RootContent)
+	root.children.push(container as RootContent)
 }

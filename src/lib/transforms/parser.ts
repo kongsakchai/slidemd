@@ -3,14 +3,15 @@ import { join } from '$lib/helper'
 // (?<=^|\s) is used to ensure that the regex matches only at the start of a line or after a space
 // (?=\s|$) is used to ensure that the regex matches only at the end of a line or before a space
 export const regexp = {
-	attributes: /(?<=^|\s)(.*?)([^\s=:]+)[=:](^["'].*?["']$|[^\s]+)(?=\s|$)/g,
-	quote: /^["']|["'](?=\s|$)/,
+	attributes: /(?<=^|\s)([^\s=:]+)[=:](["'].*?["']|[^\s]+)(?=\s|$)/g,
+	quote: /^["']|["']$/,
 	class: /(?<=^|\s)\.[^\s]+(?=\s|$)/g,
 	id: /(?<=^|\s)#[^\s]+(?=\s|$)/g,
 	value: /(?<=^|\s)\d+(px|pt|em|rem|%)(?=\s|$)/g,
+	split: /(?<=^|\s)split(?::([^\s]+))?(?=\s|$)/,
 
 	// image
-	filter: /(?<=^|\s)(blur|brightness|contrast|grayscale|hue-rotate|invert|opacity|saturate|sepia|drop-shadow)(?::(^["'].*?["']$|[^\s]+))?(?=\s|$)/g,
+	filter: /(?<=^|\s)(blur|brightness|contrast|grayscale|hue-rotate|invert|opacity|saturate|sepia|drop-shadow)(?::(["'].*?["']|[^\s]+))?(?=\s|$)/g,
 	fit: /(?<=^|\s)(cover|contain)(?=\s|$)/,
 	dimensions: /(?<=^|\s)(w|h):([^\s]+)(?=\s|$)/g,
 	axis: /(?<=^|\s)(x|y):([^\s]+)(?=\s|$)/g,
@@ -159,4 +160,10 @@ export const parseRepeatAxis = (value: string): Record<string, string> => {
 export const parseValueWithUnit = (value: string): string => {
 	const match = value.match(regexp.value)
 	return match?.pop() || ''
+}
+
+// Parses split directive from a string and returns it as an object
+export const parseSplit = (value: string): string => {
+	const match = value.match(regexp.split)
+	return match?.pop()?.replace(regexp.quote, '') || ''
 }

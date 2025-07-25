@@ -1,13 +1,12 @@
 import type { RootContentMap } from 'mdast'
-import type { VFile } from 'vfile'
 import { parseAttributes } from './parser'
 
-type DirectiveMap = {
+export interface DirectiveContext {
 	global: Record<string, unknown>
 	local: Record<string, unknown>
 }
 
-const parseDirectives = (value: string): DirectiveMap => {
+const parseDirectives = (value: string): DirectiveContext => {
 	const global: Record<string, unknown> = {}
 	const local: Record<string, unknown> = {}
 
@@ -26,11 +25,9 @@ const parseDirectives = (value: string): DirectiveMap => {
 	return { global, local }
 }
 
-export const processDirectives = (node: RootContentMap['html'], file: VFile) => {
+export const processDirectives = (node: RootContentMap['html'], base: DirectiveContext) => {
 	const { global, local } = parseDirectives(node.value)
 
-	const directives = (file.data.directives || {}) as DirectiveMap
-	directives.global = { ...directives.global, ...global }
-	directives.local = { ...directives.local, ...local }
-	file.data.directives = directives
+	base.global = { ...base.global, ...global }
+	base.local = { ...base.local, ...local }
 }
