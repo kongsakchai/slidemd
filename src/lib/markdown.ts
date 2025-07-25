@@ -1,5 +1,6 @@
 import yaml from 'js-yaml'
 import rehypeStringify from 'rehype-stringify'
+import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
@@ -15,10 +16,12 @@ const regexp = {
 
 // Markdown
 // - remark-parse -> mdast (Markdown AST).
+// - remark-gfm -> mdast (Support tables, strikethrough, and task lists).
 // - remark-rehype -> hast (HTML AST)
 // - rehype-stringify -> HTML string
 const processor = unified()
 	.use(remarkParse)
+	.use(remarkGfm)
 	.use(slideTransform)
 	.use(remarkRehype, { allowDangerousHtml: true })
 	.use(rehypeStringify, { allowDangerousHtml: true })

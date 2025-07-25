@@ -43,7 +43,7 @@ export const slideTransform = () => {
 				} else if (parent && parent.type === 'root') {
 					// Process directives
 					processDirectives(node, directives)
-				} else if (parent) {
+				} else if (parent && index === parent.children.length - 1) {
 					// Process attributes
 					processAttrs(node, parent as Parent)
 				}

@@ -16,10 +16,13 @@ This is a simple Markdown file that can be used to test the SlideMD application.
 <!-- split:70% -->
 
 | Syntax      | Description |
-| ----------- | ----------- |
+| - | - |
 | Header      | Title       |
 | Paragraph   | Text        |
 
 ```js
 console.log('This is a code block');
 ```
+
+* [ ] to do
+* [x] done
