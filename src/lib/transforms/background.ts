@@ -75,7 +75,7 @@ const parseBackgroundRepeat = (value: string): string => {
 	return key + `${x} ${y}`
 }
 
-export const processBackground = (image: RootContentMap['image'], index: number, parent: Parent, root: Parent) => {
+export const parseBackground = (image: RootContentMap['image'], index: number, parent: Parent, root: Parent) => {
 	const imageAlt = image.alt || ''
 
 	const url = 'background-image: url(' + image.url + ')'

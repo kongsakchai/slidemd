@@ -54,7 +54,7 @@ const parsePositionStyles = (value: string): string[] => {
 	return positionStyle
 }
 
-export const processImage = (image: RootContentMap['image'], parent: Parent) => {
+export const parseImage = (image: RootContentMap['image'], parent: Parent) => {
 	const imageAlt = image.alt || ''
 	image.alt = imageAlt.split(' ')[0] || ''
 

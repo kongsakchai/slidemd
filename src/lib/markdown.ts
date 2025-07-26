@@ -1,11 +1,17 @@
+import rehypeShiki, { type RehypeShikiOptions } from '@shikijs/rehype'
+import {
+	transformerNotationDiff,
+	transformerNotationErrorLevel,
+	transformerNotationFocus,
+	transformerNotationHighlight
+} from '@shikijs/transformers'
 import yaml from 'js-yaml'
 import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
-import { shiki, shikiOptions } from './transforms/html/shiki'
-import { slideTransform } from './transforms/markdown'
+import { slideTransform } from './transforms'
 import type { Directive, Slide, SlidePage, SlideProperties } from './types'
 
 const regexp = {
@@ -13,6 +19,19 @@ const regexp = {
 	// [\s\S]+? match any character (including newlines) in a non-greedy way
 	// [\r\n]? match an optional trailing newline
 	frontMatter: /^[\r\n]*---\r?\n([\s\S]+?)[\r\n]?---/g
+}
+
+export const shikiOptions: RehypeShikiOptions = {
+	themes: {
+		light: 'github-light',
+		dark: 'github-dark'
+	},
+	transformers: [
+		transformerNotationDiff(),
+		transformerNotationHighlight(),
+		transformerNotationFocus(),
+		transformerNotationErrorLevel()
+	]
 }
 
 // Markdown
@@ -25,7 +44,7 @@ const processor = unified()
 	.use(remarkGfm)
 	.use(slideTransform)
 	.use(remarkRehype, { allowDangerousHtml: true })
-	.use(shiki, shikiOptions)
+	.use(rehypeShiki, shikiOptions)
 	.use(rehypeStringify, { allowDangerousHtml: true })
 
 const extractFrontmatter = (markdown: string) => {

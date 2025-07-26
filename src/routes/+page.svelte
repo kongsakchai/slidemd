@@ -18,7 +18,7 @@
 			<section
 				class={page.directive.class}
 				class:slide={!page.directive.split}
-				class:slide-grid={page.directive.split}
+				class:slide-split={page.directive.split}
 				style={directiveToStyle(page.directive)}
 			>
 				{@html page.html}

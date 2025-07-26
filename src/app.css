@@ -28,7 +28,7 @@ section.slide {
 	position: relative;
 }
 
-section.slide-grid {
+section.slide-split {
 	aspect-ratio: 16 / 9;
 	width: 100%;
 	position: relative;
@@ -37,7 +37,7 @@ section.slide-grid {
 	grid-template: var(--split-row, 1fr) / var(--split-col, 1fr);
 }
 
-section.slide-grid > div.slide {
+section.slide-split > div.slide-child {
 	padding: var(--padding, 2.5rem);
 	overflow: auto;
 	place-content: center;
