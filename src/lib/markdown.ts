@@ -11,7 +11,7 @@ import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
-import { slideTransform } from './transforms'
+import { slideTransform, type DirectiveStore } from './transforms'
 import type { Directive, Slide, SlidePage, SlideProperties } from './types'
 
 const regexp = {
@@ -76,7 +76,7 @@ interface MarkdownToPageResult {
 // - The local directive overrides the global directive
 const markdownToPage = async (markdown: string, baseDirective?: Directive): Promise<MarkdownToPageResult> => {
 	const file = await processor.process(markdown)
-	const directives = (file.data.directives || {}) as { global: Directive; local: Directive }
+	const directives = file.data.directives as DirectiveStore
 	const split = file.data.split as boolean | false
 
 	const global = { ...baseDirective, ...directives.global }

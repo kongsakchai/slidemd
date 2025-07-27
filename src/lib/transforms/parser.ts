@@ -1,6 +1,6 @@
 export const join = (arr: (string | undefined)[], separator: string): string => {
 	const result = arr.filter(Boolean).join(separator)
-	const replaceRex = new RegExp(`${separator};{2,}`, 'g')
+	const replaceRex = new RegExp(`${separator}{2,}`, 'g')
 
 	return result.replaceAll(replaceRex, separator).trim()
 }
@@ -8,25 +8,27 @@ export const join = (arr: (string | undefined)[], separator: string): string => 
 // (?<=^|\s) is used to ensure that the regex matches only at the start of a line or after a space
 // (?=\s|$) is used to ensure that the regex matches only at the end of a line or before a space
 export const regexp = {
-	attributes: /(?<=^|\s)([^\s=:]+)[=:](["'].*?["']|[^\s]+)(?=\s|$)/g,
-	quote: /^["']|["']$/,
+	attributes: /(?<=^|\s)([^\s=:.]+)[=:](["'].*?["']|[^\s]+)(?=\s|$)/g,
+	quote: /^["']|["']$/g,
+
 	class: /(?<=^|\s)\.[^\s]+(?=\s|$)/g,
 	id: /(?<=^|\s)#[^\s]+(?=\s|$)/g,
-	value: /(?<=^|\s)\d+(px|pt|em|rem|%)(?=\s|$)/g,
-	split: /(?<=^|\s)split(?::([^\s]+))?(?=\s|$)/,
-	comment: /(?<=^|\s)<!--[\s\S]*?-->(?=\s|$)/g,
 
-	// image
-	filter: /(?<=^|\s)(blur|brightness|contrast|grayscale|hue-rotate|invert|opacity|saturate|sepia|drop-shadow)(?::(["'].*?["']|[^\s]+))?(?=\s|$)/g,
-	fit: /(?<=^|\s)(cover|contain)(?=\s|$)/,
 	dimensions: /(?<=^|\s)(w|h):([^\s]+)(?=\s|$)/g,
 	axis: /(?<=^|\s)(x|y):([^\s]+)(?=\s|$)/g,
-	positionKey: /(?<=^|\s)(top|right|bottom|left|center)(?=\s|$)/,
+	positionKey: /(?<=^|\s)(top|right|bottom|left|center)(?=\s|$)/g,
 	position: /(?<=^|\s)(top|right|bottom|left):([^\s]+)(?=\s|$)/g,
 
-	// background
-	repeatKey: /(?<=^|\s)(repeat|no-repeat|repeat-x|repeat-y|space|round)(?=\s|$)/,
+	valueWithUnit: /(?<=^|\s)\d+(px|pt|em|rem|%)(?=\s|$)/g,
+
+	filter: /(?<=^|\s)(blur|brightness|contrast|grayscale|hue-rotate|invert|opacity|saturate|sepia|drop-shadow)(?::(["'].*?["']|[^\s]+))?(?=\s|$)/g,
+	repeatKey: /(?<=^|\s)(repeat|no-repeat|repeat-x|repeat-y|space|round)(?=\s|$)/g,
 	repeatAxis: /(?<=^|\s)(repeat-x|repeat-y):(repeat|no-repeat|space|round)(?=\s|$)/g,
+	fit: /(?<=^|\s)(cover|contain|fill)(?=\s|$)/g,
+
+	// keywords
+	comment: /^<!--[\s\S]*?-->$/,
+	split: /(?<=^|\s)split(?::([^\s]+))?(?=\s|$)/,
 	bgKey: /(?<=^|\s)bg(?=\s|$)/,
 	absoluteKey: /(?<=^|\s)absolute(?=\s|$)/,
 	verticalKey: /(?<=^|\s)vertical(?=\s|$)/
@@ -57,7 +59,7 @@ export const parseAttributes = (value: string): Record<string, string> => {
 
 	for (const match of value.matchAll(regexp.attributes)) {
 		const key = match[1]
-		const val = match[2].replace(regexp.quote, '')
+		const val = match[2].replaceAll(regexp.quote, '')
 		attrs[key] = val
 	}
 
@@ -67,14 +69,14 @@ export const parseAttributes = (value: string): Record<string, string> => {
 // This handles cases where IDs are defined in attributes like #id-name
 export const parseId = (value: string, base?: string): string => {
 	const val = value.match(regexp.id)?.map((id) => id.slice(1)) || []
-	return join([...val, base], ' ')
+	return join([base, ...val], ' ')
 }
 
 // Extracts class names from a string, ignoring the leading dot.
 // This handles cases where class names are defined in attributes like .class-name
 export const parseClass = (value: string, base?: string): string => {
-	const val = value.match(regexp.class)?.map((cls) => cls.slice(1)) || []
-	return join([...val, base], ' ')
+	const match = value.match(regexp.class)?.map((cls) => cls.slice(1)) || []
+	return join([base, ...match], ' ')
 }
 
 // Parses filters from a string and returns them as a CSS property
@@ -164,7 +166,7 @@ export const parseRepeatAxis = (value: string): Record<string, string> => {
 // Parses a value with unit from a string and returns it as a string
 // It handles cases like 100px, 50%, 1.5em, 2rem
 export const parseValueWithUnit = (value: string): string => {
-	const match = value.match(regexp.value)
+	const match = value.match(regexp.valueWithUnit)
 	return match?.pop() || ''
 }
 

@@ -23,10 +23,9 @@ const parseBackgroundFilter = (value: string): string => {
 
 // default is empty
 const parseBackgroundSize = (value: string): string => {
-	const key = 'background-size:'
 	const fitValue = parseFit(value)
 	if (fitValue) {
-		return key + fitValue
+		return `background-size: ${fitValue}`
 	}
 
 	const dimensions = parseDimensions(value)
@@ -36,43 +35,41 @@ const parseBackgroundSize = (value: string): string => {
 
 	const width = dimensions.w || 'auto'
 	const height = dimensions.h || 'auto'
-	return key + `${width} ${height}`
+	return `background-size: ${width} ${height}`
 }
 
 // default is center
 const parseBackgroundPosition = (value: string): string => {
-	const key = 'background-position:'
 	const pos = parsePositionKey(value)
 	if (pos) {
-		return key + pos
+		return `background-position: ${pos}`
 	}
 
 	const positions = parseAxis(value)
 	if (Object.keys(positions).length === 0) {
-		return key + 'center'
+		return `background-position: center`
 	}
 
 	const x = positions.x || '50%'
 	const y = positions.y || '50%'
-	return key + `${x} ${y}`
+	return `background-position: ${x} ${y}`
 }
 
 // default is no-repeat
 const parseBackgroundRepeat = (value: string): string => {
-	const key = 'background-repeat:'
 	const repeat = parseRepeat(value)
 	if (repeat) {
-		return key + repeat
+		return `background-repeat: ${repeat}`
 	}
 
 	const repeatAxis = parseRepeatAxis(value)
 	if (Object.keys(repeatAxis).length === 0) {
-		return key + 'no-repeat'
+		return `background-repeat: no-repeat`
 	}
 
 	const x = repeatAxis['repeat-x'] || 'no-repeat'
 	const y = repeatAxis['repeat-y'] || 'no-repeat'
-	return key + `${x} ${y}`
+	return `background-repeat: ${x} ${y}`
 }
 
 export const parseBackground = (image: RootContentMap['image'], index: number, parent: Parent, root: Parent) => {
@@ -85,19 +82,17 @@ export const parseBackground = (image: RootContentMap['image'], index: number, p
 	const repeat = parseBackgroundRepeat(imageAlt) // default no-repeat
 	const sizeGrid = parseValueWithUnit(imageAlt) // default empty string
 
-	image.data = image.data || {}
-	image.data.hProperties = image.data.hProperties || {}
+	image.data ||= {}
+	image.data.hProperties ||= {}
 
-	const style = (image.data.hProperties?.style as string) || ''
-	const newStyles = [style, url, filter, size, position, repeat]
+	const newStyles = [image.data.hProperties?.style as string, url, filter, size, position, repeat]
 
 	const isVertical = regexp.verticalKey.test(imageAlt)
 
-	const baseClass = (image.data.hProperties.class as string) || ''
-	const className = parseClass(imageAlt, baseClass) + ' background-image'
+	const baseClass = 'background-image ' + (image.data.hProperties.class || '')
+	const className = parseClass(imageAlt, baseClass)
 
-	const baseId = (image.data.hProperties.id as string) || ''
-	const id = parseId(imageAlt, baseId)
+	const id = parseId(imageAlt, image.data.hProperties.id as string)
 
 	image.data.hProperties = {
 		...image.data.hProperties,
@@ -113,10 +108,10 @@ export const parseBackground = (image: RootContentMap['image'], index: number, p
 	return { type: 'bg', data: image.data } as Node
 }
 
-const clearParent = (root: Parent, parent?: Parent) => {
-	while (true) {
-		if (!parent) return
+const clearParent = (root: Parent, parent: Parent) => {
+	let loop = true
 
+	while (loop) {
 		if (parent.children.length > 0) {
 			const emptyChildren = parent.children.every((child) => {
 				return child.type === 'text' && child.value.trim() === ''
@@ -126,7 +121,10 @@ const clearParent = (root: Parent, parent?: Parent) => {
 		}
 
 		visit(root, parent, (_, index, parentNode) => {
-			if (typeof index !== 'number' || !parentNode) return
+			if (typeof index !== 'number' || !parentNode) {
+				loop = false
+				return
+			}
 
 			parentNode.children.splice(index, 1)
 			parent = parentNode
@@ -136,6 +134,7 @@ const clearParent = (root: Parent, parent?: Parent) => {
 
 export const makeBackgroundContainer = (images: Node[]) => {
 	const className = 'background-container'
+
 	const vertical = images.some((image) => image.data?.hProperties?.isVertical)
 
 	const sizeGrids = images.map((image) => image.data?.hProperties?.sizeGrid || '1fr')

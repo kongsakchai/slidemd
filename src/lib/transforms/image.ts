@@ -56,7 +56,7 @@ const parsePositionStyles = (value: string): string[] => {
 
 export const parseImage = (image: RootContentMap['image'], parent: Parent) => {
 	const imageAlt = image.alt || ''
-	image.alt = imageAlt.split(' ')[0] || ''
+	image.alt = imageAlt.split(' ')[0]
 
 	const filter = parseFilterStyle(imageAlt)
 	const fit = parseObjectFit(imageAlt)
@@ -67,21 +67,27 @@ export const parseImage = (image: RootContentMap['image'], parent: Parent) => {
 	const isAbsolute = regexp.absoluteKey.test(imageAlt)
 	const absolute = isAbsolute ? 'position: absolute' : ''
 
-	image.data = image.data || {}
-	image.data.hProperties = image.data.hProperties || {}
+	image.data ||= {}
+	image.data.hProperties ||= {}
 
-	const style = (image.data.hProperties?.style as string) || ''
-	const newStyles = [style, filter, fit, objectPos, absolute, ...positionStyle, ...widthHeight]
+	const styles = [
+		image.data.hProperties?.style as string,
+		absolute,
+		filter,
+		fit,
+		objectPos,
+		...widthHeight,
+		...positionStyle
+	]
 
-	const baseClass = (image.data.hProperties.class as string) || ''
-	const className = parseClass(imageAlt, baseClass)
+	const className = parseClass(imageAlt, image.data.hProperties.class as string)
 
-	const baseId = (image.data.hProperties.id as string) || ''
-	const id = parseId(imageAlt, baseId)
+	const id = parseId(imageAlt, image.data.hProperties.id as string)
 
 	image.data.hProperties = {
 		...image.data.hProperties,
-		style: join(newStyles, '; '),
+		isAbsolute: isAbsolute,
+		style: join(styles, '; '),
 		class: className,
 		id
 	}
@@ -97,12 +103,12 @@ const setParentContents = (parent: Parent) => {
 	})
 	if (!contents) return
 
-	parent.data = parent.data || {}
+	parent.data ||= {}
 
-	const styles = `display:contents; ${parent.data.hProperties?.style || ''}`
+	const styles = [parent.data.hProperties?.style as string, 'display: contents']
 
 	parent.data.hProperties = {
 		...parent.data.hProperties,
-		style: styles
+		style: join(styles, '; ')
 	}
 }

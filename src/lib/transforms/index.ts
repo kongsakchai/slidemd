@@ -23,17 +23,15 @@ const parseSplitSize = (node: RootContentMap['html']) => {
 const parseAttrsToParent = (node: RootContentMap['html'], parent: Parent) => {
 	const value = node.value.trim()
 
-	parent.data = parent.data || {}
+	parent.data ||= {}
 	parent.data.hProperties = {
 		...parent.data.hProperties,
 		...parseAttributes(value)
 	}
 
-	const baseClass = (parent.data.hProperties.class as string) || ''
-	parent.data.hProperties.class = parseClass(value, baseClass)
+	parent.data.hProperties.class = parseClass(value, parent.data.hProperties.class as string)
 
-	const baseId = (parent.data.hProperties.id as string) || ''
-	parent.data.hProperties.id = parseId(value, baseId)
+	parent.data.hProperties.id = parseId(value, parent.data.hProperties.id as string)
 }
 
 const parseDirectivesToStore = (node: RootContentMap['html'], store: DirectiveStore) => {
@@ -112,8 +110,10 @@ const transformNode = (root: Parent) => {
 	const bgList: Node[] = []
 	visit(root, 'image', handleImage(root, bgList))
 
-	const bgContainer = makeBackgroundContainer(bgList)
-	root.children.push(bgContainer as RootContent)
+	if (bgList.length > 0) {
+		const bgContainer = makeBackgroundContainer(bgList)
+		root.children.push(bgContainer as RootContent)
+	}
 }
 
 const makeSplitParent = (node: RootContent[]) => {
@@ -157,7 +157,7 @@ export const slideTransform = () => {
 
 		visit(tree, 'html', handleHtml(splitList, store))
 
-		if (splitList.size > 0) {
+		if (splitList.size == 0) {
 			transformNode(tree)
 		} else {
 			splitList.set(tree.children.length, '1fr')
