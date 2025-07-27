@@ -21,7 +21,7 @@ const regexp = {
 	frontMatter: /^[\r\n]*---\r?\n([\s\S]+?)[\r\n]?---/g
 }
 
-export const shikiOptions: RehypeShikiOptions = {
+const shikiOptions: RehypeShikiOptions = {
 	themes: {
 		light: 'github-light',
 		dark: 'github-dark'
@@ -77,7 +77,7 @@ interface MarkdownToPageResult {
 const markdownToPage = async (markdown: string, baseDirective?: Directive): Promise<MarkdownToPageResult> => {
 	const file = await processor.process(markdown)
 	const directives = file.data.directives as DirectiveStore
-	const split = file.data.split as boolean | false
+	const split = (file.data.split as boolean) || false
 
 	const global = { ...baseDirective, ...directives.global }
 	const local = { ...global, ...directives.local }
