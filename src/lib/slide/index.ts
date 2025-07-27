@@ -10,8 +10,8 @@ import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
-import { unified } from 'unified'
-import { slideTransform, type DirectiveStore } from './transforms'
+import { unified, type Processor } from 'unified'
+import { slideTransform, type DirectiveStore } from './markdown'
 import type { Directive, Slide, SlidePage, SlideProperties } from './types'
 
 const regexp = {
@@ -34,18 +34,27 @@ const shikiOptions: RehypeShikiOptions = {
 	]
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let cache: Processor<any, any, any, any, any> | undefined
+
 // Markdown
 // - remark-parse -> mdast (Markdown AST).
 // - remark-gfm -> mdast (Support tables, strikethrough, and task lists).
 // - remark-rehype -> hast (HTML AST)
 // - rehype-stringify -> HTML string
-const processor = unified()
-	.use(remarkParse)
-	.use(remarkGfm)
-	.use(slideTransform)
-	.use(remarkRehype, { allowDangerousHtml: true })
-	.use(rehypeShiki, shikiOptions)
-	.use(rehypeStringify, { allowDangerousHtml: true })
+const setupProcessor = () => {
+	if (cache) return cache
+
+	cache = unified()
+		.use(remarkParse)
+		.use(remarkGfm)
+		.use(slideTransform)
+		.use(remarkRehype, { allowDangerousHtml: true })
+		.use(rehypeShiki, shikiOptions)
+		.use(rehypeStringify, { allowDangerousHtml: true })
+
+	return cache
+}
 
 const extractFrontmatter = (markdown: string) => {
 	const match = regexp.frontMatter.exec(markdown)
@@ -77,6 +86,8 @@ interface MarkdownToPageResult {
 const markdownToPage = async (markdown: string, baseDirective?: Directive): Promise<MarkdownToPageResult> => {
 	const timeStart = Date.now()
 
+	const processor = setupProcessor()
+
 	const file = await processor.process(markdown)
 	const directives = file.data.directives as DirectiveStore
 	const split = (file.data.split as boolean) || false
@@ -96,7 +107,7 @@ const markdownToPage = async (markdown: string, baseDirective?: Directive): Prom
 	}
 }
 
-const markdownToSlide = async (markdown: string): Promise<Slide> => {
+const process = async (markdown: string): Promise<Slide> => {
 	const { body, metadata } = extractFrontmatter(markdown)
 	const bodyList = body.split(/^[\r\n]*---[\r\n]?/) // Split by "---" and filter out empty strings
 
@@ -116,4 +127,4 @@ const markdownToSlide = async (markdown: string): Promise<Slide> => {
 	}
 }
 
-export { extractFrontmatter, markdownToPage, markdownToSlide }
+export default { extractFrontmatter, markdownToPage, process }

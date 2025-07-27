@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { extractFrontmatter, markdownToPage, markdownToSlide } from './markdown'
+import slide from '.'
 
 describe('extractFrontmatter', () => {
 	test('should extract frontmatter and body', () => {
@@ -9,7 +9,7 @@ author: John Doe
 ---
 # Slide Content`
 
-		const result = extractFrontmatter(markdown)
+		const result = slide.extractFrontmatter(markdown)
 		expect(result.metadata).toEqual({
 			title: 'Test Slide',
 			author: 'John Doe'
@@ -19,7 +19,7 @@ author: John Doe
 
 	test('should return body only when no frontmatter', () => {
 		const markdown = '# Slide Content'
-		const result = extractFrontmatter(markdown)
+		const result = slide.extractFrontmatter(markdown)
 		expect(result.metadata).toEqual({})
 		expect(result.body).toEqual('# Slide Content')
 	})
@@ -29,7 +29,7 @@ describe('markdownToPage', () => {
 	test('should convert markdown to HTML and extract directives', async () => {
 		const markdown = '# Header'
 
-		const result = await markdownToPage(markdown, {})
+		const result = await slide.markdownToPage(markdown, {})
 
 		expect(result.html).toContain('<h1>Header</h1>')
 		expect(result.directive).toEqual({
@@ -65,7 +65,7 @@ author: John Doe
 			}
 		}
 
-		const result = await markdownToSlide(markdown)
+		const result = await slide.process(markdown)
 		expect(result).toEqual(expected)
 	})
 })
