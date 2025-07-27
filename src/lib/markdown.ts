@@ -75,12 +75,16 @@ interface MarkdownToPageResult {
 // - The global directive is merged with the base directive
 // - The local directive overrides the global directive
 const markdownToPage = async (markdown: string, baseDirective?: Directive): Promise<MarkdownToPageResult> => {
+	const timeStart = Date.now()
+
 	const file = await processor.process(markdown)
 	const directives = file.data.directives as DirectiveStore
 	const split = (file.data.split as boolean) || false
 
 	const global = { ...baseDirective, ...directives.global }
 	const local = { ...global, ...directives.local }
+
+	console.debug(`Markdown processed in ${Date.now() - timeStart}ms`)
 
 	return {
 		html: file.toString(),

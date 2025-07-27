@@ -18,15 +18,13 @@ This is a simple Markdown file that can be used to test the SlideMD application.
 | Header      | Title       |
 | Paragraph   | Text        |
 
-```mermaid
+```go
+package main
+import "fmt"
 
-flowchart LR
-    markdown["`This is Markdown`"]
-    newLines["`Line1
-    Line 2
-    Line 3`"]
-    markdown --> newLines
-
+func main() {
+    fmt.Println("Hello, SlideMD!")
+}
 ```
 
 - [ ] to do
