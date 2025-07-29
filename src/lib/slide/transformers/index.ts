@@ -1,6 +1,6 @@
 import { visit } from 'unist-util-visit'
 
-import type { Element } from 'hast'
+import type { Element, Root as HRoot } from 'hast'
 import type { Node, Parent, Root, RootContent, RootContentMap } from 'mdast'
 import type { VFile } from 'vfile'
 import { transformBackground } from './background'
@@ -246,12 +246,12 @@ export const codeTransformer = () => {
 }
 
 export const enhanceCodeTransformer = () => {
-	return async (tree: Root) => {
+	return async (tree: HRoot) => {
 		const preElements: Element[] = []
 
 		visit(tree, { tagName: 'pre' }, (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
-			preElements.push(node as Element)
+			preElements.push(node)
 		})
 
 		for (const pre of preElements) {

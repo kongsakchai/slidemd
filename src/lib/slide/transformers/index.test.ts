@@ -1,7 +1,15 @@
+import type { Element, Root as HRoot } from 'hast'
 import type { Root } from 'mdast'
 import { VFile } from 'vfile'
 import { describe, expect, test } from 'vitest'
-import { codeTransformer, htmlTransformer, imageTransformer, splitTransformer, type DirectiveStore } from '.'
+import {
+	codeTransformer,
+	enhanceCodeTransformer,
+	htmlTransformer,
+	imageTransformer,
+	splitTransformer,
+	type DirectiveStore
+} from '.'
 
 type rootType = 'root'
 
@@ -502,6 +510,31 @@ describe('code handlers', () => {
 	test('should parse code block with language', () => {
 		const codeBlock = {
 			type: 'code',
+			lang: 'js',
+			value: 'console.log("Hello, world!");'
+		}
+
+		const root = {
+			type: 'root',
+			children: [codeBlock]
+		} as Root
+
+		const expectedCodeBlock = {
+			type: 'code',
+			lang: 'js',
+			meta: 'js',
+			value: 'console.log("Hello, world!");'
+		}
+
+		const transform = codeTransformer()
+		transform(root)
+
+		expect(root.children[0]).toStrictEqual(expectedCodeBlock)
+	})
+
+	test('should parse code block to mermaid', () => {
+		const codeBlock = {
+			type: 'code',
 			lang: 'mermaid',
 			value: 'console.log("Hello, world!");'
 		}
@@ -537,5 +570,74 @@ describe('code handlers', () => {
 		}
 
 		expect(codeBlock).toStrictEqual(expectedCodeBlock)
+	})
+})
+
+describe('enhance code handlers', () => {
+	test('should enhance code blocks with shiki', async () => {
+		const pre = {
+			type: 'element',
+			tagName: 'pre',
+			properties: {},
+			children: [
+				{
+					type: 'element',
+					tagName: 'code',
+					properties: { class: ['language-js'] },
+					data: { meta: 'js' },
+					children: [{ type: 'text', value: "console.log('Hello, world!');" }]
+				}
+			]
+		} as Element
+
+		const root = {
+			type: 'root' as rootType,
+			children: [pre]
+		}
+
+		const transform = enhanceCodeTransformer()
+		await transform(root)
+
+		const code = pre.children[0] as Element
+
+		expect(pre.properties.class).toContain('shiki')
+		expect(code.properties.class).toContain('language-js')
+	})
+
+	test('should dont enhance code blocks if no parent', async () => {
+		const pre = {
+			type: 'element' as rootType,
+			tagName: 'pre',
+			properties: {},
+			children: [
+				{
+					type: 'element',
+					tagName: 'code',
+					properties: {},
+					data: { meta: 'js' },
+					children: [{ type: 'text', value: "console.log('Hello, world!');" }]
+				}
+			]
+		} as HRoot
+
+		const expectedPre = {
+			type: 'element' as rootType,
+			tagName: 'pre',
+			properties: {},
+			children: [
+				{
+					type: 'element',
+					tagName: 'code',
+					properties: {},
+					data: { meta: 'js' },
+					children: [{ type: 'text', value: "console.log('Hello, world!');" }]
+				}
+			]
+		} as HRoot
+
+		const transform = enhanceCodeTransformer()
+		await transform(pre)
+
+		expect(pre).toStrictEqual(expectedPre)
 	})
 })
