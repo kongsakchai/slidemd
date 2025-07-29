@@ -19,7 +19,6 @@
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
 		"@eslint/js": "^9.18.0",
-		"@shikijs/rehype": "^3.8.1",
 		"@shikijs/transformers": "^3.8.1",
 		"@sveltejs/adapter-auto": "^6.0.0",
 		"@sveltejs/adapter-static": "^3.0.8",
@@ -53,7 +52,6 @@
 		"js-yaml": "^4.1.0",
 		"mermaid": "^11.9.0",
 		"npm": "^11.4.2",
-		"rehype-mermaid": "^3.0.0",
 		"rehype-stringify": "^10.0.1",
 		"remark-gfm": "^4.0.1",
 		"remark-parse": "^11.0.0",

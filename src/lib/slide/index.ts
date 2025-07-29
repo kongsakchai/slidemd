@@ -1,10 +1,3 @@
-import rehypeShiki, { type RehypeShikiOptions } from '@shikijs/rehype'
-import {
-	transformerNotationDiff,
-	transformerNotationErrorLevel,
-	transformerNotationFocus,
-	transformerNotationHighlight
-} from '@shikijs/transformers'
 import yaml from 'js-yaml'
 import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
@@ -14,6 +7,7 @@ import { unified, type Processor } from 'unified'
 import {
 	codeTransformer,
 	directiveStore,
+	enhanceCodeTransformer,
 	htmlTransformer,
 	imageTransformer,
 	splitTransformer,
@@ -28,18 +22,18 @@ const regexp = {
 	frontMatter: /^[\r\n]*---\r?\n([\s\S]+?)[\r\n]?---/g
 }
 
-const shikiOptions: RehypeShikiOptions = {
-	themes: {
-		light: 'github-light',
-		dark: 'github-dark'
-	},
-	transformers: [
-		transformerNotationDiff(),
-		transformerNotationHighlight(),
-		transformerNotationFocus(),
-		transformerNotationErrorLevel()
-	]
-}
+// const shikiOptions: RehypeShikiOptions = {
+// 	themes: {
+// 		light: 'github-light',
+// 		dark: 'github-dark'
+// 	},
+// 	transformers: [
+// 		transformerNotationDiff(),
+// 		transformerNotationHighlight(),
+// 		transformerNotationFocus(),
+// 		transformerNotationErrorLevel()
+// 	]
+// }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let cache: Processor<any, any, any, any, any> | undefined
@@ -61,7 +55,7 @@ const setupProcessor = () => {
 		.use(imageTransformer)
 		.use(codeTransformer)
 		.use(remarkRehype, { allowDangerousHtml: true })
-		.use(rehypeShiki, shikiOptions)
+		.use(enhanceCodeTransformer)
 		.use(rehypeStringify, { allowDangerousHtml: true })
 
 	return cache

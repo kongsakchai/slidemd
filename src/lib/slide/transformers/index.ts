@@ -1,10 +1,12 @@
 import { visit } from 'unist-util-visit'
 
+import type { Element } from 'hast'
 import type { Node, Parent, Root, RootContent, RootContentMap } from 'mdast'
 import type { VFile } from 'vfile'
 import { transformBackground } from './background'
 import { transformImage } from './image'
 import { join, parseAttributes, parseClass, parseId, parseSplit, regexp } from './parser'
+import { transformShiki } from './shiki'
 
 export interface DirectiveStore {
 	global: Record<string, unknown>
@@ -235,7 +237,25 @@ export const codeTransformer = () => {
 					value: html
 				}
 				parent.children.splice(index, 1, newNode as RootContent)
+				return
 			}
+
+			node.meta = node.lang
 		})
+	}
+}
+
+export const enhanceCodeTransformer = () => {
+	return async (tree: Root) => {
+		const preElements: Element[] = []
+
+		visit(tree, { tagName: 'pre' }, (node, index, parent) => {
+			if (typeof index !== 'number' || !parent) return
+			preElements.push(node as Element)
+		})
+
+		for (const pre of preElements) {
+			await transformShiki(pre)
+		}
 	}
 }
