@@ -8,10 +8,17 @@ import {
 import yaml from 'js-yaml'
 import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
-import remarkParse from 'remark-parse'
+import markdown from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified, type Processor } from 'unified'
-import { slideTransform, type DirectiveStore } from './markdown'
+import {
+	codeTransformer,
+	directiveStore,
+	htmlTransformer,
+	imageTransformer,
+	splitTransformer,
+	type DirectiveStore
+} from './transformers'
 import type { Directive, Slide, SlidePage, SlideProperties } from './types'
 
 const regexp = {
@@ -46,9 +53,13 @@ const setupProcessor = () => {
 	if (cache) return cache
 
 	cache = unified()
-		.use(remarkParse)
+		.use(markdown)
 		.use(remarkGfm)
-		.use(slideTransform)
+		.use(directiveStore)
+		.use(splitTransformer)
+		.use(htmlTransformer)
+		.use(imageTransformer)
+		.use(codeTransformer)
 		.use(remarkRehype, { allowDangerousHtml: true })
 		.use(rehypeShiki, shikiOptions)
 		.use(rehypeStringify, { allowDangerousHtml: true })
@@ -83,7 +94,7 @@ interface MarkdownToPageResult {
 // Convert markdown to HTML and extract directives
 // - The global directive is merged with the base directive
 // - The local directive overrides the global directive
-const markdownToPage = async (markdown: string, baseDirective?: Directive): Promise<MarkdownToPageResult> => {
+const toPage = async (markdown: string, baseDirective?: Directive): Promise<MarkdownToPageResult> => {
 	const timeStart = Date.now()
 
 	const processor = setupProcessor()
@@ -115,7 +126,7 @@ const process = async (markdown: string): Promise<Slide> => {
 	let globalDirective = metadata as Directive
 
 	for (const str of bodyList) {
-		const { html, directive } = await markdownToPage(str.trim(), globalDirective)
+		const { html, directive } = await toPage(str.trim(), globalDirective)
 		globalDirective = directive.global
 
 		pages.push({ html, directive: directive.local })
@@ -127,4 +138,4 @@ const process = async (markdown: string): Promise<Slide> => {
 	}
 }
 
-export default { extractFrontmatter, markdownToPage, process }
+export default { extractFrontmatter, toPage, process }

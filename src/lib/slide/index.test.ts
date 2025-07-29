@@ -25,11 +25,11 @@ author: John Doe
 	})
 })
 
-describe('markdownToPage', () => {
+describe('toPage', () => {
 	test('should convert markdown to HTML and extract directives', async () => {
 		const markdown = '# Header'
 
-		const result = await slide.markdownToPage(markdown, {})
+		const result = await slide.toPage(markdown, {})
 
 		expect(result.html).toContain('<h1>Header</h1>')
 		expect(result.directive).toEqual({

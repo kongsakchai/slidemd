@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { parseImage } from './image'
+import { transformImage } from './image'
 
 type image = 'image'
 
@@ -10,7 +10,6 @@ describe('Image Transform Tests', () => {
 			alt: '',
 			url: 'https://example.com/image.png'
 		}
-		const parent = { type: 'parent', children: [image] }
 
 		const expectedImage = {
 			type: 'image',
@@ -26,7 +25,7 @@ describe('Image Transform Tests', () => {
 			}
 		}
 
-		parseImage(image, parent)
+		transformImage(image)
 
 		expect(image).toEqual(expectedImage)
 	})
@@ -44,7 +43,6 @@ describe('Image Transform Tests', () => {
 				}
 			}
 		}
-		const parent = { type: 'parent', children: [image] }
 
 		const expectedImage = {
 			type: 'image',
@@ -60,7 +58,7 @@ describe('Image Transform Tests', () => {
 			}
 		}
 
-		parseImage(image, parent)
+		transformImage(image)
 
 		expect(image).toEqual(expectedImage)
 	})
@@ -71,7 +69,6 @@ describe('Image Transform Tests', () => {
 			alt: 'a_sample_image x:10%',
 			url: 'https://example.com/image.png'
 		}
-		const parent = { type: 'parent', children: [image] }
 
 		const expectedImage = {
 			type: 'image',
@@ -87,7 +84,7 @@ describe('Image Transform Tests', () => {
 			}
 		}
 
-		parseImage(image, parent)
+		transformImage(image)
 
 		expect(image).toEqual(expectedImage)
 	})
@@ -98,7 +95,6 @@ describe('Image Transform Tests', () => {
 			alt: 'a_sample_image y:10%',
 			url: 'https://example.com/image.png'
 		}
-		const parent = { type: 'parent', children: [image] }
 
 		const expectedImage = {
 			type: 'image',
@@ -114,25 +110,16 @@ describe('Image Transform Tests', () => {
 			}
 		}
 
-		parseImage(image, parent)
+		transformImage(image)
 
 		expect(image).toEqual(expectedImage)
 	})
 
-	test('should parse image with absolute and position and parent to be contents', () => {
+	test('should parse image with absolute positioning', () => {
 		const image = {
 			type: 'image' as image,
-			alt: 'a_sample_image absolute top:10px left:20px',
+			alt: 'a_sample_image #img-id .img-class absolute top:30px',
 			url: 'https://example.com/image.png'
-		}
-		const parent = {
-			type: 'parent',
-			children: [image],
-			data: {
-				hProperties: {
-					style: 'opacity: 0.5'
-				}
-			}
 		}
 
 		const expectedImage = {
@@ -141,65 +128,16 @@ describe('Image Transform Tests', () => {
 			url: 'https://example.com/image.png',
 			data: {
 				hProperties: {
-					id: '',
-					class: '',
 					isAbsolute: true,
-					style: 'position: absolute; object-fit: none; top: 10px; left: 20px'
+					class: 'img-class',
+					id: 'img-id',
+					style: 'position: absolute; object-fit: none; top: 30px'
 				}
 			}
 		}
 
-		const expectedParent = {
-			type: 'parent',
-			data: {
-				hProperties: {
-					style: 'opacity: 0.5; display: contents'
-				}
-			},
-			children: [image]
-		}
-
-		parseImage(image, parent)
+		transformImage(image)
 
 		expect(image).toEqual(expectedImage)
-		expect(parent).toEqual(expectedParent)
-	})
-
-	test('should parse image with absolute and position and parent to be contents', () => {
-		const image = {
-			type: 'image' as image,
-			alt: 'a_sample_image absolute top:10px left:20px',
-			url: 'https://example.com/image.png'
-		}
-		const image2 = {
-			type: 'image' as image,
-			alt: 'a_sample_image absolute top:10px left:20px',
-			url: 'https://example.com/image.png'
-		}
-		const parent = { type: 'parent', children: [image, image2] }
-
-		const expectedImage = {
-			type: 'image',
-			alt: 'a_sample_image',
-			url: 'https://example.com/image.png',
-			data: {
-				hProperties: {
-					id: '',
-					class: '',
-					isAbsolute: true,
-					style: 'position: absolute; object-fit: none; top: 10px; left: 20px'
-				}
-			}
-		}
-
-		const expectedParent = {
-			type: 'parent',
-			children: [image, image2]
-		}
-
-		parseImage(image, parent)
-
-		expect(image).toEqual(expectedImage)
-		expect(parent).toEqual(expectedParent)
 	})
 })

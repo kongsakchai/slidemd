@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { directiveToStyle } from '$lib/helper'
+	import { directiveToStyle } from '$lib/slide/helper'
 	import mermaid from 'mermaid'
 
 	let { data } = $props()

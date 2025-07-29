@@ -1,4 +1,4 @@
-import type { Parent, RootContentMap } from 'mdast'
+import type { RootContentMap } from 'mdast'
 import {
 	join,
 	parseAxis,
@@ -54,7 +54,7 @@ const parsePositionStyles = (value: string): string[] => {
 	return positionStyle
 }
 
-export const parseImage = (image: RootContentMap['image'], parent: Parent) => {
+export const transformImage = (image: RootContentMap['image']) => {
 	const imageAlt = image.alt || ''
 	image.alt = imageAlt.split(' ')[0]
 
@@ -80,35 +80,12 @@ export const parseImage = (image: RootContentMap['image'], parent: Parent) => {
 		...positionStyle
 	]
 
-	const className = parseClass(imageAlt, image.data.hProperties.class as string)
-
-	const id = parseId(imageAlt, image.data.hProperties.id as string)
-
 	image.data.hProperties = {
 		...image.data.hProperties,
 		isAbsolute: isAbsolute,
-		style: join(styles, '; '),
-		class: className,
-		id
-	}
-
-	if (isAbsolute) {
-		setParentContents(parent)
-	}
-}
-
-const setParentContents = (parent: Parent) => {
-	const contents = parent.children.every((child) => {
-		return child.type === 'image' && child.data?.hProperties?.isAbsolute
-	})
-	if (!contents) return
-
-	parent.data ||= {}
-
-	const styles = [parent.data.hProperties?.style as string, 'display: contents']
-
-	parent.data.hProperties = {
-		...parent.data.hProperties,
 		style: join(styles, '; ')
 	}
+
+	image.data.hProperties.class = parseClass(imageAlt, image.data.hProperties.class as string)
+	image.data.hProperties.id = parseId(imageAlt, image.data.hProperties.id as string)
 }

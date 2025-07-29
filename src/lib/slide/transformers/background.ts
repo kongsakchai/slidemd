@@ -1,5 +1,4 @@
-import type { Node, Parent, RootContent, RootContentMap } from 'mdast'
-import { visit } from 'unist-util-visit'
+import type { Node, RootContentMap } from 'mdast'
 import {
 	join,
 	parseAxis,
@@ -72,7 +71,7 @@ const parseBackgroundRepeat = (value: string): string => {
 	return `background-repeat: ${x} ${y}`
 }
 
-export const parseBackground = (image: RootContentMap['image'], index: number, parent: Parent, root: Parent) => {
+export const transformBackground = (image: RootContentMap['image']) => {
 	const imageAlt = image.alt || ''
 
 	const url = 'background-image: url(' + image.url + ')'
@@ -85,69 +84,19 @@ export const parseBackground = (image: RootContentMap['image'], index: number, p
 	image.data ||= {}
 	image.data.hProperties ||= {}
 
-	const newStyles = [image.data.hProperties?.style as string, url, filter, size, position, repeat]
-
 	const isVertical = regexp.verticalKey.test(imageAlt)
-
-	const baseClass = 'background-image ' + (image.data.hProperties.class || '')
-	const className = parseClass(imageAlt, baseClass)
-
-	const id = parseId(imageAlt, image.data.hProperties.id as string)
+	const newStyles = [image.data.hProperties?.style as string, url, filter, size, position, repeat]
 
 	image.data.hProperties = {
 		...image.data.hProperties,
 		style: join(newStyles, '; '),
 		isVertical,
-		sizeGrid,
-		class: className,
-		id
+		sizeGrid
 	}
-	parent.children.splice(index, 1)
-	clearParent(root, parent)
+
+	const baseClass = 'background-image ' + (image.data.hProperties.class || '')
+	image.data.hProperties.class = parseClass(imageAlt, baseClass)
+	image.data.hProperties.id = parseId(imageAlt, image.data.hProperties.id as string)
 
 	return { type: 'bg', data: image.data } as Node
-}
-
-const clearParent = (root: Parent, parent: Parent) => {
-	let loop = true
-
-	while (loop) {
-		if (parent.children.length > 0) {
-			const emptyChildren = parent.children.every((child) => {
-				return child.type === 'text' && child.value.trim() === ''
-			})
-
-			if (!emptyChildren) return
-		}
-
-		visit(root, parent, (_, index, parentNode) => {
-			if (typeof index !== 'number' || !parentNode) {
-				loop = false
-				return
-			}
-
-			parentNode.children.splice(index, 1)
-			parent = parentNode
-		})
-	}
-}
-
-export const makeBackgroundContainer = (images: Node[]) => {
-	const className = 'background-container'
-
-	const vertical = images.some((image) => image.data?.hProperties?.isVertical)
-
-	const sizeGrids = images.map((image) => image.data?.hProperties?.sizeGrid || '1fr')
-	const gridTemplate = (vertical ? '--bg-rows: ' : '--bg-columns: ') + sizeGrids.join(' ')
-
-	return {
-		type: 'bg-container',
-		data: {
-			hProperties: {
-				class: className,
-				style: gridTemplate
-			}
-		},
-		children: images as RootContent[]
-	} as Parent
 }
