@@ -115,7 +115,7 @@ export const splitTransformer = () => {
 				children: children as RootContent[],
 				data: {
 					hProperties: {
-						class: 'slide-child'
+						class: 'split-contents'
 					}
 				}
 			}
@@ -241,6 +241,26 @@ export const codeTransformer = () => {
 			}
 
 			node.meta = node.lang
+
+			const btn = {
+				type: 'html',
+				value: `<button class="copy"></button>`
+			}
+			const lang = {
+				type: 'html',
+				value: `<span class="lang">${node.lang || ''}</span>`
+			}
+
+			const container: Parent = {
+				type: 'parent',
+				data: {
+					hProperties: {
+						class: 'language-' + (node.lang || 'plaintext')
+					}
+				},
+				children: [btn, lang, node] as RootContent[]
+			}
+			parent.children.splice(index, 1, container as RootContent)
 		})
 	}
 }

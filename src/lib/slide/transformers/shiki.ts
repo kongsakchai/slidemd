@@ -27,12 +27,11 @@ export const transformShiki = async (pre: Element) => {
 
 	const shikiRoot = await codeToHast(codeStr, {
 		lang: lang,
+		defaultColor: false,
 		...shikiOptions
 	})
 	const shikiPre = shikiRoot.children[0] as Element
-	const shikiCode = shikiPre.children[0] as Element
 
-	pre.properties = { ...pre.properties, ...shikiPre.properties }
-	code.properties = { ...code.properties, ...shikiCode.properties }
-	code.children = shikiCode.children
+	pre.properties = shikiPre.properties
+	pre.children = shikiPre.children
 }
