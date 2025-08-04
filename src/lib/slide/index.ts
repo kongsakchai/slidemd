@@ -114,7 +114,7 @@ const toPage = async (markdown: string, baseDirective?: Directive): Promise<Mark
 
 const process = async (markdown: string): Promise<Slide> => {
 	const { body, metadata } = extractFrontmatter(markdown)
-	const bodyList = body.split(/^[\r\n]*---[\r\n]?/) // Split by "---" and filter out empty strings
+	const bodyList = body.split(/[\r\n]*---[\r\n]/) // Split by "---" and filter out empty strings
 
 	const pages: SlidePage[] = []
 	let globalDirective = metadata as Directive
