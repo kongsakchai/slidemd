@@ -3,29 +3,6 @@
 @theme {
 	--font-primary: 'Sarabun', system-ui, -apple-system, sans-serif;
 	--font-mono: 'Geist Mono', ui-monospace, 'Menlo', 'Monaco', 'Courier New', monospace;
-
-	/* Color Element */
-	--color-primary: white;
-	--color-primary-foreground: #3c3c43;
-	--color-secondary-foreground: color-mix(in srgb, #3c3c43 75%, white);
-	--color-header: #f06292;
-	--color-masking: #f06292;
-	--color-link: #f06292;
-	--color-line: #e2e2e3;
-	--color-table-primary: #f6f8fa;
-	--color-table-secondary: white;
-
-	--color-code: #f6f8fa;
-	--color-code-foreground: #f06292;
-	--color-code-highlight: color-mix(in srgb, #3c3c43 10%, white);
-	--color-code-error: color-mix(in srgb, #d20f39 15%, white);
-	--color-code-error-foreground: #d20f39;
-	--color-code-warning: color-mix(in srgb, #df8e1d 15%, white);
-	--color-code-warning-foreground: #df8e1d;
-	--color-code-add: color-mix(in srgb, #40a02b 15%, white);
-	--color-code-add-foreground: #40a02b;
-	--color-code-del: color-mix(in srgb, #d20f39 15%, white);
-	--color-code-del-foreground: #d20f39;
 }
 
 :root {
@@ -33,6 +10,31 @@
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+
+	/* Color Element */
+	--primary: white;
+	--primary-foreground: #3c3c43;
+	--secondary-foreground: color-mix(in srgb, #3c3c43 75%, white);
+	--header: #f06292;
+	--masking: #f06292;
+	--link: #f06292;
+	--line: #e2e2e3;
+	--table-primary: white;
+	--table-primary-foreground: #3c3c43;
+	--table-secondary: #f6f8fa;
+	--table-secondary-foreground: color-mix(in srgb, #3c3c43 75%, white);
+
+	--code: #f6f8fa;
+	--code-foreground: #f06292;
+	--code-highlight: color-mix(in srgb, #3c3c43 10%, white);
+	--code-error: color-mix(in srgb, #d20f39 15%, white);
+	--code-error-foreground: #d20f39;
+	--code-warning: color-mix(in srgb, #df8e1d 15%, white);
+	--code-warning-foreground: #df8e1d;
+	--code-add: color-mix(in srgb, #40a02b 15%, white);
+	--code-add-foreground: #40a02b;
+	--code-del: color-mix(in srgb, #d20f39 15%, white);
+	--code-del-foreground: #d20f39;
 }
 
 /* Body */
@@ -52,8 +54,8 @@ body {
 /* Slide */
 
 section.slide {
-	color: var(--color-primary-foreground);
-	background-color: var(--color-primary);
+	color: var(--primary-foreground);
+	background-color: var(--primary);
 
 	aspect-ratio: 16 / 9;
 	width: 100%;
@@ -100,7 +102,7 @@ h3,
 h4,
 h5,
 h6 {
-	color: var(--color-header);
+	color: var(--header);
 	font-weight: 700;
 	line-height: 1.25;
 	margin: 24px 0 16px 0;
@@ -145,11 +147,11 @@ em {
 }
 
 del {
-	text-decoration: 2px wavy line-through var(--color-masking);
+	text-decoration: 2px wavy line-through var(--masking);
 }
 
 a {
-	color: var(--color-link);
+	color: var(--link);
 }
 
 /* Image */
@@ -186,8 +188,8 @@ ol ol {
 blockquote {
 	padding-left: 16px;
 	margin: 16px 0;
-	border-left: 2px solid var(--color-line);
-	color: var(--color-secondary-foreground);
+	border-left: 2px solid var(--line);
+	color: var(--secondary-foreground);
 }
 
 blockquote > :first-child {
@@ -212,27 +214,28 @@ th,
 td {
 	font-size: 14px;
 	padding: 8px 16px;
-	border: 1px solid var(--color-line);
+	border: 1px solid var(--line);
 }
 
 th {
 	text-align: left;
-	color: var(--color-secondary-foreground);
-	background-color: var(--color-table-primary);
+	color: var(--table-secondary-foreground);
+	background-color: var(--table-secondary);
 }
 
 tr {
-	background-color: var(--color-table-secondary);
+	background-color: var(--table-primary);
+	color: var(--table-primary-foreground);
 }
 
 tr:nth-child(2n) {
-	background-color: var(--color-table-secondary);
+	background-color: var(--table-secondary);
 }
 
 /* iframe */
 
 iframe {
-	border: 1px solid var(--color-line);
+	border: 1px solid var(--line);
 	border-radius: 8px;
 	width: 100%;
 	height: 100%;
@@ -249,15 +252,15 @@ code {
 :not(pre) > code {
 	border-radius: 4px;
 	padding: 3px 6px;
-	color: var(--color-code-foreground);
-	background-color: var(--color-code);
+	color: var(--code-foreground);
+	background-color: var(--code);
 }
 
 [class*='language-'] {
 	position: relative;
 	border-radius: 8px;
 	margin: 16px 0;
-	background-color: var(--color-code);
+	background-color: var(--code);
 }
 
 [class*='language-'] pre {
@@ -281,18 +284,18 @@ code {
 	}
 
 	.highlighted {
-		background-color: var(--color-code-highlight);
+		background-color: var(--code-highlight);
 	}
 
 	.highlighted.error {
-		background-color: var(--color-code-error);
-		border-left: 2px solid var(--color-code-error-foreground);
+		background-color: var(--code-error);
+		border-left: 2px solid var(--code-error-foreground);
 		padding-left: 22px;
 	}
 
 	.highlighted.warning {
-		background-color: var(--color-code-warning);
-		border-left: 2px solid var(--color-code-warning-foreground);
+		background-color: var(--code-warning);
+		border-left: 2px solid var(--code-warning-foreground);
 		padding-left: 22px;
 	}
 
@@ -302,21 +305,21 @@ code {
 	}
 
 	.diff.remove {
-		background-color: var(--color-code-del);
+		background-color: var(--code-del);
 	}
 
 	.diff.remove::before {
 		content: '-';
-		color: var(--color-code-del-foreground);
+		color: var(--code-del-foreground);
 	}
 
 	.diff.add {
-		background-color: var(--color-code-add);
+		background-color: var(--code-add);
 	}
 
 	.diff.add::before {
 		content: '+';
-		color: var(--color-code-add-foreground);
+		color: var(--code-add-foreground);
 	}
 }
 
@@ -339,7 +342,7 @@ code {
 	right: 10px;
 	user-select: none;
 
-	color: var(--color-secondary-foreground);
+	color: var(--secondary-foreground);
 	font-family: var(--font-mono);
 	font-size: 12px;
 
@@ -356,13 +359,22 @@ code {
 	width: 32px;
 	height: 32px;
 
-	background: url('./lib/icons/copy-icon.svg') no-repeat center;
-	background-color: var(--color-primary);
-	border: 1px solid var(--color-line);
+	/* background: url('./lib/icons/copy-icon.svg') no-repeat center; */
+	background-color: var(--primary);
+	border: 1px solid var(--line);
 	border-radius: 4px;
 
 	opacity: 0;
 	transition: all 0.2s ease-in-out;
+
+	&::after {
+		content: '';
+		display: block;
+		width: 100%;
+		height: 100%;
+		background-color: var(--secondary-foreground);
+		mask: url('./lib/icons/copy-icon.svg') no-repeat center;
+	}
 
 	&::before {
 		content: 'Copied!';
@@ -373,14 +385,16 @@ code {
 
 		font-family: var(--font-mono);
 		font-size: 12px;
-		color: var(--color-secondary-foreground);
+		color: var(--secondary-foreground);
 
 		opacity: 0;
 		transition: all 0.2s ease-in-out;
 	}
 
 	&.copied {
-		background-image: url('./lib/icons/check-icon.svg');
+		&::after {
+			mask: url('./lib/icons/check-icon.svg') no-repeat center;
+		}
 
 		&::before {
 			opacity: 1;
