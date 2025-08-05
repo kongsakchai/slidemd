@@ -11,7 +11,7 @@ tags:
 
 This is a simple Markdown file that can be used to test the SlideMD application. You can write your content here, and it will be rendered as slides.
 
-![cover](https://picsum.photos/id/2/300)
+![cover](/lorem.png)
 
 | Syntax      | Description |
 | - | - |
@@ -29,3 +29,35 @@ func main() {
 
 - [ ] to do
 - [x] done
+
+---
+
+# Hello, SlideMd <!-- .text-red-500 .test -->
+
+Make Presentation by Markdown
+
+---
+
+<!-- @class: !bg-blue-100 dark:!bg-gray-500 -->
+
+# Header 1
+
+## Header 2
+
+### Header 3
+
+#### Header 4
+
+##### Header 5
+
+###### Header 6
+
+---
+
+## Paragraphs
+
+I really like using Markdown.I think I'll use it to format all of my documents from now on.
+I just love **bold text**.
+
+Italicized text is the *cat's meow*.
+This text is ***really important***.
