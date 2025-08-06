@@ -22,19 +22,14 @@
 		const dataIndex = target.getAttribute('data-index')
 		const index = dataIndex ? parseInt(dataIndex) : null
 
-		settings.aspectRatioLabel = aspectRatios[index || 0].label
-		settings.aspectRatio = aspectRatios[index || 0].value
+		if (index === null) return
+		settings.setAspectRatio(aspectRatios[index].value, aspectRatios[index].label)
 	}
 
 	const handleSelectTheme = (e: Event) => {
 		const target = e.target as HTMLSelectElement
 		const selectedTheme = target.value
-
-		if (settings.themes.includes(selectedTheme)) {
-			settings.theme = selectedTheme
-			document.documentElement.setAttribute('data-theme', selectedTheme)
-			localStorage.setItem('slidemd:theme', selectedTheme)
-		}
+		settings.setTheme(selectedTheme)
 	}
 </script>
 

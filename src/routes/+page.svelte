@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment'
 	import Controller from '$lib/components/controller.svelte'
+	import PreviewImage from '$lib/components/preview-image.svelte'
 	import { directiveToStyle, setCopyCodeButton } from '$lib/slide/helper'
 	import { settings } from '$lib/state.svelte.js'
 	import mermaid from 'mermaid'
@@ -48,11 +49,12 @@
 
 <svelte:body bind:clientWidth={screenWidth} bind:clientHeight={screenHeight} />
 
-<main class="flex h-full w-full flex-col items-center justify-center">
+<main class="relative h-full w-full">
 	<div
-		class="flex flex-col items-center justify-center overflow-hidden transition-all duration-300 ease-in-out"
+		class="absolute top-1/2 left-1/2 flex -translate-1/2 flex-col overflow-auto transition-all duration-300 ease-in-out"
 		class:rounded-lg={settings.size !== 1}
 		style:width="{settings.width}px"
+		style:height="{settings.width / settings.aspectRatio}px"
 		style:scale={size * settings.size}
 		style:font-size={settings.fontSize + 'px'}
 	>
@@ -62,7 +64,6 @@
 				class:split={page.directive.split}
 				class:hidden={currentPage !== i + 1}
 				style={directiveToStyle(page.directive)}
-				style:aspect-ratio={settings.aspectRatio}
 			>
 				{@html page.html}
 			</section>
@@ -77,4 +78,6 @@
 		onNext={nextPage}
 		onPrevious={previousPage}
 	/>
+
+	<PreviewImage />
 </main>

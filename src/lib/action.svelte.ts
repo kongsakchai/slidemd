@@ -5,11 +5,11 @@ export const clickOutside = (node: HTMLElement, callback: () => void) => {
 		}
 	}
 
-	document.addEventListener('click', handleClick)
+	document.addEventListener('pointerup', handleClick)
 
 	return {
 		destroy() {
-			document.removeEventListener('click', handleClick)
+			document.removeEventListener('pointerup', handleClick)
 		}
 	}
 }

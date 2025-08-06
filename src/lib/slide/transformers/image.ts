@@ -83,6 +83,7 @@ export const transformImage = (image: RootContentMap['image']) => {
 	image.data.hProperties = {
 		...image.data.hProperties,
 		isAbsolute: isAbsolute,
+		loading: 'lazy',
 		style: join(styles, '; ')
 	}
 

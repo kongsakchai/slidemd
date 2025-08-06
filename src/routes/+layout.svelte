@@ -16,8 +16,11 @@
 	}
 
 	onMount(() => {
-		settings.themes = ['default', ...getThemeName(Object.keys(themesLoaded))]
-		settings.theme = localStorage.getItem('slidemd:theme') || 'default'
+		const themeNames = getThemeName(Object.keys(themesLoaded))
+
+		settings.themes = ['default', ...themeNames]
+		settings.loadTheme()
+		settings.loadAspectRatio()
 	})
 </script>
 
