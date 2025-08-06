@@ -3,6 +3,7 @@
 
 	--primary: #0f172a;
 	--primary-foreground: white;
+	--primary-hover: color-mix(in srgb, white 10%, #0f172a);
 	--secondary-foreground: color-mix(in srgb, white 80%, #0f172a);
 	--header: #f06292;
 	--masking: #f06292;

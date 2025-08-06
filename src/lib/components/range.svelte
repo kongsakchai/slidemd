@@ -23,27 +23,21 @@
 
 	<input type="number" {min} {max} {step} bind:value />
 
-	<button class="reset-btn" aria-label="Reset settings" onclick={handleReset}></button>
+	<button
+		class="hover:bg-primary-hover reset-btn h-6 w-6 rounded-sm"
+		aria-label="Reset settings"
+		onclick={handleReset}
+	></button>
 </div>
 
 <style lang="postcss">
-	.reset-btn {
-		border-radius: 4px;
-		width: 24px;
-		height: 24px;
-
-		&:hover {
-			background-color: var(--primary-hover);
-		}
-
-		&::before {
-			content: '';
-			display: block;
-			width: 100%;
-			height: 100%;
-			background-color: var(--secondary-foreground);
-			mask: url('../icons/reload-icon.svg') no-repeat center;
-			mask-size: 80%;
-		}
+	.reset-btn::before {
+		content: '';
+		display: block;
+		width: 100%;
+		height: 100%;
+		background-color: var(--secondary-foreground);
+		mask: url('../icons/reload-icon.svg') no-repeat center;
+		mask-size: 80%;
 	}
 </style>

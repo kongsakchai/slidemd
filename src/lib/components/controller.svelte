@@ -12,7 +12,7 @@
 	}
 
 	let { currentPage, onNext, onPrevious, maxPage, disabledNext, disabledPrevious }: Props = $props()
-	let openSettings = $state(true)
+	let openSettings = $state(false)
 
 	const handleCloseSetting = () => {
 		openSettings = false
@@ -23,7 +23,7 @@
 	}
 </script>
 
-<div class="menu fixed bottom-[20px] left-[20px] z-50 flex items-center justify-center">
+<section class=" menu bottom-5 left-5 z-50">
 	<button class="menu-btn previous-btn" aria-label="previous" onclick={onPrevious} disabled={disabledPrevious}
 	></button>
 	<p class="text-xs font-medium select-none">{currentPage} / {maxPage || 0}</p>
@@ -32,13 +32,13 @@
 	<div class="divider"></div>
 
 	<div use:clickOutside={handleCloseSetting} class="relative h-8 w-8">
-		<button class="menu-btn setting-btn relative" aria-label="settings" onclick={handleToggleSetting}> </button>
+		<button class="menu-btn setting-btn" aria-label="settings" onclick={handleToggleSetting}> </button>
 
 		{#if openSettings}
 			<Setting />
 		{/if}
 	</div>
-</div>
+</section>
 
 <style lang="postcss">
 	p {
@@ -47,15 +47,25 @@
 	}
 
 	.menu {
+		position: fixed;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		gap: 8px;
-		padding: 8px;
+		border: 1px solid var(--line);
 		border-radius: 8px;
 		background-color: var(--primary);
-		color: var(--secondary-foreground);
-		border: 1px solid var(--line);
+		padding: 8px;
+		color: var(--primary-foreground);
+		opacity: 0;
+		transition: opacity 0.5s;
+
+		&:hover {
+			opacity: 1;
+		}
 	}
 
-	.menu .menu-btn {
+	.menu-btn {
 		border-radius: 4px;
 		width: 32px;
 		height: 32px;
@@ -77,15 +87,15 @@
 		}
 	}
 
-	.previous-btn::before {
+	.menu-btn.previous-btn::before {
 		mask: url('../icons/left-icon.svg') no-repeat center;
 	}
 
-	.next-btn::before {
+	.menu-btn.next-btn::before {
 		mask: url('../icons/right-icon.svg') no-repeat center;
 	}
 
-	.setting-btn::before {
+	.menu-btn.setting-btn::before {
 		mask: url('../icons/setting-icon.svg') no-repeat center;
 	}
 

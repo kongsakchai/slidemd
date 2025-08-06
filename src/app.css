@@ -1,15 +1,14 @@
 @import 'tailwindcss';
 
-@theme {
-	--font-primary: 'Sarabun', system-ui, -apple-system, sans-serif;
-	--font-mono: 'Geist Mono', ui-monospace, 'Menlo', 'Monaco', 'Courier New', monospace;
-}
-
 :root {
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+
+	/* Font */
+	--font-primary: 'Sarabun', system-ui, -apple-system, sans-serif;
+	--font-mono: 'Geist Mono', ui-monospace, 'Menlo', 'Monaco', 'Courier New', monospace;
 
 	/* Color Element */
 	--primary: white;
@@ -37,6 +36,39 @@
 	--code-add-foreground: #40a02b;
 	--code-del: color-mix(in srgb, #d20f39 15%, white);
 	--code-del-foreground: #d20f39;
+}
+
+@theme static {
+	--font-primary: var(--font-primary);
+	--font-mono: var(--font-mono);
+
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary-hover: var(--primary-hover);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-header: var(--header);
+	--color-masking: var(--masking);
+
+	--color-link: var(--link);
+	--color-action: var(--action);
+	--color-line: var(--line);
+
+	--color-table-primary: var(--table-primary);
+	--color-table-primary-foreground: var(--table-primary-foreground);
+	--color-table-secondary: var(--table-secondary);
+	--color-table-secondary-foreground: var(--table-secondary-foreground);
+
+	--color-code: var(--code);
+	--color-code-foreground: var(--code-foreground);
+	--color-code-highlight: var(--code-highlight);
+	--color-code-error: var(--code-error);
+	--color-code-error-foreground: var(--code-error-foreground);
+	--color-code-warning: var(--code-warning);
+	--color-code-warning-foreground: var(--code-warning-foreground);
+	--color-code-add: var(--code-add);
+	--color-code-add-foreground: var(--code-add-foreground);
+	--color-code-del: var(--code-del);
+	--color-code-del-foreground: var(--code-del-foreground);
 }
 
 /* Body */
