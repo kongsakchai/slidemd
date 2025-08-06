@@ -50,7 +50,8 @@
 
 <main class="flex h-full w-full flex-col items-center justify-center">
 	<div
-		class="flex flex-col items-center justify-center"
+		class="flex flex-col items-center justify-center overflow-hidden transition-all duration-300 ease-in-out"
+		class:rounded-lg={settings.size !== 1}
 		style:width="{settings.width}px"
 		style:scale={size * settings.size}
 		style:font-size={settings.fontSize + 'px'}

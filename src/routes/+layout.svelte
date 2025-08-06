@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { themes } from '$lib/state.svelte'
+	import { settings } from '$lib/state.svelte'
 	import { onMount } from 'svelte'
 	import '../app.css'
 
@@ -7,14 +7,17 @@
 
 	let { children } = $props()
 
-	onMount(() => {
-		const themeNames = Object.keys(themesLoaded)
+	const getThemeName = (paths: string[]) => {
+		return paths
 			.map((path) => {
 				return path.split('/').pop()?.replace('.css', '')
 			})
 			.filter((name) => name !== undefined)
+	}
 
-		themes.push('default', ...themeNames)
+	onMount(() => {
+		settings.themes = ['default', ...getThemeName(Object.keys(themesLoaded))]
+		settings.theme = localStorage.getItem('slidemd:theme') || 'default'
 	})
 </script>
 

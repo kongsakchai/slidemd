@@ -1,4 +1,5 @@
 interface Settings {
+	themes: string[]
 	theme: string
 	aspectRatioLabel: string
 	aspectRatio: number
@@ -8,6 +9,7 @@ interface Settings {
 }
 
 export const settings = $state<Settings>({
+	themes: [],
 	theme: 'default',
 	aspectRatioLabel: '16:9',
 	aspectRatio: 16 / 9,
@@ -15,5 +17,3 @@ export const settings = $state<Settings>({
 	fontSize: 16,
 	width: 1280
 })
-
-export const themes = $state<string[]>([])
