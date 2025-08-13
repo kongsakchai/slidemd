@@ -5,7 +5,7 @@ tags:
     - slide
 ---
 
-# SlideMD
+# SlideMD :tada:
 
 ## Markdown <!-- .hover:bg-red-500 .bg-blue-200 -->
 

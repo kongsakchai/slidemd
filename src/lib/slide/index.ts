@@ -1,5 +1,6 @@
 import yaml from 'js-yaml'
 import rehypeStringify from 'rehype-stringify'
+import remarkGemoji from 'remark-gemoji'
 import remarkGfm from 'remark-gfm'
 import markdown from 'remark-parse'
 import remarkRehype from 'remark-rehype'
@@ -49,6 +50,7 @@ const setupProcessor = () => {
 	cache = unified()
 		.use(markdown)
 		.use(remarkGfm)
+		.use(remarkGemoji)
 		.use(directiveStore)
 		.use(splitTransformer)
 		.use(htmlTransformer)
