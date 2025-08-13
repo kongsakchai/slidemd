@@ -10,7 +10,6 @@ export interface PageProperties {
 	paging?: boolean | 'skip' | 'hold'
 	class?: string
 	style?: string
-	color?: string
 }
 
 export interface PageSplitProperties {

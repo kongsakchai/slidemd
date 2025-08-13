@@ -23,19 +23,6 @@ const regexp = {
 	frontMatter: /^[\r\n]*---\r?\n([\s\S]+?)[\r\n]?---/g
 }
 
-// const shikiOptions: RehypeShikiOptions = {
-// 	themes: {
-// 		light: 'github-light',
-// 		dark: 'github-dark'
-// 	},
-// 	transformers: [
-// 		transformerNotationDiff(),
-// 		transformerNotationHighlight(),
-// 		transformerNotationFocus(),
-// 		transformerNotationErrorLevel()
-// 	]
-// }
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let cache: Processor<any, any, any, any, any> | undefined
 
@@ -70,9 +57,20 @@ const extractFrontmatter = (markdown: string) => {
 	}
 	regexp.frontMatter.lastIndex = 0 // Reset the lastIndex for the next match
 
-	// match[0] contains the entire match including the frontmatter
 	// match[1] contains the frontmatter content
-	const metadata = yaml.load(match[1]) as SlideProperties
+	const frontMatter = yaml.load(match[1]) as Record<string, unknown>
+	const metadata: SlideProperties = {
+		title: frontMatter.title as string,
+		bgImg: frontMatter.bgImg as string,
+		bgColor: frontMatter.bgColor as string,
+		bgSize: frontMatter.bgSize as string,
+		bgPosition: frontMatter.bgPosition as string,
+		bgRepeat: frontMatter.bgRepeat as string,
+		paging: frontMatter.paging as boolean | 'skip' | 'hold',
+		class: frontMatter.class as string,
+		style: frontMatter.style as string
+	}
+	// match[0] contains the entire match including the frontmatter
 	const body = markdown.slice(match[0].length)
 
 	return { body, metadata }

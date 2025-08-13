@@ -1,5 +1,6 @@
 ---
 title: Example Slide
+color: blue
 tags:
     - example
     - slide

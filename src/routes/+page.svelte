@@ -7,8 +7,6 @@
 	import mermaid from 'mermaid'
 	import { onMount } from 'svelte'
 
-	const initWidth = 1280
-
 	let { data } = $props()
 
 	let screenWidth = $state(1280)

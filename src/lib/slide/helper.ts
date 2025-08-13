@@ -15,9 +15,6 @@ export const directiveToStyle = (directive?: Directive): string => {
 	if (directive.style) {
 		styles.push(directive.style)
 	}
-	if (directive.color) {
-		styles.push(`color: ${directive.color}`)
-	}
 	if (directive.bgImg) {
 		styles.push(`background-image: ${multipleImages(directive.bgImg)}`)
 	}
