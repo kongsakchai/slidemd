@@ -28,7 +28,7 @@ export const regexp = {
 
 	// keywords
 	comment: /^<!--[\s\S]*?-->$/,
-	split: /(?<=^|\s)split(?::([^\s]+))?(?=\s|$)/,
+	split: /^<!--\s*split(?::([^\s]+))?\s*-->$/,
 	bgKey: /(?<=^|\s)bg(?=\s|$)/,
 	absoluteKey: /(?<=^|\s)absolute(?=\s|$)/,
 	verticalKey: /(?<=^|\s)vertical(?=\s|$)/

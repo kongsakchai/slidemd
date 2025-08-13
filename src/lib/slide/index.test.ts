@@ -53,10 +53,7 @@ author: John Doe
 			pages: [
 				{
 					html: '<h1>Slide Content</h1>',
-					directive: {
-						title: 'Test Slide',
-						author: 'John Doe'
-					}
+					directive: {}
 				}
 			],
 			properties: {

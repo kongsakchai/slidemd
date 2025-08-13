@@ -11,7 +11,6 @@ describe('directiveToStyle', () => {
 	test('should return styles when have directive is not empty', () => {
 		const directive = {
 			style: 'color: red',
-			color: 'blue',
 			bgImg: "'image1.png','image2.png'",
 			bgColor: 'yellow',
 			bgSize: 'cover',
@@ -24,7 +23,7 @@ describe('directiveToStyle', () => {
 
 		const result = directiveToStyle(directive)
 		expect(result).toBe(
-			"color: red; color: blue; background-image: url('image1.png'), url('image2.png'); background-color: yellow; background-size: cover; background-position: center; background-repeat: no-repeat; --split-col: 50%"
+			"color: red; background-image: url('image1.png'), url('image2.png'); background-color: yellow; background-size: cover; background-position: center; background-repeat: no-repeat; --split-col: 50%"
 		)
 	})
 

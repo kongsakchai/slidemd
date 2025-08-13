@@ -105,6 +105,10 @@ section.slide:not(.split) {
 section.slide.split {
 	display: grid;
 	grid-template: var(--split-row, 1fr) / var(--split-col, 1fr);
+
+	&.hidden {
+		display: none;
+	}
 }
 
 section.slide.split > div.split-contents {

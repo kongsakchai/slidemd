@@ -58,18 +58,7 @@ const extractFrontmatter = (markdown: string) => {
 	regexp.frontMatter.lastIndex = 0 // Reset the lastIndex for the next match
 
 	// match[1] contains the frontmatter content
-	const frontMatter = yaml.load(match[1]) as Record<string, unknown>
-	const metadata: SlideProperties = {
-		title: frontMatter.title as string,
-		bgImg: frontMatter.bgImg as string,
-		bgColor: frontMatter.bgColor as string,
-		bgSize: frontMatter.bgSize as string,
-		bgPosition: frontMatter.bgPosition as string,
-		bgRepeat: frontMatter.bgRepeat as string,
-		paging: frontMatter.paging as boolean | 'skip' | 'hold',
-		class: frontMatter.class as string,
-		style: frontMatter.style as string
-	}
+	const metadata = yaml.load(match[1]) as SlideProperties
 	// match[0] contains the entire match including the frontmatter
 	const body = markdown.slice(match[0].length)
 
@@ -117,7 +106,16 @@ const process = async (markdown: string): Promise<Slide> => {
 	const bodyList = body.split(/[\r\n]*---[\r\n]/) // Split by "---" and filter out empty strings
 
 	const pages: SlidePage[] = []
-	let globalDirective = metadata as Directive
+	let globalDirective: Directive = {
+		paging: metadata.paging,
+		class: metadata.class,
+		style: metadata.style,
+		bgImg: metadata.bgImg,
+		bgColor: metadata.bgColor,
+		bgSize: metadata.bgSize,
+		bgPosition: metadata.bgPosition,
+		bgRepeat: metadata.bgRepeat
+	}
 
 	for (const str of bodyList) {
 		const { html, directive } = await toPage(str.trim(), globalDirective)

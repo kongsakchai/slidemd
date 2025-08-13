@@ -172,7 +172,7 @@ describe('parseValueWithUnit', () => {
 
 describe('parseSplit', () => {
 	test('should return split value from parseSplit', () => {
-		const input = 'split:100px'
+		const input = '<!-- split:100px -->'
 		const result = parseSplit(input)
 		expect(result).toEqual('100px')
 	})
