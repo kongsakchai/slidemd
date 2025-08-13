@@ -182,6 +182,7 @@ describe('image handlers', () => {
 			alt: '',
 			data: {
 				hProperties: {
+					loading: 'lazy',
 					style: 'object-fit: none',
 					id: '',
 					class: '',
@@ -221,6 +222,7 @@ describe('image handlers', () => {
 			alt: 'absolute',
 			data: {
 				hProperties: {
+					loading: 'lazy',
 					style: 'position: absolute; object-fit: none',
 					id: '',
 					class: '',
@@ -264,6 +266,7 @@ describe('image handlers', () => {
 			alt: 'absolute',
 			data: {
 				hProperties: {
+					loading: 'lazy',
 					style: 'position: absolute; object-fit: none',
 					id: '',
 					class: '',
@@ -520,16 +523,34 @@ describe('code handlers', () => {
 		} as Root
 
 		const expectedCodeBlock = {
-			type: 'code',
-			lang: 'js',
-			meta: 'js',
-			value: 'console.log("Hello, world!");'
+			children: [
+				{
+					type: 'html',
+					value: '<button class="copy"></button>'
+				},
+				{
+					type: 'html',
+					value: '<span class="lang">js</span>'
+				},
+				{
+					lang: 'js',
+					meta: 'js',
+					type: 'code',
+					value: 'console.log("Hello, world!");'
+				}
+			],
+			data: {
+				hProperties: {
+					class: 'language-js'
+				}
+			},
+			type: 'parent'
 		}
 
 		const transform = codeTransformer()
 		transform(root)
 
-		expect(root.children[0]).toStrictEqual(expectedCodeBlock)
+		expect(root.children[root.children.length - 1]).toStrictEqual(expectedCodeBlock)
 	})
 
 	test('should parse code block to mermaid', () => {
@@ -552,7 +573,7 @@ describe('code handlers', () => {
 		const transform = codeTransformer()
 		transform(root)
 
-		expect(root.children[0]).toStrictEqual(expectedCodeBlock)
+		expect(root.children[root.children.length - 1]).toStrictEqual(expectedCodeBlock)
 	})
 
 	test('should dont parse code if no parent', () => {
@@ -570,6 +591,47 @@ describe('code handlers', () => {
 		}
 
 		expect(codeBlock).toStrictEqual(expectedCodeBlock)
+	})
+
+	test('should dont parse code block if no lang', () => {
+		const codeBlock = {
+			type: 'code',
+			value: 'console.log("Hello, world!");'
+		}
+
+		const root = {
+			type: 'root',
+			children: [codeBlock]
+		} as Root
+
+		const expectedCodeBlock = {
+			children: [
+				{
+					type: 'html',
+					value: '<button class="copy"></button>'
+				},
+				{
+					type: 'html',
+					value: '<span class="lang"></span>'
+				},
+				{
+					type: 'code',
+					meta: undefined,
+					value: 'console.log("Hello, world!");'
+				}
+			],
+			data: {
+				hProperties: {
+					class: 'language-plaintext'
+				}
+			},
+			type: 'parent'
+		}
+
+		const transform = codeTransformer()
+		transform(root)
+
+		expect(root.children[root.children.length - 1]).toStrictEqual(expectedCodeBlock)
 	})
 })
 
@@ -598,10 +660,7 @@ describe('enhance code handlers', () => {
 		const transform = enhanceCodeTransformer()
 		await transform(root)
 
-		const code = pre.children[0] as Element
-
 		expect(pre.properties.class).toContain('shiki')
-		expect(code.properties.class).toContain('language-js')
 	})
 
 	test('should dont enhance code blocks if no parent', async () => {

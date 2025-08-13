@@ -21,9 +21,6 @@ describe('shiki transformer', () => {
 
 		await transformShiki(pre)
 
-		const code = pre.children[0] as Element
-
 		expect(pre.properties.class).toContain('shiki')
-		expect(code.properties.class).toContain('language-js')
 	})
 })

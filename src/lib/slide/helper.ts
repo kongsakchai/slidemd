@@ -48,7 +48,7 @@ export const directiveToStyle = (directive?: Directive): string => {
 }
 
 export const setCopyCodeButton = (isBrowser: boolean) => {
-	if (!isBrowser) return
+	if (!isBrowser) return false
 
 	const copyCode = (code: string, button: HTMLButtonElement) => {
 		navigator.clipboard.writeText(code)
@@ -67,4 +67,6 @@ export const setCopyCodeButton = (isBrowser: boolean) => {
 			button.onclick = () => copyCode(pre.innerText, button)
 		}
 	})
+
+	return true
 }
