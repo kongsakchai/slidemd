@@ -10,19 +10,19 @@ export interface PageProperties {
 	paging?: boolean | 'skip' | 'hold'
 	class?: string
 	style?: string
+	splitDir?: 'horizontal' | 'vertical'
 }
 
-export interface PageSplitProperties {
+export interface SplitProperties {
 	split?: boolean
-	splitDir?: 'horizontal' | 'vertical'
-	splitSize?: string
+	size?: string
 }
 
 export interface SlideProperties extends BackgroundProperties, PageProperties {
 	title?: string
 }
 
-export type Directive = BackgroundProperties & PageProperties & PageSplitProperties
+export type Directive = BackgroundProperties & PageProperties
 
 export type DirectiveKey = Extract<keyof Directive, string>
 
@@ -34,4 +34,5 @@ export interface Slide {
 export interface SlidePage {
 	html: string
 	directive: Directive
+	split: SplitProperties
 }

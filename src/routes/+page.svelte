@@ -50,7 +50,7 @@
 <main class="relative h-full w-screen overflow-hidden">
 	<div
 		class="absolute top-1/2 left-1/2 flex -translate-1/2 flex-col overflow-auto transition-all duration-300 ease-in-out"
-		class:rounded-lg={settings.size !== 1}
+		class:rounded-2xl={settings.size !== 1}
 		style:width="{settings.width}px"
 		style:height="{settings.width / settings.aspectRatio}px"
 		style:scale={size * settings.size}
@@ -59,9 +59,10 @@
 		{#each data.slide.pages as page, i}
 			<section
 				class="slide {page.directive.class}"
-				class:split={page.directive.split}
+				class:split={page.split.split}
 				class:hidden={currentPage !== i + 1}
-				style={directiveToStyle(page.directive)}
+				style:--split-size={page.split.size}
+				style={directiveToStyle(page.directive, page.split.split)}
 			>
 				{@html page.html}
 			</section>

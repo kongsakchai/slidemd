@@ -33,13 +33,15 @@ func main() {
 
 ---
 
-# Hello, SlideMd <!-- .text-red-500 .test -->
+# Hello, SlideMd
+
+<!-- split:30% -->
 
 Make Presentation by Markdown
 
 ---
 
-<!-- @class: !bg-blue-100 dark:!bg-gray-500 -->
+<!-- class:"!bg-blue-100 dark:!bg-gray-500" -->
 
 # Header 1
 

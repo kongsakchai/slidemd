@@ -3,22 +3,26 @@ import { visit } from 'unist-util-visit'
 import type { Element, Root as HRoot } from 'hast'
 import type { Node, Parent, Root, RootContent, RootContentMap } from 'mdast'
 import type { VFile } from 'vfile'
+import type { Directive, SplitProperties } from '../types'
 import { transformBackground } from './background'
 import { transformImage } from './image'
 import { join, parseAttributes, parseClass, parseId, parseSplit, regexp } from './parser'
 import { transformShiki } from './shiki'
 
-export interface DirectiveStore {
-	global: Record<string, unknown>
-	local: Record<string, unknown>
+export interface Store {
+	globalDirective: Directive
+	localDirective: Directive
+	split: SplitProperties
 }
 
-export const directiveStore = () => {
+export const initStore = () => {
 	return (tree: Root, file: VFile) => {
-		const store: DirectiveStore = { global: {}, local: {} }
-		file.data.directives = store
+		const store: Store = { globalDirective: {}, localDirective: {}, split: {} }
+		file.data.store = store
 	}
 }
+
+export const reservedWord = ['split']
 
 const parseAttrsToParent = (node: RootContentMap['html'], parent: Parent) => {
 	const value = node.value.trim()
@@ -33,12 +37,14 @@ const parseAttrsToParent = (node: RootContentMap['html'], parent: Parent) => {
 	parent.data.hProperties.id = parseId(value, parent.data.hProperties.id as string)
 }
 
-const parseDirectivesToStore = (node: RootContentMap['html'], store: DirectiveStore) => {
+const parseDirectivesToStore = (node: RootContentMap['html'], store: Store) => {
 	const global: Record<string, unknown> = {}
 	const local: Record<string, unknown> = {}
 
 	const attrs = parseAttributes(node.value)
 	for (const [key, value] of Object.entries(attrs)) {
+		if (reservedWord.includes(key)) continue
+
 		// If the key starts with an underscore, it's a local property
 		// Otherwise, it's a global property
 		if (key.startsWith('_')) {
@@ -49,15 +55,15 @@ const parseDirectivesToStore = (node: RootContentMap['html'], store: DirectiveSt
 		global[key] = value
 	}
 
-	store.global = { ...store.global, ...global }
-	store.local = { ...store.local, ...local }
+	store.globalDirective = { ...store.globalDirective, ...global }
+	store.localDirective = { ...store.localDirective, ...local }
 }
 
-const getStore = (file: VFile): DirectiveStore => {
-	if (!file.data.directives) {
-		return { global: {}, local: {} }
+const getStore = (file: VFile): Store => {
+	if (!file.data.store) {
+		return { globalDirective: {}, localDirective: {}, split: {} }
 	}
-	return file.data.directives as DirectiveStore
+	return file.data.store as Store
 }
 
 export const htmlTransformer = () => {
@@ -80,7 +86,7 @@ export const htmlTransformer = () => {
 			}
 		})
 
-		file.data.directives = store
+		file.data.store = store
 	}
 }
 
@@ -127,10 +133,10 @@ export const splitTransformer = () => {
 		tree.children = parents as RootContent[]
 
 		const store = getStore(file)
-		store.local['split'] = true
-		store.local['splitSize'] = join(slizes, ' ')
+		store.split.split = true
+		store.split.size = join(slizes, ' ')
 
-		file.data.directives = store
+		file.data.store = store
 	}
 }
 
@@ -194,7 +200,7 @@ const makeBackgroundContainer = (images: Node[]) => {
 export const imageTransformer = () => {
 	return (tree: Root, file: VFile) => {
 		const store = getStore(file)
-		const isSplit = store.local['split'] as boolean
+		const isSplit = store.split.split as boolean
 
 		const roots = isSplit ? (tree.children as Parent[]) : [tree]
 

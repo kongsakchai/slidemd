@@ -8,7 +8,7 @@ export const join = (arr: (string | undefined)[], separator: string): string => 
 // (?<=^|\s) is used to ensure that the regex matches only at the start of a line or after a space
 // (?=\s|$) is used to ensure that the regex matches only at the end of a line or before a space
 export const regexp = {
-	attributes: /(?<=^|\s)([^\s=:.]+)[=:](["'].*?["']|[^\s]+)(?=\s|$)/g,
+	attributes: /(?<=^|\s)(\w+)[=:](["'].*?["']|[^\s]+)(?=\s|$)/g,
 	quote: /^["']|["']$/g,
 
 	class: /(?<=^|\s)\.[^\s]+(?=\s|$)/g,

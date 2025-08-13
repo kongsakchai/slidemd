@@ -7,14 +7,14 @@ import remarkRehype from 'remark-rehype'
 import { unified, type Processor } from 'unified'
 import {
 	codeTransformer,
-	directiveStore,
 	enhanceCodeTransformer,
 	htmlTransformer,
 	imageTransformer,
+	initStore,
 	splitTransformer,
-	type DirectiveStore
+	type Store
 } from './transformers'
-import type { Directive, Slide, SlidePage, SlideProperties } from './types'
+import type { Directive, Slide, SlidePage, SlideProperties, SplitProperties } from './types'
 
 const regexp = {
 	// [\r\n]* match 0 or more of leading newlines
@@ -38,7 +38,7 @@ const setupProcessor = () => {
 		.use(markdown)
 		.use(remarkGfm)
 		.use(remarkGemoji)
-		.use(directiveStore)
+		.use(initStore)
 		.use(splitTransformer)
 		.use(htmlTransformer)
 		.use(imageTransformer)
@@ -67,7 +67,7 @@ const extractFrontmatter = (markdown: string) => {
 
 interface MarkdownToPageResult {
 	html: string
-	split: boolean
+	split: SplitProperties
 	directive: {
 		global: Directive
 		local: Directive
@@ -83,11 +83,10 @@ const toPage = async (markdown: string, baseDirective?: Directive): Promise<Mark
 	const processor = setupProcessor()
 
 	const file = await processor.process(markdown)
-	const directives = file.data.directives as DirectiveStore
-	const split = (file.data.split as boolean) || false
+	const store = file.data.store as Store
 
-	const global = { ...baseDirective, ...directives.global }
-	const local = { ...global, ...directives.local }
+	const global = { ...baseDirective, ...store.globalDirective }
+	const local = { ...global, ...store.localDirective }
 
 	console.debug(`Markdown processed in ${Date.now() - timeStart}ms`)
 
@@ -97,7 +96,7 @@ const toPage = async (markdown: string, baseDirective?: Directive): Promise<Mark
 			global,
 			local
 		},
-		split
+		split: store.split
 	}
 }
 
@@ -118,10 +117,10 @@ const process = async (markdown: string): Promise<Slide> => {
 	}
 
 	for (const str of bodyList) {
-		const { html, directive } = await toPage(str.trim(), globalDirective)
+		const { html, directive, split } = await toPage(str.trim(), globalDirective)
 		globalDirective = directive.global
 
-		pages.push({ html, directive: directive.local })
+		pages.push({ html, directive: directive.local, split })
 	}
 
 	return {

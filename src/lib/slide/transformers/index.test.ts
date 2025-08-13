@@ -8,7 +8,7 @@ import {
 	htmlTransformer,
 	imageTransformer,
 	splitTransformer,
-	type DirectiveStore
+	type Store
 } from '.'
 
 type rootType = 'root'
@@ -23,6 +23,10 @@ describe('html handlers', () => {
 			{
 				type: 'html',
 				value: '<!-- _page:skip -->'
+			},
+			{
+				type: 'html',
+				value: '<!-- split:10px -->'
 			}
 		]
 
@@ -36,10 +40,10 @@ describe('html handlers', () => {
 		const transform = htmlTransformer()
 		transform(root, file)
 
-		const directives = file.data.directives as DirectiveStore
+		const store = file.data.store as Store
 
-		expect(directives.local).toStrictEqual({ page: 'skip' })
-		expect(directives.global).toStrictEqual({ bgColor: '#red' })
+		expect(store.localDirective).toStrictEqual({ page: 'skip' })
+		expect(store.globalDirective).toStrictEqual({ bgColor: '#red' })
 	})
 
 	test('should parse attrs when html is comment and has parents', () => {
@@ -130,10 +134,10 @@ describe('split handlers', () => {
 		const transform = splitTransformer()
 		transform(root, file)
 
-		const directives = file.data.directives as DirectiveStore
+		const store = file.data.store as Store
 
-		expect(directives.local.split).toBe(true)
-		expect(directives.local.splitSize).toBe('50% 1fr 1fr')
+		expect(store.split.split).toBe(true)
+		expect(store.split.size).toBe('50% 1fr 1fr')
 	})
 
 	test('should dont parse split when no parent', () => {
@@ -476,8 +480,8 @@ describe('image handlers', () => {
 		}
 
 		const file = new VFile()
-		file.data.directives = {
-			local: {
+		file.data.store = {
+			split: {
 				split: true,
 				splitSize: '1fr 1fr'
 			}

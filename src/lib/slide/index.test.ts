@@ -36,7 +36,7 @@ describe('toPage', () => {
 			global: {},
 			local: {}
 		})
-		expect(result.split).toBe(false)
+		expect(result.split).toStrictEqual({})
 	})
 })
 
@@ -53,7 +53,8 @@ author: John Doe
 			pages: [
 				{
 					html: '<h1>Slide Content</h1>',
-					directive: {}
+					directive: {},
+					split: {}
 				}
 			],
 			properties: {

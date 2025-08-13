@@ -7,7 +7,7 @@ const multipleImages = (img: string): string => {
 		.join(', ')
 }
 
-export const directiveToStyle = (directive?: Directive): string => {
+export const directiveToStyle = (directive?: Directive, isSplit?: boolean): string => {
 	if (!directive) return ''
 
 	const styles: string[] = []
@@ -30,13 +30,14 @@ export const directiveToStyle = (directive?: Directive): string => {
 	if (directive.bgRepeat) {
 		styles.push(`background-repeat: ${directive.bgRepeat}`)
 	}
-	if (directive.split) {
+
+	if (isSplit) {
 		switch (directive.splitDir) {
 			case 'vertical':
-				styles.push(`--split-row: ${directive.splitSize}`)
+				styles.push(`--split-row: var(--split-size)`)
 				break
 			default:
-				styles.push(`--split-col: ${directive.splitSize}`)
+				styles.push(`--split-col: var(--split-size)`)
 				break
 		}
 	}
