@@ -23,22 +23,22 @@
 	}
 </script>
 
-<section class=" menu bottom-5 left-5 z-50">
+<div class="menu">
 	<button class="menu-btn previous-btn" aria-label="previous" onclick={onPrevious} disabled={disabledPrevious}
 	></button>
-	<p class="text-xs font-medium select-none">{currentPage} / {maxPage || 0}</p>
+	<p class="text-sm font-medium select-none">{currentPage} / {maxPage || 0}</p>
 	<button class="menu-btn next-btn" aria-label="next" onclick={onNext} disabled={disabledNext}></button>
 
 	<div class="divider"></div>
 
-	<div use:clickOutside={handleCloseSetting} class="relative h-8 w-8">
+	<section use:clickOutside={handleCloseSetting} class="relative h-8 w-8">
 		<button class="menu-btn setting-btn" aria-label="settings" onclick={handleToggleSetting}> </button>
 
 		{#if openSettings}
 			<Setting />
 		{/if}
-	</div>
-</section>
+	</section>
+</div>
 
 <style lang="postcss">
 	p {
@@ -47,7 +47,6 @@
 	}
 
 	.menu {
-		position: fixed;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -57,12 +56,6 @@
 		background-color: var(--primary);
 		padding: 8px;
 		color: var(--primary-foreground);
-		opacity: 0;
-		transition: opacity 0.5s;
-
-		&:hover {
-			opacity: 1;
-		}
 	}
 
 	.menu-btn {

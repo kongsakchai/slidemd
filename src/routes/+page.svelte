@@ -49,7 +49,7 @@
 
 <svelte:body bind:clientWidth={screenWidth} bind:clientHeight={screenHeight} />
 
-<main class="relative h-full w-full">
+<main class="relative h-full w-screen overflow-hidden">
 	<div
 		class="absolute top-1/2 left-1/2 flex -translate-1/2 flex-col overflow-auto transition-all duration-300 ease-in-out"
 		class:rounded-lg={settings.size !== 1}
@@ -70,14 +70,18 @@
 		{/each}
 	</div>
 
-	<Controller
-		{currentPage}
-		maxPage={data.slide.pages.length}
-		disabledNext={currentPage === data.slide.pages.length}
-		disabledPrevious={currentPage === 1}
-		onNext={nextPage}
-		onPrevious={previousPage}
-	/>
+	<section
+		class="fixed bottom-0 left-0 z-50 flex w-full p-5 opacity-0 transition-opacity duration-500 hover:opacity-100"
+	>
+		<Controller
+			{currentPage}
+			maxPage={data.slide.pages.length}
+			disabledNext={currentPage === data.slide.pages.length}
+			disabledPrevious={currentPage === 1}
+			onNext={nextPage}
+			onPrevious={previousPage}
+		/>
+	</section>
 
 	<PreviewImage />
 </main>

@@ -34,7 +34,7 @@
 </script>
 
 <div
-	class="bg-primary border-line absolute bottom-[calc(100%+16px)] grid w-[350px] grid-cols-[80px_1fr] items-center gap-2 rounded-lg border px-4 py-3 text-sm"
+	class="bg-primary border-line absolute bottom-[calc(100%+16px)] grid w-[350px] grid-cols-[80px_1fr] items-center gap-4 rounded-lg border px-4 py-3 text-sm"
 >
 	<p class="text-primary-foreground text-sm font-medium">Themes</p>
 	<select class="w-full" onchange={handleSelectTheme}>
@@ -53,7 +53,7 @@
 	<Range bind:value={settings.size} min={0.5} max={1.5} step={0.1} defaultValue={1} />
 
 	<p class="text-primary-foreground text-sm font-medium">Aspect Ratio</p>
-	<div class="flex gap-2">
+	<div class="flex justify-around gap-2">
 		{#each aspectRatios as { label }, i}
 			<button
 				class:border-action={settings.aspectRatioLabel === aspectRatios[i].label}
