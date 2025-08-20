@@ -6,6 +6,7 @@ import markdown from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified, type Processor } from 'unified'
 import {
+	clickTransformer,
 	codeTransformer,
 	enhanceCodeTransformer,
 	htmlTransformer,
@@ -43,6 +44,7 @@ const setupProcessor = () => {
 		.use(htmlTransformer)
 		.use(imageTransformer)
 		.use(codeTransformer)
+		.use(clickTransformer)
 		.use(remarkRehype, { allowDangerousHtml: true })
 		.use(enhanceCodeTransformer)
 		.use(rehypeStringify, { allowDangerousHtml: true })
@@ -72,6 +74,7 @@ interface MarkdownToPageResult {
 		global: Directive
 		local: Directive
 	}
+	click: number
 }
 
 // Convert markdown to HTML and extract directives
@@ -96,7 +99,8 @@ const toPage = async (markdown: string, baseDirective?: Directive): Promise<Mark
 			global,
 			local
 		},
-		split: store.split
+		split: store.split,
+		click: store.click
 	}
 }
 
@@ -117,10 +121,10 @@ const process = async (markdown: string): Promise<Slide> => {
 	}
 
 	for (const str of bodyList) {
-		const { html, directive, split } = await toPage(str.trim(), globalDirective)
+		const { html, directive, split, click } = await toPage(str.trim(), globalDirective)
 		globalDirective = directive.global
 
-		pages.push({ html, directive: directive.local, split })
+		pages.push({ html, directive: directive.local, split, click })
 	}
 
 	return {

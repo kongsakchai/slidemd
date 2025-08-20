@@ -81,9 +81,7 @@ export const transformBackground = (image: RootContentMap['image']) => {
 	const repeat = parseBackgroundRepeat(imageAlt) // default no-repeat
 	const sizeGrid = parseValueWithUnit(imageAlt) // default empty string
 
-	image.data ||= {}
-	image.data.hProperties ||= {}
-
+	image.data ??= {}
 	const isVertical = regexp.verticalKey.test(imageAlt)
 	const newStyles = [image.data.hProperties?.style as string, url, filter, size, position, repeat]
 

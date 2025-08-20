@@ -35,4 +35,5 @@ export interface SlidePage {
 	html: string
 	directive: Directive
 	split: SplitProperties
+	click: number
 }

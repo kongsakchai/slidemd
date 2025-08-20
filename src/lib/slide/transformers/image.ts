@@ -1,6 +1,7 @@
 import type { RootContentMap } from 'mdast'
 import {
 	join,
+	parseAttributes,
 	parseAxis,
 	parseClass,
 	parseDimensions,
@@ -64,12 +65,12 @@ export const transformImage = (image: RootContentMap['image']) => {
 	const widthHeight = parseWidthHeight(imageAlt)
 	const positionStyle = parsePositionStyles(imageAlt)
 
+	const attrs = parseAttributes(imageAlt)
+
 	const isAbsolute = regexp.absoluteKey.test(imageAlt)
 	const absolute = isAbsolute ? 'position: absolute' : ''
 
-	image.data ||= {}
-	image.data.hProperties ||= {}
-
+	image.data ??= {}
 	const styles = [
 		image.data.hProperties?.style as string,
 		absolute,
@@ -82,6 +83,7 @@ export const transformImage = (image: RootContentMap['image']) => {
 
 	image.data.hProperties = {
 		...image.data.hProperties,
+		...attrs,
 		isAbsolute: isAbsolute,
 		loading: 'lazy',
 		style: join(styles, '; ')

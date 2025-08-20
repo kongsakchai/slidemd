@@ -11,8 +11,8 @@ export const regexp = {
 	attributes: /(?<=^|\s)(\w+)[=:](?:"(.*)"|'(.*)'|([^\s]+))(?=\s|$)/g,
 	quote: /^["']|["']$/g,
 
-	class: /(?<=^|\s)\.[^\s]+(?=\s|$)/g,
-	id: /(?<=^|\s)#[^\s]+(?=\s|$)/g,
+	class: /(?<=^|\s)\.([^\s]+)(?=$|\s)/g,
+	id: /(?<=^|\s)#([^\s]+)(?=\s|$)/g,
 
 	dimensions: /(?<=^|\s)(w|h):(?:"(.*)"|'(.*)'|([^\s]+))(?=\s|$)/g,
 	axis: /(?<=^|\s)(x|y):(?:"(.*)"|'(.*)'|([^\s]+))(?=\s|$)/g,
@@ -25,6 +25,8 @@ export const regexp = {
 	repeatKey: /(?<=^|\s)(repeat|no-repeat|repeat-x|repeat-y|space|round)(?=\s|$)/g,
 	repeatAxis: /(?<=^|\s)(repeat-x|repeat-y):(repeat|no-repeat|space|round)(?=\s|$)/g,
 	fit: /(?<=^|\s)(cover|contain|fill)(?=\s|$)/g,
+
+	clickAttributes: /(\d+):(?:"(.*)"|'(.*)'|([^\s]+))(?=\s|$)/g,
 
 	// keywords
 	comment: /^<!--[\s\S]*?-->$/,
@@ -68,14 +70,15 @@ export const parseAttributes = (value: string): Record<string, string> => {
 
 // This handles cases where IDs are defined in attributes like #id-name
 export const parseId = (value: string, base?: string): string => {
-	const val = value.match(regexp.id)?.map((id) => id.slice(1)) || []
+	const val = value.match(regexp.id)?.map((id) => id) || []
 	return join([base, ...val], ' ')
 }
 
 // Extracts class names from a string, ignoring the leading dot.
 // This handles cases where class names are defined in attributes like .class-name
+// this handles cases like .class1.class2.class3
 export const parseClass = (value: string, base?: string): string => {
-	const match = value.match(regexp.class)?.map((cls) => cls.slice(1)) || []
+	const match = value.match(regexp.class)?.flatMap((id) => id.split('.')) || []
 	return join([base, ...match], ' ')
 }
 
@@ -175,4 +178,15 @@ export const parseSplit = (value: string): string => {
 	const match = value.match(regexp.split)
 	const splitValue = match?.[2] || match?.[3] || match?.[4]
 	return splitValue || ''
+}
+
+// Parses click attributes from a string and returns them as an object
+export const parseClickData = (value: string): Record<number, string> => {
+	const clickAttributes: Record<number, string> = {}
+	for (const match of value.matchAll(regexp.clickAttributes)) {
+		const key = Number(match[1])
+		const val = match[2] || match[3] || match[4]
+		clickAttributes[key] = join([clickAttributes[key], val], ' ')
+	}
+	return clickAttributes
 }

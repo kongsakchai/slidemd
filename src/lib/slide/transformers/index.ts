@@ -6,18 +6,19 @@ import type { VFile } from 'vfile'
 import type { Directive, SplitProperties } from '../types'
 import { transformBackground } from './background'
 import { transformImage } from './image'
-import { join, parseAttributes, parseClass, parseId, parseSplit, regexp } from './parser'
+import { join, parseAttributes, parseClass, parseClickData, parseId, parseSplit, regexp } from './parser'
 import { transformShiki } from './shiki'
 
 export interface Store {
 	globalDirective: Directive
 	localDirective: Directive
 	split: SplitProperties
+	click: number
 }
 
 export const initStore = () => {
 	return (tree: Root, file: VFile) => {
-		const store: Store = { globalDirective: {}, localDirective: {}, split: {} }
+		const store: Store = { globalDirective: {}, localDirective: {}, split: {}, click: 0 }
 		file.data.store = store
 	}
 }
@@ -27,7 +28,7 @@ export const reservedWord = ['split']
 const parseAttrsToParent = (node: RootContentMap['html'], parent: Parent) => {
 	const value = node.value.trim()
 
-	parent.data ||= {}
+	parent.data ??= {}
 	parent.data.hProperties = {
 		...parent.data.hProperties,
 		...parseAttributes(value)
@@ -61,7 +62,7 @@ const parseDirectivesToStore = (node: RootContentMap['html'], store: Store) => {
 
 const getStore = (file: VFile): Store => {
 	if (!file.data.store) {
-		return { globalDirective: {}, localDirective: {}, split: {} }
+		return { globalDirective: {}, localDirective: {}, split: {}, click: 0 }
 	}
 	return file.data.store as Store
 }
@@ -170,7 +171,7 @@ const setContentsParent = (parent: Parent) => {
 	})
 	if (!isContents) return
 
-	parent.data ||= {}
+	parent.data ??= {}
 	const styles = [parent.data.hProperties?.style as string, 'display: contents']
 
 	parent.data.hProperties = {
@@ -283,5 +284,53 @@ export const enhanceCodeTransformer = () => {
 		for (const pre of preElements) {
 			await transformShiki(pre)
 		}
+	}
+}
+
+export const clickTransformer = () => {
+	return (tree: Root, file: VFile) => {
+		let clickInPage = 0
+
+		visit(tree, (node) => {
+			node.data ??= {}
+			node.data.hProperties ??= {}
+			const hProps = node.data.hProperties as Record<string, unknown>
+
+			// click=n:"class1 class2"
+			// click=1:opacity-100
+			const clickValue = (hProps.click || '') as string
+			if (!clickValue) return
+
+			const clickData = parseClickData(clickValue)
+			const newClickValues: string[] = []
+			Object.entries(clickData).forEach(([key, value]) => {
+				const cls = parseClass(value)
+				newClickValues.push(`${key}:${cls}`)
+
+				if (clickInPage < Number(key)) {
+					clickInPage = Number(key)
+				}
+			})
+
+			if (newClickValues.length == 0) {
+				const index = parseInt(clickValue)
+				if (isNaN(index)) {
+					const cls = parseClass(clickValue)
+					hProps.click = `1:${cls}`
+				} else if (index != 0) {
+					hProps.click = `0:opacity-0,${index}:opacity-100`
+				}
+				if (clickInPage < (index || 1)) {
+					clickInPage = index || 1
+				}
+				return
+			}
+
+			hProps.click = newClickValues.join(',')
+		})
+
+		const store = getStore(file)
+		store.click = clickInPage
+		file.data.store = store
 	}
 }

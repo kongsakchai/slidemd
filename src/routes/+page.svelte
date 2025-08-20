@@ -2,6 +2,7 @@
 	import { browser } from '$app/environment'
 	import Controller from '$lib/components/controller.svelte'
 	import PreviewImage from '$lib/components/preview-image.svelte'
+	import { Clickable, setClickable } from '$lib/helper/clickable.js'
 	import { directiveToStyle, setCopyCodeButton } from '$lib/slide/helper'
 	import { settings } from '$lib/state.svelte.js'
 	import mermaid from 'mermaid'
@@ -20,6 +21,10 @@
 	})
 
 	let currentPage = $state(1)
+	let currentClick = $state(0)
+	let maxClicks = $derived(data.slide.pages[currentPage - 1].click || 0)
+
+	let clickableMap: Record<number, Clickable[]> = {}
 
 	mermaid.initialize({
 		startOnLoad: true,
@@ -30,15 +35,34 @@
 
 	onMount(() => {
 		setCopyCodeButton(browser)
+		clickableMap = setClickable(browser)
 	})
 
 	const nextPage = () => {
-		if (currentPage < data.slide.pages.length) currentPage += 1
+		if (currentClick < maxClicks) {
+			currentClick += 1
+			return
+		}
+		if (currentPage < data.slide.pages.length) {
+			currentPage += 1
+			currentClick = 0
+		}
 	}
 
 	const previousPage = () => {
-		if (currentPage > 1) currentPage -= 1
+		if (currentClick > 0) {
+			currentClick -= 1
+			return
+		}
+		if (currentPage > 1) {
+			currentPage -= 1
+			currentClick = maxClicks
+		}
 	}
+
+	$effect(() => {
+		clickableMap[currentPage]?.forEach((c) => c.click(currentClick))
+	})
 </script>
 
 <svelte:head>
@@ -58,6 +82,7 @@
 	>
 		{#each data.slide.pages as page, i}
 			<section
+				data-page={i + 1}
 				class="slide {page.directive.class}"
 				class:split={page.split.split}
 				class:hidden={currentPage !== i + 1}
@@ -75,8 +100,8 @@
 		<Controller
 			{currentPage}
 			maxPage={data.slide.pages.length}
-			disabledNext={currentPage === data.slide.pages.length}
-			disabledPrevious={currentPage === 1}
+			disabledNext={currentPage === data.slide.pages.length && currentClick >= maxClicks}
+			disabledPrevious={currentPage === 1 && currentClick === 0}
 			onNext={nextPage}
 			onPrevious={previousPage}
 		/>

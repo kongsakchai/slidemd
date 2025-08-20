@@ -33,8 +33,7 @@ func main() {
 
 ---
 
-# Hello, SlideMd
-
+# Hello, SlideMd <!-- click="1:.opacity-100.translate-y-0 0:.opacity-0.translate-y-[25px]" .transition-all.duration-500 -->
 <!-- split:30% -->
 
 Make Presentation by Markdown
