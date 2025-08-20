@@ -8,27 +8,27 @@ export const join = (arr: (string | undefined)[], separator: string): string => 
 // (?<=^|\s) is used to ensure that the regex matches only at the start of a line or after a space
 // (?=\s|$) is used to ensure that the regex matches only at the end of a line or before a space
 export const regexp = {
-	attributes: /(?<=^|\s)(\w+)[=:](["'].*?["']|[^\s]+)(?=\s|$)/g,
+	attributes: /(?<=^|\s)(\w+)[=:](?:"(.*)"|'(.*)'|([^\s]+))(?=\s|$)/g,
 	quote: /^["']|["']$/g,
 
 	class: /(?<=^|\s)\.[^\s]+(?=\s|$)/g,
 	id: /(?<=^|\s)#[^\s]+(?=\s|$)/g,
 
-	dimensions: /(?<=^|\s)(w|h):([^\s]+)(?=\s|$)/g,
-	axis: /(?<=^|\s)(x|y):([^\s]+)(?=\s|$)/g,
+	dimensions: /(?<=^|\s)(w|h):(?:"(.*)"|'(.*)'|([^\s]+))(?=\s|$)/g,
+	axis: /(?<=^|\s)(x|y):(?:"(.*)"|'(.*)'|([^\s]+))(?=\s|$)/g,
 	positionKey: /(?<=^|\s)(top|right|bottom|left|center)(?=\s|$)/g,
-	position: /(?<=^|\s)(top|right|bottom|left):([^\s]+)(?=\s|$)/g,
+	position: /(?<=^|\s)(top|right|bottom|left):(?:"(.*)"|'(.*)'|([^\s]+))(?=\s|$)/g,
 
 	valueWithUnit: /(?<=^|\s)\d+(px|pt|em|rem|%)(?=\s|$)/g,
 
-	filter: /(?<=^|\s)(blur|brightness|contrast|grayscale|hue-rotate|invert|opacity|saturate|sepia|drop-shadow)(?::(["'].*?["']|[^\s]+))?(?=\s|$)/g,
+	filter: /(?<=^|\s)(blur|brightness|contrast|grayscale|hue-rotate|invert|opacity|saturate|sepia|drop-shadow)(?::"(.*)"|:'(.*)'|:([^\s]+))?(?=\s|$)/g,
 	repeatKey: /(?<=^|\s)(repeat|no-repeat|repeat-x|repeat-y|space|round)(?=\s|$)/g,
 	repeatAxis: /(?<=^|\s)(repeat-x|repeat-y):(repeat|no-repeat|space|round)(?=\s|$)/g,
 	fit: /(?<=^|\s)(cover|contain|fill)(?=\s|$)/g,
 
 	// keywords
 	comment: /^<!--[\s\S]*?-->$/,
-	split: /^<!--\s*split(?::([^\s]+))?\s*-->$/,
+	split: /^<!--\s*split(?::"(.*)"|:'(.*)'|:([^\s]+))?\s*-->$/,
 	bgKey: /(?<=^|\s)bg(?=\s|$)/,
 	absoluteKey: /(?<=^|\s)absolute(?=\s|$)/,
 	verticalKey: /(?<=^|\s)vertical(?=\s|$)/
@@ -59,8 +59,8 @@ export const parseAttributes = (value: string): Record<string, string> => {
 
 	for (const match of value.matchAll(regexp.attributes)) {
 		const key = match[1]
-		const val = match[2].replaceAll(regexp.quote, '')
-		attrs[key] = val
+		const val = match[2] ?? match[3] ?? match[4]
+		attrs[key] = join([attrs[key], val], ' ')
 	}
 
 	return attrs
@@ -85,7 +85,7 @@ export const parseFilters = (value: string): string => {
 	const filters: string[] = []
 	for (const match of value.matchAll(regexp.filter)) {
 		const key = match[1]
-		const val = match[2]?.replace(regexp.quote, '') || defaultFilters[key]
+		const val = match[2] || match[3] || match[4] || defaultFilters[key]
 		filters.push(`${key}(${val})`)
 	}
 	if (filters.length === 0) {
@@ -107,7 +107,7 @@ export const parseDimensions = (value: string): Record<string, string> => {
 	const dimensions: Record<string, string> = {}
 	for (const match of value.matchAll(regexp.dimensions)) {
 		const key = match[1]
-		const val = match[2].replace(regexp.quote, '')
+		const val = match[2] || match[3] || match[4]
 		dimensions[key] = val
 	}
 	return dimensions
@@ -119,7 +119,7 @@ export const parseAxis = (value: string): Record<string, string> => {
 	const axis: Record<string, string> = {}
 	for (const match of value.matchAll(regexp.axis)) {
 		const key = match[1]
-		const val = match[2].replace(regexp.quote, '')
+		const val = match[2] || match[3] || match[4]
 		axis[key] = val
 	}
 	return axis
@@ -138,7 +138,7 @@ export const parsePositions = (value: string): Record<string, string> => {
 	const positions: Record<string, string> = {}
 	for (const match of value.matchAll(regexp.position)) {
 		const key = match[1]
-		const val = match[2].replace(regexp.quote, '')
+		const val = match[2] || match[3] || match[4]
 		positions[key] = val
 	}
 	return positions
@@ -173,5 +173,6 @@ export const parseValueWithUnit = (value: string): string => {
 // Parses split directive from a string and returns it as an object
 export const parseSplit = (value: string): string => {
 	const match = value.match(regexp.split)
-	return match?.pop() || ''
+	const splitValue = match?.[2] || match?.[3] || match?.[4]
+	return splitValue || ''
 }
