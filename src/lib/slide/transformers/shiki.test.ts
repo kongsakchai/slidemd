@@ -12,8 +12,8 @@ describe('shiki transformer', () => {
 					type: 'element',
 					tagName: 'code',
 					properties: { class: ['language-js'] },
-					data: { meta: 'js' },
-					children: [{ type: 'text', value: "console.log('Hello, world!');" }]
+					data: { meta: 'sql' },
+					children: [{ type: 'text', value: 'SELECT * FROM users;' }]
 				}
 			],
 			properties: {}

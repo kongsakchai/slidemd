@@ -5,7 +5,7 @@ import {
 	transformerNotationHighlight
 } from '@shikijs/transformers'
 import type { Element, Text } from 'hast'
-import { codeToHast } from 'shiki'
+import { codeToHast, createHighlighter, type BundledLanguage } from 'shiki'
 
 const shikiOptions = {
 	themes: {
@@ -20,10 +20,19 @@ const shikiOptions = {
 	]
 }
 
+const highlight = await createHighlighter({
+	langs: ['go', 'javascript', 'typescript', 'yaml', 'html', 'css', 'svelte', 'markdown', 'plaintext'],
+	themes: ['github-light', 'github-dark']
+})
+
 export const transformShiki = async (pre: Element) => {
 	const code = pre.children[0] as Element
 	const lang = code.data?.meta as string
 	const codeStr = (code.children[0] as Text).value
+
+	if (!highlight.getLoadedLanguages().includes(lang)) {
+		await highlight.loadLanguage(lang as BundledLanguage)
+	}
 
 	const shikiRoot = await codeToHast(codeStr, {
 		lang: lang,
