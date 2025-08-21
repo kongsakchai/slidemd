@@ -54,7 +54,8 @@ author: John Doe
 				{
 					html: '<h1>Slide Content</h1>',
 					directive: {},
-					split: {}
+					split: {},
+					click: 0
 				}
 			],
 			properties: {

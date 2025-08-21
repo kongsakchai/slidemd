@@ -1,33 +1,20 @@
 import type { Node, RootContentMap } from 'mdast'
-import {
-	join,
-	parseAxis,
-	parseClass,
-	parseDimensions,
-	parseFilters,
-	parseFit,
-	parseId,
-	parsePositionKey,
-	parseRepeat,
-	parseRepeatAxis,
-	parseValueWithUnit,
-	regexp
-} from './parser'
+import { join, Parser } from './parser'
 
 // default is empty string
-const parseBackgroundFilter = (value: string): string => {
-	const filterValue = parseFilters(value)
+const parseBackgroundFilter = (parser: Parser): string => {
+	const filterValue = parser.parseFilters()
 	return filterValue ? `background-filter: ${filterValue}` : ''
 }
 
 // default is empty
-const parseBackgroundSize = (value: string): string => {
-	const fitValue = parseFit(value)
+const parseBackgroundSize = (parser: Parser): string => {
+	const fitValue = parser.parseFit()
 	if (fitValue) {
 		return `background-size: ${fitValue}`
 	}
 
-	const dimensions = parseDimensions(value)
+	const dimensions = parser.parseDimensions()
 	if (Object.keys(dimensions).length === 0) {
 		return ''
 	}
@@ -38,13 +25,13 @@ const parseBackgroundSize = (value: string): string => {
 }
 
 // default is center
-const parseBackgroundPosition = (value: string): string => {
-	const pos = parsePositionKey(value)
+const parseBackgroundPosition = (parser: Parser): string => {
+	const pos = parser.parsePositionKey()
 	if (pos) {
 		return `background-position: ${pos}`
 	}
 
-	const positions = parseAxis(value)
+	const positions = parser.parseAxis()
 	if (Object.keys(positions).length === 0) {
 		return `background-position: center`
 	}
@@ -55,13 +42,13 @@ const parseBackgroundPosition = (value: string): string => {
 }
 
 // default is no-repeat
-const parseBackgroundRepeat = (value: string): string => {
-	const repeat = parseRepeat(value)
+const parseBackgroundRepeat = (parser: Parser): string => {
+	const repeat = parser.parseRepeat()
 	if (repeat) {
 		return `background-repeat: ${repeat}`
 	}
 
-	const repeatAxis = parseRepeatAxis(value)
+	const repeatAxis = parser.parseRepeatAxis()
 	if (Object.keys(repeatAxis).length === 0) {
 		return `background-repeat: no-repeat`
 	}
@@ -73,16 +60,17 @@ const parseBackgroundRepeat = (value: string): string => {
 
 export const transformBackground = (image: RootContentMap['image']) => {
 	const imageAlt = image.alt || ''
+	const parser = new Parser(imageAlt)
 
 	const url = 'background-image: url(' + image.url + ')'
-	const filter = parseBackgroundFilter(imageAlt) // default no filter
-	const size = parseBackgroundSize(imageAlt) // default no size
-	const position = parseBackgroundPosition(imageAlt) // default center
-	const repeat = parseBackgroundRepeat(imageAlt) // default no-repeat
-	const sizeGrid = parseValueWithUnit(imageAlt) // default empty string
+	const filter = parseBackgroundFilter(parser) // default no filter
+	const size = parseBackgroundSize(parser) // default no size
+	const position = parseBackgroundPosition(parser) // default center
+	const repeat = parseBackgroundRepeat(parser) // default no-repeat
+	const sizeGrid = parser.parseValueWithUnit() // default empty string
 
 	image.data ??= {}
-	const isVertical = regexp.verticalKey.test(imageAlt)
+	const isVertical = Parser.isVertical(parser.value)
 	const newStyles = [image.data.hProperties?.style as string, url, filter, size, position, repeat]
 
 	image.data.hProperties = {
@@ -93,8 +81,8 @@ export const transformBackground = (image: RootContentMap['image']) => {
 	}
 
 	const baseClass = 'background-image ' + (image.data.hProperties.class || '')
-	image.data.hProperties.class = parseClass(imageAlt, baseClass)
-	image.data.hProperties.id = parseId(imageAlt, image.data.hProperties.id as string)
+	image.data.hProperties.class = parser.parseClass(baseClass)
+	image.data.hProperties.id = parser.parseId(image.data.hProperties.id as string)
 
 	return { type: 'bg', data: image.data } as Node
 }

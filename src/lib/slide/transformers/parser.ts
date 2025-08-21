@@ -30,7 +30,7 @@ export const regexp = {
 
 	// keywords
 	comment: /^<!--[\s\S]*?-->$/,
-	split: /^<!--\s*split(?::"(.*)"|:'(.*)'|:([^\s]+))?\s*-->$/,
+	split: /^<!--\s*split(?::"(.*)"|:'(.*)'|:([^\s]+))?\s*-->$/g,
 	bgKey: /(?<=^|\s)bg(?=\s|$)/,
 	absoluteKey: /(?<=^|\s)absolute(?=\s|$)/,
 	verticalKey: /(?<=^|\s)vertical(?=\s|$)/
@@ -49,144 +49,262 @@ export const defaultFilters: Record<string, string> = {
 	'drop-shadow': '2px 2px 5px rgba(0, 0, 0, 0.5)'
 }
 
-// Parses attributes from a string and returns them as an object
-// This handles cases where attributes are defined in HTML comments like <!-- attr: value -->
-// It extracts key-value pairs and returns them as an object
-// - For example, \<!-- attr1: value1 attr2: value2 --> will return { attr1: 'value1', attr2: 'value2' }
-// - For example, \<!-- attr1: "value1-1 value1-2" attr2: "value2" --> will return { attr1: 'value1-1 value1-2', attr2: 'value2' }
-// - It also handles cases where attributes are defined in the form of key="value" or key='value'
-// - For example, \<!-- attr1="value1" attr2='value2' --> will also return { attr1: 'value1', attr2: 'value2' }
-export const parseAttributes = (value: string): Record<string, string> => {
-	const attrs: Record<string, string> = {}
+export class Parser {
+	value: string
 
-	for (const match of value.matchAll(regexp.attributes)) {
-		const key = match[1]
-		const val = match[2] ?? match[3] ?? match[4]
-		attrs[key] = join([attrs[key], val], ' ')
+	#removeIndexs: number[]
+	#removeOffsets: number[]
+
+	constructor(value: string) {
+		this.value = value
+
+		this.#removeIndexs = []
+		this.#removeOffsets = []
 	}
 
-	return attrs
-}
-
-// This handles cases where IDs are defined in attributes like #id-name
-export const parseId = (value: string, base?: string): string => {
-	const val = value.match(regexp.id)?.map((id) => id) || []
-	return join([base, ...val], ' ')
-}
-
-// Extracts class names from a string, ignoring the leading dot.
-// This handles cases where class names are defined in attributes like .class-name
-// this handles cases like .class1.class2.class3
-export const parseClass = (value: string, base?: string): string => {
-	const match = value.match(regexp.class)?.flatMap((id) => id.split('.')) || []
-	return join([base, ...match], ' ')
-}
-
-// Parses filters from a string and returns them as a CSS property
-// It handles cases like blur: 2px, brightness: 1.5, contrast: 2
-export const parseFilters = (value: string): string => {
-	const filters: string[] = []
-	for (const match of value.matchAll(regexp.filter)) {
-		const key = match[1]
-		const val = match[2] || match[3] || match[4] || defaultFilters[key]
-		filters.push(`${key}(${val})`)
+	private addRemoveList(index: number, length: number) {
+		this.#removeIndexs.push(index)
+		this.#removeOffsets.push(index + length)
 	}
-	if (filters.length === 0) {
+
+	private removeMatchedValue() {
+		let newValue = ''
+		let start = 0
+		for (let i = 0; i < this.#removeIndexs.length; i++) {
+			newValue += this.value.slice(start, this.#removeIndexs[i])
+			start = this.#removeOffsets[i]
+		}
+		if (start < this.value.length) {
+			newValue += this.value.slice(start)
+		}
+
+		this.value = newValue
+		this.#removeIndexs = []
+		this.#removeOffsets = []
+	}
+
+	static isComment(value: string): boolean {
+		return value.match(regexp.comment) !== null
+	}
+
+	static isSplit(value: string): boolean {
+		return value.match(regexp.split) !== null
+	}
+
+	static isVertical(value: string): boolean {
+		return value.match(regexp.verticalKey) !== null
+	}
+
+	static isAbsolute(value: string): boolean {
+		return value.match(regexp.absoluteKey) !== null
+	}
+
+	static isBackground(value: string): boolean {
+		return value.match(regexp.bgKey) !== null
+	}
+
+	// Parses attributes from a string and returns them as an object
+	// This handles cases where attributes are defined in HTML comments like <!-- attr: value -->
+	// It extracts key-value pairs and returns them as an object
+	// - For example, \<!-- attr1: value1 attr2: value2 --> will return { attr1: 'value1', attr2: 'value2' }
+	// - For example, \<!-- attr1: "value1-1 value1-2" attr2: "value2" --> will return { attr1: 'value1-1 value1-2', attr2: 'value2' }
+	// - It also handles cases where attributes are defined in the form of key="value" or key='value'
+	// - For example, \<!-- attr1="value1" attr2='value2' --> will also return { attr1: 'value1', attr2: 'value2' }
+	parseAttributes(): Record<string, string> {
+		const attrs: Record<string, string> = {}
+		for (const match of this.value.matchAll(regexp.attributes)) {
+			this.addRemoveList(match.index, match[0].length)
+
+			const key = match[1]
+			const val = match[2] ?? match[3] ?? match[4]
+			attrs[key] = join([attrs[key], val], ' ')
+		}
+		this.removeMatchedValue()
+		return attrs
+	}
+
+	// This handles cases where IDs are defined in attributes like #id-name
+	parseId = (base?: string): string => {
+		const val = this.value.matchAll(regexp.id).map((id) => {
+			this.addRemoveList(id.index, id[0].length)
+			return id[1]
+		})
+
+		this.removeMatchedValue()
+		return join([base, ...val], ' ')
+	}
+
+	// Extracts class names from a string, ignoring the leading dot.
+	// This handles cases where class names are defined in attributes like .class-name
+	// this handles cases like .class1.class2.class3
+	parseClass(base?: string) {
+		const match = this.value.matchAll(regexp.class).flatMap((cls) => {
+			this.addRemoveList(cls.index, cls[0].length)
+			return cls[1].split('.')
+		})
+
+		this.removeMatchedValue()
+		return join([base, ...match], ' ')
+	}
+
+	// Parses filters from a string and returns them as a CSS property
+	// It handles cases like blur: 2px, brightness: 1.5, contrast: 2
+	parseFilters = (): string => {
+		const filters: string[] = []
+		for (const match of this.value.matchAll(regexp.filter)) {
+			this.addRemoveList(match.index, match[0].length)
+
+			const key = match[1]
+			const val = match[2] || match[3] || match[4] || defaultFilters[key]
+			filters.push(`${key}(${val})`)
+		}
+		if (filters.length === 0) {
+			return ''
+		}
+
+		this.removeMatchedValue()
+		return filters.join(' ')
+	}
+
+	// Parses fit from a string and returns it as a CSS property
+	// It handles cases like cover, contain, none
+	parseFit = (): string => {
+		let result = ''
+		for (const match of this.value.matchAll(regexp.fit)) {
+			this.addRemoveList(match.index, match[0].length)
+			result = match[0]
+		}
+
+		this.removeMatchedValue()
+		return result
+	}
+
+	// Parses axis from a string and returns it as an object
+	// It handles cases like w: 100px, h: 200px
+	parseDimensions() {
+		const dimensions: Record<string, string> = {}
+		for (const match of this.value.matchAll(regexp.dimensions)) {
+			this.addRemoveList(match.index, match[0].length)
+
+			const key = match[1]
+			const val = match[2] || match[3] || match[4]
+			dimensions[key] = val
+		}
+
+		this.removeMatchedValue()
+		return dimensions
+	}
+
+	// Parses axis from a string and returns it as an object
+	// It handles cases like x: 50%, y: 50%
+	parseAxis() {
+		const axis: Record<string, string> = {}
+		for (const match of this.value.matchAll(regexp.axis)) {
+			this.addRemoveList(match.index, match[0].length)
+
+			const key = match[1]
+			const val = match[2] || match[3] || match[4]
+			axis[key] = val
+		}
+
+		this.removeMatchedValue()
+		return axis
+	}
+
+	// Parses position key from a string and returns it as a string
+	// It handles cases like top, right, bottom, left
+	parsePositionKey() {
+		let result = ''
+		for (const match of this.value.matchAll(regexp.positionKey)) {
+			this.addRemoveList(match.index, match[0].length)
+			result = match[0]
+		}
+
+		this.removeMatchedValue()
+		return result
+	}
+
+	// Parses positions from a string and returns them as an object
+	// It handles cases like top: 10px, right: 20px, bottom: 30px, left: 40px
+	parsePositions() {
+		const positions: Record<string, string> = {}
+		for (const match of this.value.matchAll(regexp.position)) {
+			this.addRemoveList(match.index, match[0].length)
+
+			const key = match[1]
+			const val = match[2] || match[3] || match[4]
+			positions[key] = val
+		}
+
+		this.removeMatchedValue()
+		return positions
+	}
+
+	// Parses repeat from a string and returns it as a string
+	// It handles cases like repeat, no-repeat, repeat-x, repeat-y, space, round
+	parseRepeat() {
+		let result = ''
+		for (const match of this.value.matchAll(regexp.repeatKey)) {
+			this.addRemoveList(match.index, match[0].length)
+			result = match[0]
+		}
+
+		this.removeMatchedValue()
+		return result
+	}
+
+	// Parses repeat axis from a string and returns it as an object
+	// It handles cases like repeat-x: repeat, repeat-y: no-repeat
+	parseRepeatAxis() {
+		const repeatAxis: Record<string, string> = {}
+		for (const match of this.value.matchAll(regexp.repeatAxis)) {
+			this.addRemoveList(match.index, match[0].length)
+
+			const key = match[1]
+			const val = match[2].replace(regexp.quote, '')
+			repeatAxis[key] = val
+		}
+
+		this.removeMatchedValue()
+		return repeatAxis
+	}
+
+	// Parses a value with unit from a string and returns it as a string
+	// It handles cases like 100px, 50%, 1.5em, 2rem
+	parseValueWithUnit() {
+		let result = ''
+		for (const match of this.value.matchAll(regexp.valueWithUnit)) {
+			this.addRemoveList(match.index, match[0].length)
+			result = match[0]
+		}
+
+		this.removeMatchedValue()
+		return result
+	}
+
+	// Parses split directive from a string and returns it as an object
+	parseSplit() {
+		for (const match of this.value.matchAll(regexp.split)) {
+			this.addRemoveList(match.index, match[0].length)
+			return match?.[2] || match?.[3] || match?.[4] || ''
+		}
+
+		this.removeMatchedValue()
 		return ''
 	}
-	return filters.join(' ')
-}
 
-// Parses fit from a string and returns it as a CSS property
-// It handles cases like cover, contain, none
-export const parseFit = (value: string): string => {
-	const match = value.match(regexp.fit)
-	return match?.pop() || ''
-}
+	// Parses click attributes from a string and returns them as an object
+	parseClick() {
+		const click: Record<number, string> = {}
+		for (const match of this.value.matchAll(regexp.clickAttributes)) {
+			this.addRemoveList(match.index, match[0].length)
 
-// Parses axis from a string and returns it as an object
-// It handles cases like w: 100px, h: 200px
-export const parseDimensions = (value: string): Record<string, string> => {
-	const dimensions: Record<string, string> = {}
-	for (const match of value.matchAll(regexp.dimensions)) {
-		const key = match[1]
-		const val = match[2] || match[3] || match[4]
-		dimensions[key] = val
+			const key = Number(match[1])
+			const val = match[2] || match[3] || match[4]
+			click[key] = join([click[key], val], ' ')
+		}
+
+		this.removeMatchedValue()
+		return click
 	}
-	return dimensions
-}
-
-// Parses axis from a string and returns it as an object
-// It handles cases like x: 50%, y: 50%
-export const parseAxis = (value: string): Record<string, string> => {
-	const axis: Record<string, string> = {}
-	for (const match of value.matchAll(regexp.axis)) {
-		const key = match[1]
-		const val = match[2] || match[3] || match[4]
-		axis[key] = val
-	}
-	return axis
-}
-
-// Parses position key from a string and returns it as a string
-// It handles cases like top, right, bottom, left
-export const parsePositionKey = (value: string): string => {
-	const match = value.match(regexp.positionKey)
-	return match?.pop() || ''
-}
-
-// Parses positions from a string and returns them as an object
-// It handles cases like top: 10px, right: 20px, bottom: 30px, left: 40px
-export const parsePositions = (value: string): Record<string, string> => {
-	const positions: Record<string, string> = {}
-	for (const match of value.matchAll(regexp.position)) {
-		const key = match[1]
-		const val = match[2] || match[3] || match[4]
-		positions[key] = val
-	}
-	return positions
-}
-
-// Parses repeat from a string and returns it as a string
-// It handles cases like repeat, no-repeat, repeat-x, repeat-y, space, round
-export const parseRepeat = (value: string): string => {
-	const match = value.match(regexp.repeatKey)
-	return match?.pop() || ''
-}
-
-// Parses repeat axis from a string and returns it as an object
-// It handles cases like repeat-x: repeat, repeat-y: no-repeat
-export const parseRepeatAxis = (value: string): Record<string, string> => {
-	const repeatAxis: Record<string, string> = {}
-	for (const match of value.matchAll(regexp.repeatAxis)) {
-		const key = match[1]
-		const val = match[2].replace(regexp.quote, '')
-		repeatAxis[key] = val
-	}
-	return repeatAxis
-}
-
-// Parses a value with unit from a string and returns it as a string
-// It handles cases like 100px, 50%, 1.5em, 2rem
-export const parseValueWithUnit = (value: string): string => {
-	const match = value.match(regexp.valueWithUnit)
-	return match?.pop() || ''
-}
-
-// Parses split directive from a string and returns it as an object
-export const parseSplit = (value: string): string => {
-	const match = value.match(regexp.split)
-	const splitValue = match?.[2] || match?.[3] || match?.[4]
-	return splitValue || ''
-}
-
-// Parses click attributes from a string and returns them as an object
-export const parseClickData = (value: string): Record<number, string> => {
-	const clickAttributes: Record<number, string> = {}
-	for (const match of value.matchAll(regexp.clickAttributes)) {
-		const key = Number(match[1])
-		const val = match[2] || match[3] || match[4]
-		clickAttributes[key] = join([clickAttributes[key], val], ' ')
-	}
-	return clickAttributes
 }

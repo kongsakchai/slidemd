@@ -6,7 +6,7 @@ import type { VFile } from 'vfile'
 import type { Directive, SplitProperties } from '../types'
 import { transformBackground } from './background'
 import { transformImage } from './image'
-import { join, parseAttributes, parseClass, parseClickData, parseId, parseSplit, regexp } from './parser'
+import { join, Parser } from './parser'
 import { transformShiki } from './shiki'
 
 export interface Store {
@@ -27,22 +27,24 @@ export const reservedWord = ['split']
 
 const parseAttrsToParent = (node: RootContentMap['html'], parent: Parent) => {
 	const value = node.value.trim()
+	const parser = new Parser(value)
 
 	parent.data ??= {}
 	parent.data.hProperties = {
 		...parent.data.hProperties,
-		...parseAttributes(value)
+		...parser.parseAttributes()
 	}
 
-	parent.data.hProperties.class = parseClass(value, parent.data.hProperties.class as string)
-	parent.data.hProperties.id = parseId(value, parent.data.hProperties.id as string)
+	parent.data.hProperties.class = parser.parseClass(parent.data.hProperties.class as string)
+	parent.data.hProperties.id = parser.parseId(parent.data.hProperties.id as string)
 }
 
 const parseDirectivesToStore = (node: RootContentMap['html'], store: Store) => {
 	const global: Record<string, unknown> = {}
 	const local: Record<string, unknown> = {}
+	const parser = new Parser(node.value)
 
-	const attrs = parseAttributes(node.value)
+	const attrs = parser.parseAttributes()
 	for (const [key, value] of Object.entries(attrs)) {
 		if (reservedWord.includes(key)) continue
 
@@ -74,7 +76,7 @@ export const htmlTransformer = () => {
 		visit(tree, 'html', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
 
-			if (regexp.comment.test(node.value)) {
+			if (Parser.isComment(node.value)) {
 				if (parent.type === 'root') {
 					parseDirectivesToStore(node, store)
 					return
@@ -99,8 +101,8 @@ export const splitTransformer = () => {
 		visit(tree, 'html', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
 
-			if (regexp.comment.test(node.value) && regexp.split.test(node.value)) {
-				const size = parseSplit(node.value)
+			if (Parser.isComment(node.value) && Parser.isSplit(node.value)) {
+				const size = new Parser(node.value).parseSplit()
 				indexs.push(index)
 				slizes.push(size || '1fr')
 				return
@@ -141,7 +143,7 @@ export const splitTransformer = () => {
 	}
 }
 
-const clearParent = (root: Parent, parent: Parent) => {
+const removeEmptyParent = (root: Parent, parent: Parent) => {
 	let loop = true
 
 	while (loop) {
@@ -211,12 +213,12 @@ export const imageTransformer = () => {
 			visit(root, 'image', (node, index, parent) => {
 				if (typeof index !== 'number' || !parent) return
 
-				if (regexp.bgKey.test(node.alt || '')) {
+				if (Parser.isBackground(node.alt || '')) {
 					const bg = transformBackground(node)
 					backgrounds.push(bg)
 
 					parent.children.splice(index, 1)
-					clearParent(root, parent)
+					removeEmptyParent(root, parent)
 					return
 				}
 
@@ -301,10 +303,14 @@ export const clickTransformer = () => {
 			const clickValue = (hProps.click || '') as string
 			if (!clickValue) return
 
-			const clickData = parseClickData(clickValue)
 			const newClickValues: string[] = []
-			Object.entries(clickData).forEach(([key, value]) => {
-				const cls = parseClass(value)
+			const parser = new Parser(clickValue)
+			const click = parser.parseClick()
+
+			Object.entries(click).forEach(([key, value]) => {
+				parser.value = value
+
+				const cls = parser.parseClass()
 				newClickValues.push(`${key}:${cls}`)
 
 				if (clickInPage < Number(key)) {
@@ -315,7 +321,7 @@ export const clickTransformer = () => {
 			if (newClickValues.length == 0) {
 				const index = parseInt(clickValue)
 				if (isNaN(index)) {
-					const cls = parseClass(clickValue)
+					const cls = parser.parseClass()
 					hProps.click = `1:${cls}`
 				} else if (index != 0) {
 					hProps.click = `0:opacity-0,${index}:opacity-100`

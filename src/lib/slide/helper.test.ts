@@ -27,11 +27,10 @@ describe('directiveToStyle', () => {
 
 	test('should return vertical', () => {
 		const directive = {
-			split: true,
 			splitDir: 'vertical'
 		} as Directive
 
-		const result = directiveToStyle(directive)
+		const result = directiveToStyle(directive, true)
 		expect(result).toBe('--split-row: var(--split-size)')
 	})
 })

@@ -3,6 +3,7 @@ import type { Root } from 'mdast'
 import { VFile } from 'vfile'
 import { describe, expect, test } from 'vitest'
 import {
+	clickTransformer,
 	codeTransformer,
 	enhanceCodeTransformer,
 	htmlTransformer,
@@ -13,7 +14,7 @@ import {
 
 type rootType = 'root'
 
-describe('html handlers', () => {
+describe('html transformer', () => {
 	test('should parse directive when html is comment and directive', () => {
 		const htmls = [
 			{
@@ -111,7 +112,7 @@ describe('html handlers', () => {
 	})
 })
 
-describe('split handlers', () => {
+describe('split transformer', () => {
 	test('should parse split when html is comment and split pattern', () => {
 		const htmls = [
 			{
@@ -162,7 +163,7 @@ describe('split handlers', () => {
 	})
 })
 
-describe('image handlers', () => {
+describe('image transformer', () => {
 	test('should parse image', () => {
 		const image = {
 			type: 'image',
@@ -513,7 +514,7 @@ describe('image handlers', () => {
 	})
 })
 
-describe('code handlers', () => {
+describe('code transformer', () => {
 	test('should parse code block with language', () => {
 		const codeBlock = {
 			type: 'code',
@@ -639,7 +640,7 @@ describe('code handlers', () => {
 	})
 })
 
-describe('enhance code handlers', () => {
+describe('enhance code transformer', () => {
 	test('should enhance code blocks with shiki', async () => {
 		const pre = {
 			type: 'element',
@@ -702,5 +703,147 @@ describe('enhance code handlers', () => {
 		await transform(pre)
 
 		expect(pre).toStrictEqual(expectedPre)
+	})
+})
+
+describe('click transformer', () => {
+	test('should parse click data with only number', () => {
+		const text = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {
+					click: '3'
+				}
+			}
+		}
+		const root = {
+			type: 'root',
+			children: [text]
+		} as Root
+
+		const file = new VFile()
+
+		const expected = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {
+					click: '0:opacity-0,3:opacity-100'
+				}
+			}
+		}
+
+		const transform = clickTransformer()
+		transform(root, file)
+
+		expect(text).toStrictEqual(expected)
+
+		const { click } = file.data.store as Store
+		expect(click).toStrictEqual(3)
+	})
+
+	test('should parse click data with only class', () => {
+		const text = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {
+					click: '.opacity-50'
+				}
+			}
+		}
+		const root = {
+			type: 'root',
+			children: [text]
+		} as Root
+
+		const file = new VFile()
+
+		const expected = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {
+					click: '1:opacity-50'
+				}
+			}
+		}
+
+		const transform = clickTransformer()
+		transform(root, file)
+
+		expect(text).toStrictEqual(expected)
+
+		const { click } = file.data.store as Store
+		expect(click).toStrictEqual(1)
+	})
+
+	test('should parse click data with full syntax', () => {
+		const text = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {
+					click: '1:.opacity-50 2:".opacity-100 .translate-y-1/2"'
+				}
+			}
+		}
+		const root = {
+			type: 'root',
+			children: [text]
+		} as Root
+
+		const file = new VFile()
+
+		const expected = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {
+					click: '1:opacity-50,2:opacity-100 translate-y-1/2'
+				}
+			}
+		}
+
+		const transform = clickTransformer()
+		transform(root, file)
+
+		expect(text).toStrictEqual(expected)
+
+		const { click } = file.data.store as Store
+		expect(click).toStrictEqual(2)
+	})
+
+	test('should parse click data without click data', () => {
+		const text = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {}
+			}
+		}
+		const root = {
+			type: 'root',
+			children: [text]
+		} as Root
+
+		const file = new VFile()
+
+		const expected = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {}
+			}
+		}
+
+		const transform = clickTransformer()
+		transform(root, file)
+
+		expect(text).toStrictEqual(expected)
+
+		const { click } = file.data.store as Store
+		expect(click).toStrictEqual(0)
 	})
 })

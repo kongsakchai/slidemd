@@ -1,35 +1,23 @@
 import type { RootContentMap } from 'mdast'
-import {
-	join,
-	parseAttributes,
-	parseAxis,
-	parseClass,
-	parseDimensions,
-	parseFilters,
-	parseFit,
-	parseId,
-	parsePositionKey,
-	parsePositions,
-	regexp
-} from './parser'
+import { join, Parser } from './parser'
 
-const parseFilterStyle = (value: string): string => {
-	const filterValue = parseFilters(value)
+const parseFilterStyle = (parser: Parser): string => {
+	const filterValue = parser.parseFilters()
 	return filterValue ? `filter: ${filterValue}` : ''
 }
 
-const parseObjectFit = (value: string): string => {
-	const fitValue = parseFit(value)
+const parseObjectFit = (parser: Parser): string => {
+	const fitValue = parser.parseFit()
 	return fitValue ? `object-fit: ${fitValue}` : 'object-fit: none'
 }
 
-const parseObjectPosition = (value: string): string => {
-	const positionKey = parsePositionKey(value)
+const parseObjectPosition = (parser: Parser): string => {
+	const positionKey = parser.parsePositionKey()
 	if (positionKey) {
 		return `object-position: ${positionKey}`
 	}
 
-	const positions = parseAxis(value)
+	const positions = parser.parseAxis()
 	if (Object.keys(positions).length === 0) {
 		return ''
 	}
@@ -39,15 +27,15 @@ const parseObjectPosition = (value: string): string => {
 	return `object-position: ${x} ${y}`
 }
 
-const parseWidthHeight = (value: string): string[] => {
-	const dimensions = parseDimensions(value)
+const parseWidthHeight = (parser: Parser): string[] => {
+	const dimensions = parser.parseDimensions()
 	const width = dimensions.w ? `width: ${dimensions.w}` : ''
 	const height = dimensions.h ? `height: ${dimensions.h}` : ''
 	return [width, height]
 }
 
-const parsePositionStyles = (value: string): string[] => {
-	const positions = parsePositions(value)
+const parsePositionStyles = (parser: Parser): string[] => {
+	const positions = parser.parsePositions()
 	const positionStyle: string[] = []
 	for (const [positionKey, positionVal] of Object.entries(positions)) {
 		positionStyle.push(`${positionKey}: ${positionVal}`)
@@ -59,15 +47,17 @@ export const transformImage = (image: RootContentMap['image']) => {
 	const imageAlt = image.alt || ''
 	image.alt = imageAlt.split(' ')[0]
 
-	const filter = parseFilterStyle(imageAlt)
-	const fit = parseObjectFit(imageAlt)
-	const objectPos = parseObjectPosition(imageAlt)
-	const widthHeight = parseWidthHeight(imageAlt)
-	const positionStyle = parsePositionStyles(imageAlt)
+	const parser = new Parser(imageAlt)
 
-	const attrs = parseAttributes(imageAlt)
+	const filter = parseFilterStyle(parser)
+	const fit = parseObjectFit(parser)
+	const objectPos = parseObjectPosition(parser)
+	const widthHeight = parseWidthHeight(parser)
+	const positionStyle = parsePositionStyles(parser)
 
-	const isAbsolute = regexp.absoluteKey.test(imageAlt)
+	const attrs = parser.parseAttributes()
+
+	const isAbsolute = Parser.isAbsolute(parser.value)
 	const absolute = isAbsolute ? 'position: absolute' : ''
 
 	image.data ??= {}
@@ -89,6 +79,6 @@ export const transformImage = (image: RootContentMap['image']) => {
 		style: join(styles, '; ')
 	}
 
-	image.data.hProperties.class = parseClass(imageAlt, image.data.hProperties.class as string)
-	image.data.hProperties.id = parseId(imageAlt, image.data.hProperties.id as string)
+	image.data.hProperties.class = parser.parseClass(image.data.hProperties.class as string)
+	image.data.hProperties.id = parser.parseId(image.data.hProperties.id as string)
 }

@@ -8,14 +8,19 @@ describe('background transform', () => {
 		const image = {
 			type: 'image' as image,
 			alt: '',
-			url: 'https://example.com/image.png'
+			url: 'https://example.com/image.png',
+			data: {
+				hProperties: {
+					class: 'exiting-class'
+				}
+			}
 		}
 
 		const expectedBg = {
 			type: 'bg',
 			data: {
 				hProperties: {
-					class: 'background-image',
+					class: 'background-image exiting-class',
 					id: '',
 					style: 'background-image: url(https://example.com/image.png); background-position: center; background-repeat: no-repeat',
 					isVertical: false,

@@ -61,7 +61,6 @@ describe('Image Transform Tests', () => {
 		}
 
 		transformImage(image)
-
 		expect(image).toEqual(expectedImage)
 	})
 
