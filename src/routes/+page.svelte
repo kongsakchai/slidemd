@@ -28,7 +28,6 @@
 	let clickableMap: Record<number, Clickable[]> = {}
 
 	mermaid.initialize({
-		startOnLoad: true,
 		theme: 'default',
 		htmlLabels: false,
 		fontFamily: 'mali'
@@ -37,6 +36,8 @@
 	onMount(() => {
 		setCopyCodeButton(browser)
 		clickableMap = setClickable(browser)
+
+		mermaid.run().then(() => console.log('Mermaid diagrams rendered'))
 	})
 
 	const nextPage = () => {

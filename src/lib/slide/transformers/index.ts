@@ -239,17 +239,33 @@ export const codeTransformer = () => {
 		visit(tree, 'code', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
 
+			const parser = new Parser(node.meta || '')
+			const attrs = parser.parseAttributes()
+			attrs.id = parser.parseId(attrs.id as string)
+			attrs.class = parser.parseClass(attrs.class as string)
+
 			if (node.lang === 'mermaid') {
-				const html = `<pre class="mermaid">${node.value}</pre>`
+				attrs.class = join(['mermaid', attrs.class], ' ')
+
+				const attrStr = Object.entries(attrs)
+					.map(([key, value]) => `${key}="${value}"`)
+					.join(' ')
+
+				const html = `<pre ${attrStr}>${node.value}</pre>`
 				const newNode = {
 					type: 'html',
-					value: html
+					value: html,
+					data: {
+						hProperties: {
+							...attrs
+						}
+					}
 				}
 				parent.children.splice(index, 1, newNode as RootContent)
 				return
 			}
-
-			node.meta = node.lang
+			node.meta = node.lang || 'plaintext'
+			attrs.class = join([`language-${node.meta}`, attrs.class], ' ')
 
 			const btn = {
 				type: 'html',
@@ -264,7 +280,7 @@ export const codeTransformer = () => {
 				type: 'parent',
 				data: {
 					hProperties: {
-						class: 'language-' + (node.lang || 'plaintext')
+						...attrs
 					}
 				},
 				children: [btn, lang, node] as RootContent[]

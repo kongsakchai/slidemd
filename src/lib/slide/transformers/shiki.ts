@@ -27,11 +27,16 @@ const highlight = await createHighlighter({
 
 export const transformShiki = async (pre: Element) => {
 	const code = pre.children[0] as Element
-	const lang = code.data?.meta as string
 	const codeStr = (code.children[0] as Text).value
+	let lang = code.data?.meta as string
 
 	if (!highlight.getLoadedLanguages().includes(lang)) {
-		await highlight.loadLanguage(lang as BundledLanguage)
+		try {
+			await highlight.loadLanguage(lang as BundledLanguage)
+		} catch {
+			lang = 'plaintext'
+			console.error(`Failed to load language '${lang}'`)
+		}
 	}
 
 	const shikiRoot = await codeToHast(codeStr, {
