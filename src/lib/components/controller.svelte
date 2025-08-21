@@ -23,6 +23,18 @@
 	}
 </script>
 
+<svelte:document
+	onkeydown={(e) => {
+		if (e.repeat) return
+
+		if (e.key === 'ArrowLeft') {
+			onPrevious?.()
+		} else if (e.key === 'ArrowRight') {
+			onNext?.()
+		}
+	}}
+/>
+
 <div class="menu">
 	<button class="menu-btn previous-btn" aria-label="previous" onclick={onPrevious} disabled={disabledPrevious}
 	></button>

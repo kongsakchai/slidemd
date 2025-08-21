@@ -2,9 +2,10 @@
 	import { browser } from '$app/environment'
 	import Controller from '$lib/components/controller.svelte'
 	import PreviewImage from '$lib/components/preview-image.svelte'
-	import { Clickable, setClickable } from '$lib/helper/clickable.js'
-	import { directiveToStyle, setCopyCodeButton } from '$lib/slide/helper'
-	import { settings } from '$lib/state.svelte.js'
+	import { Clickable, setClickable } from '$lib/helper/clickable'
+	import { setCopyCodeButton } from '$lib/helper/copy-code.js'
+	import { directiveToStyle } from '$lib/slide/helper'
+	import { settings } from '$lib/state.svelte'
 	import mermaid from 'mermaid'
 	import { onMount } from 'svelte'
 
