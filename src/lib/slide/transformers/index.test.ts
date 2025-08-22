@@ -43,8 +43,8 @@ describe('html transformer', () => {
 
 		const store = file.data.store as Store
 
-		expect(store.localDirective).toStrictEqual({ page: 'skip' })
-		expect(store.globalDirective).toStrictEqual({ bgColor: '#red' })
+		expect(store.localDirective).toEqual({ page: 'skip' })
+		expect(store.globalDirective).toEqual({ bgColor: '#red' })
 	})
 
 	test('should parse attrs when html is comment and has parents', () => {
@@ -87,7 +87,7 @@ describe('html transformer', () => {
 		const transform = htmlTransformer()
 		transform(root, file)
 
-		expect(text).toStrictEqual(expectedText)
+		expect(text).toEqual(expectedText)
 	})
 
 	test('should dont parse html if no parent', () => {
@@ -108,7 +108,7 @@ describe('html transformer', () => {
 			children: []
 		}
 
-		expect(html).toStrictEqual(expectedHtml)
+		expect(html).toEqual(expectedHtml)
 	})
 })
 
@@ -159,7 +159,7 @@ describe('split transformer', () => {
 			children: []
 		}
 
-		expect(html).toStrictEqual(expectedHtml)
+		expect(html).toEqual(expectedHtml)
 	})
 })
 
@@ -189,8 +189,6 @@ describe('image transformer', () => {
 				hProperties: {
 					loading: 'lazy',
 					style: 'object-fit: none',
-					id: '',
-					class: '',
 					isAbsolute: false
 				}
 			}
@@ -201,7 +199,7 @@ describe('image transformer', () => {
 		const transform = imageTransformer()
 		transform(root, file)
 
-		expect(image).toStrictEqual(expectedImage)
+		expect(image).toEqual(expectedImage)
 	})
 
 	test('should parse image and set parent to contents', () => {
@@ -229,8 +227,6 @@ describe('image transformer', () => {
 				hProperties: {
 					loading: 'lazy',
 					style: 'position: absolute; object-fit: none',
-					id: '',
-					class: '',
 					isAbsolute: true
 				}
 			}
@@ -241,7 +237,7 @@ describe('image transformer', () => {
 		const transform = imageTransformer()
 		transform(root, file)
 
-		expect(image).toStrictEqual(expectedImage)
+		expect(image).toEqual(expectedImage)
 	})
 
 	test('should parse image and dont set parent to contents', () => {
@@ -273,8 +269,6 @@ describe('image transformer', () => {
 				hProperties: {
 					loading: 'lazy',
 					style: 'position: absolute; object-fit: none',
-					id: '',
-					class: '',
 					isAbsolute: true
 				}
 			}
@@ -285,7 +279,7 @@ describe('image transformer', () => {
 		const transform = imageTransformer()
 		transform(root, file)
 
-		expect(image).toStrictEqual(expectedImage)
+		expect(image).toEqual(expectedImage)
 	})
 
 	test('should parse bg', () => {
@@ -316,8 +310,7 @@ describe('image transformer', () => {
 							style: 'background-image: url(https://example.com/image.png); background-position: center; background-repeat: no-repeat',
 							isVertical: false,
 							sizeGrid: '',
-							class: 'background-image',
-							id: ''
+							class: 'background-image'
 						}
 					}
 				}
@@ -329,7 +322,7 @@ describe('image transformer', () => {
 		const transform = imageTransformer()
 		transform(root, file)
 
-		expect(root.children[0]).toStrictEqual(expectedBgContainer)
+		expect(root.children[0]).toEqual(expectedBgContainer)
 	})
 
 	test('should parse bg and dont clear parent', () => {
@@ -365,8 +358,7 @@ describe('image transformer', () => {
 							style: 'background-image: url(https://example.com/image.png); background-position: center; background-repeat: no-repeat',
 							isVertical: false,
 							sizeGrid: '',
-							class: 'background-image',
-							id: ''
+							class: 'background-image'
 						}
 					}
 				}
@@ -378,7 +370,7 @@ describe('image transformer', () => {
 		const transform = imageTransformer()
 		transform(root, file)
 
-		expect(root.children[1]).toStrictEqual(expectedBgContainer)
+		expect(root.children[1]).toEqual(expectedBgContainer)
 	})
 
 	test('should parse bg and clear parent', () => {
@@ -414,8 +406,7 @@ describe('image transformer', () => {
 							style: 'background-image: url(https://example.com/image.png); background-position: center; background-repeat: no-repeat',
 							isVertical: false,
 							sizeGrid: '',
-							class: 'background-image',
-							id: ''
+							class: 'background-image'
 						}
 					}
 				}
@@ -427,7 +418,7 @@ describe('image transformer', () => {
 		const transform = imageTransformer()
 		transform(root, file)
 
-		expect(root.children[0]).toStrictEqual(expectedBgContainer)
+		expect(root.children[0]).toEqual(expectedBgContainer)
 	})
 
 	test('should parse bg and vertical background and split', () => {
@@ -467,8 +458,7 @@ describe('image transformer', () => {
 							style: 'background-image: url(https://example.com/image.png); background-position: center; background-repeat: no-repeat',
 							isVertical: true,
 							sizeGrid: '',
-							class: 'background-image',
-							id: ''
+							class: 'background-image'
 						}
 					}
 				}
@@ -491,7 +481,7 @@ describe('image transformer', () => {
 		const transform = imageTransformer()
 		transform(root, file)
 
-		expect(root.children[0]).toStrictEqual(expectedSplit)
+		expect(root.children[0]).toEqual(expectedSplit)
 	})
 
 	test('should dont parse image if no parent', () => {
@@ -510,7 +500,7 @@ describe('image transformer', () => {
 			children: []
 		}
 
-		expect(node).toStrictEqual(expectedHtml)
+		expect(node).toEqual(expectedHtml)
 	})
 })
 
@@ -555,7 +545,7 @@ describe('code transformer', () => {
 		const transform = codeTransformer()
 		transform(root)
 
-		expect(root.children[root.children.length - 1]).toStrictEqual(expectedCodeBlock)
+		expect(root.children[root.children.length - 1]).toEqual(expectedCodeBlock)
 	})
 
 	test('should parse code block to mermaid', () => {
@@ -571,14 +561,24 @@ describe('code transformer', () => {
 		} as Root
 
 		const expectedCodeBlock = {
-			type: 'html',
-			value: '<pre class="mermaid">console.log("Hello, world!");</pre>'
+			type: 'parent',
+			children: [
+				{
+					type: 'text',
+					value: 'console.log("Hello, world!");'
+				}
+			],
+			data: {
+				hProperties: {
+					class: 'mermaid'
+				}
+			}
 		}
 
 		const transform = codeTransformer()
 		transform(root)
 
-		expect(root.children[root.children.length - 1]).toStrictEqual(expectedCodeBlock)
+		expect(root.children[root.children.length - 1]).toEqual(expectedCodeBlock)
 	})
 
 	test('should dont parse code if no parent', () => {
@@ -595,7 +595,7 @@ describe('code transformer', () => {
 			children: []
 		}
 
-		expect(codeBlock).toStrictEqual(expectedCodeBlock)
+		expect(codeBlock).toEqual(expectedCodeBlock)
 	})
 
 	test('should dont parse code block if no lang', () => {
@@ -621,7 +621,7 @@ describe('code transformer', () => {
 				},
 				{
 					type: 'code',
-					meta: undefined,
+					meta: 'plaintext',
 					value: 'console.log("Hello, world!");'
 				}
 			],
@@ -636,7 +636,7 @@ describe('code transformer', () => {
 		const transform = codeTransformer()
 		transform(root)
 
-		expect(root.children[root.children.length - 1]).toStrictEqual(expectedCodeBlock)
+		expect(root.children[root.children.length - 1]).toEqual(expectedCodeBlock)
 	})
 })
 
@@ -702,7 +702,7 @@ describe('enhance code transformer', () => {
 		const transform = enhanceCodeTransformer()
 		await transform(pre)
 
-		expect(pre).toStrictEqual(expectedPre)
+		expect(pre).toEqual(expectedPre)
 	})
 })
 
@@ -737,10 +737,10 @@ describe('click transformer', () => {
 		const transform = clickTransformer()
 		transform(root, file)
 
-		expect(text).toStrictEqual(expected)
+		expect(text).toEqual(expected)
 
 		const { click } = file.data.store as Store
-		expect(click).toStrictEqual(3)
+		expect(click).toEqual(3)
 	})
 
 	test('should parse click data with only class', () => {
@@ -773,10 +773,10 @@ describe('click transformer', () => {
 		const transform = clickTransformer()
 		transform(root, file)
 
-		expect(text).toStrictEqual(expected)
+		expect(text).toEqual(expected)
 
 		const { click } = file.data.store as Store
-		expect(click).toStrictEqual(1)
+		expect(click).toEqual(1)
 	})
 
 	test('should parse click data with full syntax', () => {
@@ -809,10 +809,10 @@ describe('click transformer', () => {
 		const transform = clickTransformer()
 		transform(root, file)
 
-		expect(text).toStrictEqual(expected)
+		expect(text).toEqual(expected)
 
 		const { click } = file.data.store as Store
-		expect(click).toStrictEqual(2)
+		expect(click).toEqual(2)
 	})
 
 	test('should parse click data without click data', () => {
@@ -841,9 +841,75 @@ describe('click transformer', () => {
 		const transform = clickTransformer()
 		transform(root, file)
 
-		expect(text).toStrictEqual(expected)
+		expect(text).toEqual(expected)
 
 		const { click } = file.data.store as Store
-		expect(click).toStrictEqual(0)
+		expect(click).toEqual(0)
+	})
+
+	test('should parse click data without click data', () => {
+		const text = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {}
+			}
+		}
+		const root = {
+			type: 'root',
+			children: [text]
+		} as Root
+
+		const file = new VFile()
+
+		const expected = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {}
+			}
+		}
+
+		const transform = clickTransformer()
+		transform(root, file)
+
+		expect(text).toEqual(expected)
+
+		const { click } = file.data.store as Store
+		expect(click).toEqual(0)
+	})
+
+	test('should parse click data with click data but empty class', () => {
+		const text = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {
+					click: '1:""'
+				}
+			}
+		}
+		const root = {
+			type: 'root',
+			children: [text]
+		} as Root
+
+		const file = new VFile()
+
+		const expected = {
+			type: 'text',
+			value: 'This is a text',
+			data: {
+				hProperties: {}
+			}
+		}
+
+		const transform = clickTransformer()
+		transform(root, file)
+
+		expect(text).toEqual(expected)
+
+		const { click } = file.data.store as Store
+		expect(click).toEqual(0)
 	})
 })

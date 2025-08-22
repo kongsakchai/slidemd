@@ -19,8 +19,6 @@ describe('Image Transform Tests', () => {
 				hProperties: {
 					isAbsolute: false,
 					loading: 'lazy',
-					class: '',
-					id: '',
 					style: 'object-fit: none'
 				}
 			}
@@ -79,8 +77,6 @@ describe('Image Transform Tests', () => {
 				hProperties: {
 					isAbsolute: false,
 					loading: 'lazy',
-					class: '',
-					id: '',
 					style: 'object-fit: none; object-position: 10% 50%'
 				}
 			}
@@ -106,8 +102,6 @@ describe('Image Transform Tests', () => {
 				hProperties: {
 					isAbsolute: false,
 					loading: 'lazy',
-					class: '',
-					id: '',
 					style: 'object-fit: none; object-position: 50% 10%'
 				}
 			}

@@ -11,8 +11,29 @@ describe('shiki transformer', () => {
 				{
 					type: 'element',
 					tagName: 'code',
-					properties: { class: ['language-js'] },
+					properties: { class: ['language-sql'] },
 					data: { meta: 'sql' },
+					children: [{ type: 'text', value: 'SELECT * FROM users;' }]
+				}
+			],
+			properties: {}
+		} as Element
+
+		await transformShiki(pre)
+
+		expect(pre.properties.class).toContain('shiki')
+	})
+
+	test('should transform code blocks to plaintext when unknow language', async () => {
+		const pre = {
+			type: 'element',
+			tagName: 'pre',
+			children: [
+				{
+					type: 'element',
+					tagName: 'code',
+					properties: { class: ['language-aaa'] },
+					data: { meta: 'aaa' },
 					children: [{ type: 'text', value: 'SELECT * FROM users;' }]
 				}
 			],

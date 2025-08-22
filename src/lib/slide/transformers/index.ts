@@ -173,9 +173,9 @@ const setContentsParent = (parent: Parent) => {
 	})
 	if (!isContents) return
 
-	parent.data ??= {}
-	const styles = [parent.data.hProperties?.style as string, 'display: contents']
+	const styles = [parent.data?.hProperties?.style as string, 'display: contents']
 
+	parent.data ??= {}
 	parent.data.hProperties = {
 		...parent.data.hProperties,
 		style: join(styles, '; ')
@@ -247,23 +247,23 @@ export const codeTransformer = () => {
 			if (node.lang === 'mermaid') {
 				attrs.class = join(['mermaid', attrs.class], ' ')
 
-				const attrStr = Object.entries(attrs)
-					.map(([key, value]) => `${key}="${value}"`)
-					.join(' ')
-
-				const html = `<pre ${attrStr}>${node.value}</pre>`
-				const newNode = {
-					type: 'html',
-					value: html,
+				const mermaid = {
+					type: 'text',
+					value: node.value.trim()
+				}
+				const container = {
+					type: 'parent',
 					data: {
 						hProperties: {
 							...attrs
 						}
-					}
+					},
+					children: [mermaid]
 				}
-				parent.children.splice(index, 1, newNode as RootContent)
+				parent.children.splice(index, 1, container as RootContent)
 				return
 			}
+
 			node.meta = node.lang || 'plaintext'
 			attrs.class = join([`language-${node.meta}`, attrs.class], ' ')
 
@@ -310,45 +310,47 @@ export const clickTransformer = () => {
 		let clickInPage = 0
 
 		visit(tree, (node) => {
-			node.data ??= {}
-			node.data.hProperties ??= {}
-			const hProps = node.data.hProperties as Record<string, unknown>
-
 			// click=n:"class1 class2"
 			// click=1:opacity-100
-			const clickValue = (hProps.click || '') as string
+			const clickValue = (node.data?.hProperties?.click || '') as string
 			if (!clickValue) return
 
 			const newClickValues: string[] = []
 			const parser = new Parser(clickValue)
+
 			const click = parser.parseClick()
-
 			Object.entries(click).forEach(([key, value]) => {
-				parser.value = value
+				parser.newValue(value || '')
 
-				const cls = parser.parseClass()
-				newClickValues.push(`${key}:${cls}`)
+				const classes = parser.parseClass()
+				if (!classes) return
+				newClickValues.push(`${key}:${classes}`)
 
 				if (clickInPage < Number(key)) {
 					clickInPage = Number(key)
 				}
 			})
 
-			if (newClickValues.length == 0) {
+			if (Object.keys(click).length === 0 && clickValue) {
 				const index = parseInt(clickValue)
+
 				if (isNaN(index)) {
-					const cls = parser.parseClass()
-					hProps.click = `1:${cls}`
+					const classes = parser.parseClass()
+					if (classes) newClickValues.push(`1:${classes}`)
 				} else if (index != 0) {
-					hProps.click = `0:opacity-0,${index}:opacity-100`
+					newClickValues.push(`0:opacity-0,${index}:opacity-100`)
 				}
+
 				if (clickInPage < (index || 1)) {
 					clickInPage = index || 1
 				}
-				return
 			}
 
-			hProps.click = newClickValues.join(',')
+			node.data ??= {}
+			node.data.hProperties = {
+				...node.data.hProperties,
+				click: join(newClickValues, ',')
+			}
 		})
 
 		const store = getStore(file)

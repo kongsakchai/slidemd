@@ -69,10 +69,10 @@ export const transformBackground = (image: RootContentMap['image']) => {
 	const repeat = parseBackgroundRepeat(parser) // default no-repeat
 	const sizeGrid = parser.parseValueWithUnit() // default empty string
 
-	image.data ??= {}
 	const isVertical = Parser.isVertical(parser.value)
-	const newStyles = [image.data.hProperties?.style as string, url, filter, size, position, repeat]
+	const newStyles = [image.data?.hProperties?.style as string, url, filter, size, position, repeat]
 
+	image.data ??= {}
 	image.data.hProperties = {
 		...image.data.hProperties,
 		style: join(newStyles, '; '),

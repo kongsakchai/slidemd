@@ -60,9 +60,8 @@ export const transformImage = (image: RootContentMap['image']) => {
 	const isAbsolute = Parser.isAbsolute(parser.value)
 	const absolute = isAbsolute ? 'position: absolute' : ''
 
-	image.data ??= {}
 	const styles = [
-		image.data.hProperties?.style as string,
+		image.data?.hProperties?.style as string,
 		absolute,
 		filter,
 		fit,
@@ -71,6 +70,7 @@ export const transformImage = (image: RootContentMap['image']) => {
 		...positionStyle
 	]
 
+	image.data ??= {}
 	image.data.hProperties = {
 		...image.data.hProperties,
 		...attrs,

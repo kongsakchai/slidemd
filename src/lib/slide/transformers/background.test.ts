@@ -21,7 +21,6 @@ describe('background transform', () => {
 			data: {
 				hProperties: {
 					class: 'background-image exiting-class',
-					id: '',
 					style: 'background-image: url(https://example.com/image.png); background-position: center; background-repeat: no-repeat',
 					isVertical: false,
 					sizeGrid: ''
@@ -46,7 +45,7 @@ describe('background transform', () => {
 			data: {
 				hProperties: {
 					class: 'background-image',
-					id: '',
+
 					style: 'background-image: url(https://example.com/image.png); background-filter: blur(10px); background-size: cover; background-position: center; background-repeat: round',
 					isVertical: true,
 					sizeGrid: '5px'
@@ -71,7 +70,7 @@ describe('background transform', () => {
 			data: {
 				hProperties: {
 					class: 'background-image',
-					id: '',
+
 					style: 'background-image: url(https://example.com/image.png); background-size: 10px auto; background-position: center; background-repeat: no-repeat',
 					isVertical: false,
 					sizeGrid: ''
@@ -96,7 +95,7 @@ describe('background transform', () => {
 			data: {
 				hProperties: {
 					class: 'background-image',
-					id: '',
+
 					style: 'background-image: url(https://example.com/image.png); background-size: auto 10px; background-position: center; background-repeat: no-repeat',
 					isVertical: false,
 					sizeGrid: ''
@@ -121,7 +120,7 @@ describe('background transform', () => {
 			data: {
 				hProperties: {
 					class: 'background-image',
-					id: '',
+
 					style: 'background-image: url(https://example.com/image.png); background-position: top; background-repeat: no-repeat',
 					isVertical: false,
 					sizeGrid: ''
@@ -146,7 +145,7 @@ describe('background transform', () => {
 			data: {
 				hProperties: {
 					class: 'background-image',
-					id: '',
+
 					style: 'background-image: url(https://example.com/image.png); background-position: 10px 50%; background-repeat: no-repeat',
 					isVertical: false,
 					sizeGrid: ''
@@ -171,7 +170,7 @@ describe('background transform', () => {
 			data: {
 				hProperties: {
 					class: 'background-image',
-					id: '',
+
 					style: 'background-image: url(https://example.com/image.png); background-position: 50% 10px; background-repeat: no-repeat',
 					isVertical: false,
 					sizeGrid: ''
@@ -196,7 +195,7 @@ describe('background transform', () => {
 			data: {
 				hProperties: {
 					class: 'background-image',
-					id: '',
+
 					style: 'background-image: url(https://example.com/image.png); background-position: center; background-repeat: repeat-x',
 					isVertical: false,
 					sizeGrid: ''
@@ -221,7 +220,7 @@ describe('background transform', () => {
 			data: {
 				hProperties: {
 					class: 'background-image',
-					id: '',
+
 					style: 'background-image: url(https://example.com/image.png); background-position: center; background-repeat: repeat no-repeat',
 					isVertical: false,
 					sizeGrid: ''
@@ -246,7 +245,7 @@ describe('background transform', () => {
 			data: {
 				hProperties: {
 					class: 'background-image',
-					id: '',
+
 					style: 'background-image: url(https://example.com/image.png); background-position: center; background-repeat: no-repeat repeat',
 					isVertical: false,
 					sizeGrid: ''

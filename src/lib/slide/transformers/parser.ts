@@ -1,4 +1,6 @@
-export const join = (arr: (string | undefined)[], separator: string): string => {
+export const join = (arr: (string | undefined)[], separator: string): string | undefined => {
+	if (arr.length === 0) return undefined
+
 	const result = arr.filter(Boolean).join(separator)
 	const replaceRex = new RegExp(`${separator}{2,}`, 'g')
 
@@ -49,38 +51,39 @@ export const defaultFilters: Record<string, string> = {
 	'drop-shadow': '2px 2px 5px rgba(0, 0, 0, 0.5)'
 }
 
+interface Match {
+	index: number
+	offset: number
+}
+
 export class Parser {
 	value: string
 
-	#removeIndexs: number[]
-	#removeOffsets: number[]
+	#matchedList: Match[]
 
 	constructor(value: string) {
 		this.value = value
 
-		this.#removeIndexs = []
-		this.#removeOffsets = []
+		this.#matchedList = []
 	}
 
-	private addRemoveList(index: number, length: number) {
-		this.#removeIndexs.push(index)
-		this.#removeOffsets.push(index + length)
+	private addMatchedList(index: number, length: number) {
+		this.#matchedList.push({ index, offset: index + length })
 	}
 
-	private removeMatchedValue() {
+	private clearValue() {
 		let newValue = ''
 		let start = 0
-		for (let i = 0; i < this.#removeIndexs.length; i++) {
-			newValue += this.value.slice(start, this.#removeIndexs[i])
-			start = this.#removeOffsets[i]
+		for (const { index, offset } of this.#matchedList) {
+			newValue += this.value.slice(start, index)
+			start = offset
 		}
 		if (start < this.value.length) {
 			newValue += this.value.slice(start)
 		}
 
 		this.value = newValue
-		this.#removeIndexs = []
-		this.#removeOffsets = []
+		this.#matchedList = []
 	}
 
 	static isComment(value: string): boolean {
@@ -103,6 +106,12 @@ export class Parser {
 		return value.match(regexp.bgKey) !== null
 	}
 
+	newValue(value: string) {
+		this.value = value
+		this.#matchedList = []
+		return this
+	}
+
 	// Parses attributes from a string and returns them as an object
 	// This handles cases where attributes are defined in HTML comments like <!-- attr: value -->
 	// It extracts key-value pairs and returns them as an object
@@ -110,41 +119,41 @@ export class Parser {
 	// - For example, \<!-- attr1: "value1-1 value1-2" attr2: "value2" --> will return { attr1: 'value1-1 value1-2', attr2: 'value2' }
 	// - It also handles cases where attributes are defined in the form of key="value" or key='value'
 	// - For example, \<!-- attr1="value1" attr2='value2' --> will also return { attr1: 'value1', attr2: 'value2' }
-	parseAttributes(): Record<string, string> {
-		const attrs: Record<string, string> = {}
+	parseAttributes(): Record<string, string | undefined> {
+		const attrs: Record<string, string | undefined> = {}
 		for (const match of this.value.matchAll(regexp.attributes)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 
 			const key = match[1]
 			const val = match[2] ?? match[3] ?? match[4]
 			attrs[key] = join([attrs[key], val], ' ')
 		}
-		this.removeMatchedValue()
+		this.clearValue()
 		return attrs
 	}
 
 	// This handles cases where IDs are defined in attributes like #id-name
-	parseId = (base?: string): string => {
+	parseId = (base?: string): string | undefined => {
 		const val = this.value.matchAll(regexp.id).map((id) => {
-			this.addRemoveList(id.index, id[0].length)
+			this.addMatchedList(id.index, id[0].length)
 			return id[1]
 		})
 
-		this.removeMatchedValue()
-		return join([base, ...val], ' ')
+		this.clearValue()
+		return join([base, ...val], ' ') || undefined
 	}
 
 	// Extracts class names from a string, ignoring the leading dot.
 	// This handles cases where class names are defined in attributes like .class-name
 	// this handles cases like .class1.class2.class3
 	parseClass(base?: string) {
-		const match = this.value.matchAll(regexp.class).flatMap((cls) => {
-			this.addRemoveList(cls.index, cls[0].length)
-			return cls[1].split('.')
+		const match = this.value.matchAll(regexp.class).flatMap((classes) => {
+			this.addMatchedList(classes.index, classes[0].length)
+			return classes[1].split('.')
 		})
 
-		this.removeMatchedValue()
-		return join([base, ...match], ' ')
+		this.clearValue()
+		return join([base, ...match], ' ') || undefined
 	}
 
 	// Parses filters from a string and returns them as a CSS property
@@ -152,7 +161,7 @@ export class Parser {
 	parseFilters = (): string => {
 		const filters: string[] = []
 		for (const match of this.value.matchAll(regexp.filter)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 
 			const key = match[1]
 			const val = match[2] || match[3] || match[4] || defaultFilters[key]
@@ -162,7 +171,7 @@ export class Parser {
 			return ''
 		}
 
-		this.removeMatchedValue()
+		this.clearValue()
 		return filters.join(' ')
 	}
 
@@ -171,11 +180,11 @@ export class Parser {
 	parseFit = (): string => {
 		let result = ''
 		for (const match of this.value.matchAll(regexp.fit)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 			result = match[0]
 		}
 
-		this.removeMatchedValue()
+		this.clearValue()
 		return result
 	}
 
@@ -184,14 +193,14 @@ export class Parser {
 	parseDimensions() {
 		const dimensions: Record<string, string> = {}
 		for (const match of this.value.matchAll(regexp.dimensions)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 
 			const key = match[1]
 			const val = match[2] || match[3] || match[4]
 			dimensions[key] = val
 		}
 
-		this.removeMatchedValue()
+		this.clearValue()
 		return dimensions
 	}
 
@@ -200,14 +209,14 @@ export class Parser {
 	parseAxis() {
 		const axis: Record<string, string> = {}
 		for (const match of this.value.matchAll(regexp.axis)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 
 			const key = match[1]
 			const val = match[2] || match[3] || match[4]
 			axis[key] = val
 		}
 
-		this.removeMatchedValue()
+		this.clearValue()
 		return axis
 	}
 
@@ -216,11 +225,11 @@ export class Parser {
 	parsePositionKey() {
 		let result = ''
 		for (const match of this.value.matchAll(regexp.positionKey)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 			result = match[0]
 		}
 
-		this.removeMatchedValue()
+		this.clearValue()
 		return result
 	}
 
@@ -229,14 +238,14 @@ export class Parser {
 	parsePositions() {
 		const positions: Record<string, string> = {}
 		for (const match of this.value.matchAll(regexp.position)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 
 			const key = match[1]
 			const val = match[2] || match[3] || match[4]
 			positions[key] = val
 		}
 
-		this.removeMatchedValue()
+		this.clearValue()
 		return positions
 	}
 
@@ -245,11 +254,11 @@ export class Parser {
 	parseRepeat() {
 		let result = ''
 		for (const match of this.value.matchAll(regexp.repeatKey)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 			result = match[0]
 		}
 
-		this.removeMatchedValue()
+		this.clearValue()
 		return result
 	}
 
@@ -258,14 +267,14 @@ export class Parser {
 	parseRepeatAxis() {
 		const repeatAxis: Record<string, string> = {}
 		for (const match of this.value.matchAll(regexp.repeatAxis)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 
 			const key = match[1]
 			const val = match[2].replace(regexp.quote, '')
 			repeatAxis[key] = val
 		}
 
-		this.removeMatchedValue()
+		this.clearValue()
 		return repeatAxis
 	}
 
@@ -274,37 +283,37 @@ export class Parser {
 	parseValueWithUnit() {
 		let result = ''
 		for (const match of this.value.matchAll(regexp.valueWithUnit)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 			result = match[0]
 		}
 
-		this.removeMatchedValue()
+		this.clearValue()
 		return result
 	}
 
 	// Parses split directive from a string and returns it as an object
 	parseSplit() {
 		for (const match of this.value.matchAll(regexp.split)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 			return match?.[2] || match?.[3] || match?.[4] || ''
 		}
 
-		this.removeMatchedValue()
+		this.clearValue()
 		return ''
 	}
 
 	// Parses click attributes from a string and returns them as an object
 	parseClick() {
-		const click: Record<number, string> = {}
+		const click: Record<number, string | undefined> = {}
 		for (const match of this.value.matchAll(regexp.clickAttributes)) {
-			this.addRemoveList(match.index, match[0].length)
+			this.addMatchedList(match.index, match[0].length)
 
 			const key = Number(match[1])
 			const val = match[2] || match[3] || match[4]
 			click[key] = join([click[key], val], ' ')
 		}
 
-		this.removeMatchedValue()
+		this.clearValue()
 		return click
 	}
 }
