@@ -3,6 +3,9 @@
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
+	"bin": {
+		"slidemd": "./bin/cli.js"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -25,6 +28,7 @@
 		"@sveltejs/vite-plugin-svelte": "^6.1.1",
 		"@tailwindcss/vite": "^4.1.11",
 		"@types/js-yaml": "^4.0.9",
+		"@types/node": "^24.3.0",
 		"@types/unist": "^3.0.3",
 		"@vitest/browser": "^3.2.4",
 		"@vitest/coverage-v8": "3.2.4",
