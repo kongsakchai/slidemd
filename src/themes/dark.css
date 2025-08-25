@@ -4,7 +4,7 @@
 	--primary: #0f172a;
 	--primary-foreground: white;
 	--primary-hover: color-mix(in srgb, white 10%, #0f172a);
-	--secondary-foreground: color-mix(in srgb, white 80%, #0f172a);
+	--primary-foreground-2: color-mix(in srgb, white 80%, #0f172a);
 	--header: #f06292;
 	--masking: #f06292;
 	--link: #f06292;
@@ -12,7 +12,7 @@
 	--table-primary: #0f172a;
 	--table-primary-foreground: #white;
 	--table-secondary: #1e293b;
-	--table-secondary-foreground: color-mix(in srgb, white 80%, #0f172a);
+	--table-primary-foreground-2: color-mix(in srgb, white 80%, #0f172a);
 
 	--code: #1e293b;
 	--code-foreground: #f06292;

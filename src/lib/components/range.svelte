@@ -36,7 +36,7 @@
 		display: block;
 		width: 100%;
 		height: 100%;
-		background-color: var(--secondary-foreground);
+		background-color: var(--primary-foreground-2);
 		mask: url('../icons/reload-icon.svg') no-repeat center;
 		mask-size: 80%;
 	}
