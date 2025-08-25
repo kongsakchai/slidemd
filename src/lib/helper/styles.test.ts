@@ -1,6 +1,6 @@
+import type { Directive } from '$lib/slide/types'
 import { describe, expect, test } from 'vitest'
-import { directiveToStyle } from './helper'
-import type { Directive } from './types'
+import { directiveToStyle } from './styles'
 
 describe('directiveToStyle', () => {
 	test('should return empty string when directive is undefined', () => {
