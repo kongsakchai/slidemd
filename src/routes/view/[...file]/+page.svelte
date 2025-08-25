@@ -3,8 +3,8 @@
 	import Controller from '$lib/components/controller.svelte'
 	import PreviewImage from '$lib/components/preview-image.svelte'
 	import { Clickable, setClickable } from '$lib/helper/clickable'
-	import { setCopyCodeButton } from '$lib/helper/copy-code.js'
-	import { directiveToStyle } from '$lib/slide/helper'
+	import { setCopyCodeButton } from '$lib/helper/copy-code'
+	import { directiveToStyle } from '$lib/helper/styles'
 	import { settings } from '$lib/state.svelte'
 	import mermaid from 'mermaid'
 	import { onMount } from 'svelte'
@@ -73,7 +73,7 @@
 
 <svelte:body bind:clientWidth={screenWidth} bind:clientHeight={screenHeight} />
 
-<main class="relative h-full w-screen overflow-hidden">
+<main class="relative h-full w-screen overflow-hidden bg-black">
 	<div
 		class="absolute top-1/2 left-1/2 flex -translate-1/2 flex-col overflow-auto transition-all duration-300 ease-in-out"
 		class:rounded-2xl={settings.size !== 1}
