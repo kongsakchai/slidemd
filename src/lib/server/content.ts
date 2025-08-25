@@ -1,18 +1,21 @@
 import { env } from '$env/dynamic/private'
+import type { Folder } from '$lib/types'
 
-const markdownList = JSON.parse(env.SLIDEMD_MARKDOWN_LIST || '[]')
+const loadExample = () => {
+	const examples = import.meta.glob('../../examples/**/*.md', {
+		query: '?url',
+		eager: true,
+		import: 'default'
+	}) as Record<string, string>
 
-export interface Folder {
-	folders: Record<string, Folder>
-	files: File[]
+	return Object.values(examples).map((v) => v.replace('/src/examples', ''))
 }
 
-export interface File {
-	name: string
-	path: string
-}
+const isExample = !env.SLIDEMD_MARKDOWN_LIST
+const markdownList = !isExample ? (JSON.parse(env.SLIDEMD_MARKDOWN_LIST || '[]') as string[]) : loadExample()
 
 export const createContentList = (fileList: string[]) => {
+	console.log(fileList)
 	const root: Folder = {
 		folders: {},
 		files: []
@@ -31,6 +34,8 @@ export const createContentList = (fileList: string[]) => {
 
 		let tempRoot = root
 		pathSplit.forEach((p) => {
+			if (!p) return
+
 			if (p.endsWith('.md')) {
 				tempRoot.files.push({
 					name: p,

@@ -12,14 +12,14 @@ const filterContents = (str) => {
 	return /^[^.].*.md$/.test(str) && /\/\./.test(str) === false
 }
 
-if (command === 'run') {
-	if (!fs.existsSync(target)) {
-		console.error(`❌ Path not found: ${target}`)
+const run = (projectDir, targetDir) => {
+	if (!fs.existsSync(targetDir)) {
+		console.error(`❌ Path not found: ${targetDir}`)
 		process.exit(1)
 	}
-	console.log(`📁 Content path: ${target}`)
+	console.log(`📁 Content path: ${targetDir}`)
 
-	const files = fs.readdirSync(target, {
+	const files = fs.readdirSync(targetDir, {
 		recursive: true
 	})
 	const markdowns = files.filter(filterContents)
@@ -27,11 +27,11 @@ if (command === 'run') {
 
 	console.log('🚀 Starting development server...')
 	const run = spawn('bun', ['run', 'dev'], {
-		cwd: __dirname,
+		cwd: projectDir,
 		stdio: 'inherit',
 		env: {
 			...process.env,
-			SLIDEMD_CONTENT_PATH: target,
+			SLIDEMD_CONTENT_PATH: targetDir,
 			SLIDEMD_MARKDOWN_LIST: JSON.stringify(markdowns)
 		}
 	})
@@ -47,4 +47,8 @@ if (command === 'run') {
 		console.error('❌ Failed to start server:', err)
 		process.exit(1)
 	})
+}
+
+if (command === 'run') {
+	run(__dirname, target)
 }

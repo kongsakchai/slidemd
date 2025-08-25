@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Folder } from '$lib/server/content'
+	import type { Folder } from '$lib/types'
 
 	interface Props {
 		current: string

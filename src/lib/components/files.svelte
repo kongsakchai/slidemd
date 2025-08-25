@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { File } from '$lib/server/content'
+	import type { File } from '$lib/types'
 
 	interface Props {
 		files: File[]
