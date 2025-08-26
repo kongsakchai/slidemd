@@ -1,64 +1,55 @@
+import { env } from '$env/dynamic/private'
 import type { Folder } from '$lib/types'
-import { readdirSync } from 'fs'
-import path from 'path'
+import { getMarkdownList } from './file'
 
-export const getFileList = (contentPath: string) => {
-	const filterMD = (str: string) => {
-		return /^[^.].*.md$/.test(str) && /\/\./.test(str) === false
-	}
-	const removeMD = (str: string) => {
-		return str.replace(/\.md$/, '')
-	}
+const contentPath = env.SLIDEMD_PATH || 'src/examples'
 
-	const absolutePath = path.resolve(contentPath)
-	const markdowns = readdirSync(absolutePath, { recursive: true, encoding: 'utf-8' }).filter(filterMD).map(removeMD)
-
-	return markdowns
-}
-
-export const createContentList = (contentPath: string) => {
+export const createContentList = (files: string[]) => {
 	const root: Folder = {
 		folders: {},
 		files: [],
 		path: ''
 	}
 
-	getFileList(contentPath).forEach((item) => {
+	files.forEach((item) => {
 		const pathSplit = item.split('/')
 
 		if (pathSplit.length === 1) {
 			root.files.push({
 				name: pathSplit[0],
-				path: item
+				path: '/view/' + item
 			})
 			return
 		}
 
-		let tempRoot = root
+		let parent = root
 		pathSplit.forEach((p, i) => {
-			if (!p) return
+			if (!p) {
+				parent.path = '/'
+				return
+			}
 
 			if (i === pathSplit.length - 1) {
-				tempRoot.files.push({
+				parent.files.push({
 					name: p,
-					path: item
+					path: '/view/' + item
 				})
 				return
 			}
 
-			if (!tempRoot.folders[p]) {
-				tempRoot.folders[p] = {
+			if (!parent.folders[p]) {
+				parent.folders[p] = {
 					folders: {},
 					files: [],
-					path: pathSplit.slice(0, i + 1).join('/')
+					path: `${parent.path}/${p}`.replace('//', '/')
 				}
 			}
 
-			tempRoot = tempRoot.folders[p]
+			parent = parent.folders[p]
 		})
 	})
 
 	return root
 }
 
-// export const contentList = createContentList(env.SLIDEMD_PATH || 'src/examples')
+export const contentList = createContentList(getMarkdownList(contentPath))
