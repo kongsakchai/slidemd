@@ -19,7 +19,8 @@ export const getFileList = (contentPath: string) => {
 export const createContentList = (contentPath: string) => {
 	const root: Folder = {
 		folders: {},
-		files: []
+		files: [],
+		path: ''
 	}
 
 	getFileList(contentPath).forEach((item) => {
@@ -48,7 +49,8 @@ export const createContentList = (contentPath: string) => {
 			if (!tempRoot.folders[p]) {
 				tempRoot.folders[p] = {
 					folders: {},
-					files: []
+					files: [],
+					path: pathSplit.slice(0, i + 1).join('/')
 				}
 			}
 

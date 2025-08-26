@@ -7,7 +7,7 @@
 	let { name, link }: Props = $props()
 </script>
 
-<a href="view/{link}" class="flex items-center gap-2">
+<a href="/view/{link}" class="flex items-center gap-2">
 	<div class="file-icon h-8 w-8"></div>
 	<p class="my-0 flex-1 truncate">{name}</p>
 </a>

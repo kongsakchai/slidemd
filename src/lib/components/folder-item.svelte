@@ -8,7 +8,7 @@
 </script>
 
 <a
-	href={link}
+	href="/{link}"
 	class="bg-primary-foreground/10 hover:bg-primary-hover text-primary-foreground flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 font-medium"
 >
 	<div class="folder-icon h-8 w-8"></div>

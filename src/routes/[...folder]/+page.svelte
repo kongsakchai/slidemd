@@ -23,19 +23,14 @@
 		}
 		return folder
 	})
-
-	const folderLink = (item: string) => {
-		const newPath = [page.params.folder, item].filter(Boolean).join('/')
-		return `/${newPath}`
-	}
 </script>
 
 <main class="h-full w-full p-6">
 	<h1>🚀 Slide MD</h1>
 	{#if folder && Object.keys(folder.folders).length > 0}
-		<Folders list={Object.keys(folder.folders)} title="Folders">
-			{#snippet render(item: string)}
-				<FolderItem name={item} link={folderLink(item)} />
+		<Folders list={Object.entries(folder.folders)} title="Folders">
+			{#snippet render([name, folder]: [string, Folder])}
+				<FolderItem {name} link={folder.path} />
 			{/snippet}
 		</Folders>
 	{/if}
@@ -43,7 +38,7 @@
 	{#if folder && folder.files.length > 0}
 		<Folders list={folder.files} title="Files">
 			{#snippet render(file: File)}
-				<FileItem name={file.name} link="/view/{file.path}" />
+				<FileItem name={file.name} link={file.path} />
 			{/snippet}
 		</Folders>
 	{/if}
