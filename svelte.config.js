@@ -14,7 +14,8 @@ const config = {
 			fallback: 'index.html'
 		}),
 		prerender: {
-			entries: ['/', ...prerenderList.map((v) => join('/view', v))]
+			entries: ['/', ...prerenderList.map((v) => join('/view', v))],
+			handleHttpError: 'warn'
 		}
 	}
 }
