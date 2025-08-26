@@ -1,12 +1,10 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
-import { getMarkdownList } from './src/lib/server/file'
-
-process.env.SLIDEMD_LIST = getMarkdownList(process.env.SLIDEMD_PATH || 'src/examples').join(',')
+import { loadContents } from './src/plugins/content'
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
+	plugins: [loadContents(), tailwindcss(), sveltekit()],
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
