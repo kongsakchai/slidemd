@@ -3,42 +3,33 @@ import { spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 
-const [, , command, pathArg] = process.argv
+const [, , command, pathArg, outputArg] = process.argv
 
-const __dirname = path.resolve(import.meta.dirname, '../')
-const target = path.resolve(process.cwd(), pathArg || './')
+const projectPath = path.resolve(import.meta.dirname, '../')
+const contentPath = path.resolve(process.cwd(), pathArg || './')
+const outputPath = path.resolve(process.cwd(), outputArg || './build')
 
-const filterContents = (str) => {
-	return /^[^.].*.md$/.test(str) && /\/\./.test(str) === false
-}
-
-const run = (projectDir, targetDir) => {
-	if (!fs.existsSync(targetDir)) {
-		console.error(`❌ Path not found: ${targetDir}`)
+export const run = (projectPath, contentPath) => {
+	if (!fs.existsSync(contentPath)) {
+		console.error('❌ Content path does not exist:', contentPath)
 		process.exit(1)
 	}
-	console.log(`📁 Content path: ${targetDir}`)
 
-	const files = fs.readdirSync(targetDir, {
-		recursive: true
-	})
-	const markdowns = files.filter(filterContents)
-	console.log(`📄 Markdown files found: ${markdowns.length}`)
+	console.log(`📁 Content path: ${contentPath}`)
+	console.log('🔥 Starting development server...')
 
-	console.log('🚀 Starting development server...')
 	const run = spawn('bun', ['run', 'dev'], {
-		cwd: projectDir,
+		cwd: projectPath,
 		stdio: 'inherit',
 		env: {
 			...process.env,
-			SLIDEMD_CONTENT_PATH: targetDir,
-			SLIDEMD_MARKDOWN_LIST: JSON.stringify(markdowns)
+			SLIDEMD_PATH: contentPath
 		}
 	})
 
 	// Handle graceful shutdown
 	process.on('SIGINT', () => {
-		console.log('\n👋 Shutting down...')
+		console.log('Shutting down...')
 		run.kill('SIGINT')
 		process.exit(0)
 	})
@@ -49,6 +40,48 @@ const run = (projectDir, targetDir) => {
 	})
 }
 
+export const build = (projectPath, contentPath, outputPath) => {
+	if (!fs.existsSync(contentPath)) {
+		console.error('❌ Content path does not exist:', contentPath)
+		process.exit(1)
+	}
+
+	console.log(`📁 Content path: ${contentPath}`)
+	console.log(`📦 Output path: ${outputPath}`)
+	console.log('🚀 Building the project...')
+
+	const build = spawn('bun', ['run', 'build'], {
+		cwd: projectPath,
+		stdio: 'inherit',
+		env: {
+			...process.env,
+			SLIDEMD_PATH: contentPath,
+			SLIDEMD_OUTPUT: outputPath
+		}
+	})
+
+	build.on('error', (err) => {
+		console.error('❌ Build failed:', err)
+		process.exit(1)
+	})
+
+	build.on('exit', (code) => {
+		if (code === 0) {
+			if (fs.existsSync(outputPath)) {
+				fs.rmSync(outputPath, { recursive: true, force: true })
+			}
+
+			fs.renameSync(path.join(projectPath, 'build'), path.join(outputPath))
+			console.log('✅ Build completed successfully.')
+		} else {
+			console.error(`❌ Build process exited with code ${code}.`)
+			process.exit(code || 1)
+		}
+	})
+}
+
 if (command === 'run') {
-	run(__dirname, target)
+	run(projectPath, contentPath, outputPath)
+} else if (command === 'build') {
+	build(projectPath, contentPath, outputPath)
 }

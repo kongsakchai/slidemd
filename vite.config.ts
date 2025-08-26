@@ -1,6 +1,9 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
+import { getFileList } from './src/lib/server/content'
+
+process.env.SLIDEMD_LIST = getFileList(process.env.SLIDEMD_PATH || 'src/examples').join(',')
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],

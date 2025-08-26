@@ -1,27 +1,28 @@
-import { env } from '$env/dynamic/private'
 import type { Folder } from '$lib/types'
+import { readdirSync } from 'fs'
+import path from 'path'
 
-const loadExample = () => {
-	const examples = import.meta.glob('../../examples/**/*.md', {
-		query: '?url',
-		eager: true,
-		import: 'default'
-	}) as Record<string, string>
+export const getFileList = (contentPath: string) => {
+	const filterMD = (str: string) => {
+		return /^[^.].*.md$/.test(str) && /\/\./.test(str) === false
+	}
+	const removeMD = (str: string) => {
+		return str.replace(/\.md$/, '')
+	}
 
-	return Object.values(examples).map((v) => v.replace('/src/examples', ''))
+	const absolutePath = path.resolve(contentPath)
+	const markdowns = readdirSync(absolutePath, { recursive: true, encoding: 'utf-8' }).filter(filterMD).map(removeMD)
+
+	return markdowns
 }
 
-const isExample = !env.SLIDEMD_MARKDOWN_LIST
-const markdownList = !isExample ? (JSON.parse(env.SLIDEMD_MARKDOWN_LIST || '[]') as string[]) : loadExample()
-
-export const createContentList = (fileList: string[]) => {
-	console.log(fileList)
+export const createContentList = (contentPath: string) => {
 	const root: Folder = {
 		folders: {},
 		files: []
 	}
 
-	fileList.forEach((item) => {
+	getFileList(contentPath).forEach((item) => {
 		const pathSplit = item.split('/')
 
 		if (pathSplit.length === 1) {
@@ -33,10 +34,10 @@ export const createContentList = (fileList: string[]) => {
 		}
 
 		let tempRoot = root
-		pathSplit.forEach((p) => {
+		pathSplit.forEach((p, i) => {
 			if (!p) return
 
-			if (p.endsWith('.md')) {
+			if (i === pathSplit.length - 1) {
 				tempRoot.files.push({
 					name: p,
 					path: item
@@ -58,4 +59,4 @@ export const createContentList = (fileList: string[]) => {
 	return root
 }
 
-export const contentList = createContentList(markdownList)
+// export const contentList = createContentList(env.SLIDEMD_PATH || 'src/examples')
