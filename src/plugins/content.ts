@@ -1,38 +1,45 @@
-import { readdirSync } from 'fs'
+import { existsSync, readdirSync } from 'fs'
 import path from 'path'
 import type { Plugin } from 'vite'
 
-const contentPath = process.env.SLIDEMD_PATH || 'src/examples'
+const contentsPath = path.resolve(process.env.SLIDEMD_PATH || 'src/examples')
+const themesPath = path.resolve(process.env.SLIDEMD_PATH || 'src/examples', 'themes')
 
 const filterMD = (str: string) => {
 	return /^[^.].*\.md$/.test(str) && /\/\./.test(str) === false
 }
 
-const getMarkdownList = (contentPath: string) => {
-	const absolutePath = path.resolve(contentPath)
-	const markdowns = readdirSync(absolutePath, { recursive: true, encoding: 'utf-8' }).filter(filterMD).sort()
-
-	return markdowns
+const getMarkdownList = (contentsPath: string) => {
+	return readdirSync(contentsPath, { recursive: true, encoding: 'utf-8' }).filter(filterMD).sort()
 }
 
-const sourceCSSRegex = /\/\* <SOURCE_CONTENT> \*\//g
-
-const createSourceCSS = (path: string) => {
-	return `@source '${path}';`
+const addSourcePathToCode = (code: string, sourcePath: string) => {
+	return code.replace(/\/\* @source-path \*\//g, `@source '${sourcePath}';`)
 }
 
-export const loadContents = (): Plugin => {
+const addThemesPatternToCode = (code: string, id: string, themesPath: string) => {
+	const relative = path.relative(path.dirname(id), themesPath)
+	return code.replace(/\/\* @themes-pattern \*\//g, `${relative}/*.css`)
+}
+
+export const slideMD = (): Plugin => {
 	return {
-		name: 'load-contents',
+		name: 'slideMD',
 		enforce: 'pre',
 		config() {
-			console.log('🌱 Loading content list')
-			process.env.SLIDEMD_LIST = getMarkdownList(contentPath).join(',')
+			process.env.SLIDEMD_LIST = getMarkdownList(contentsPath).join(',')
 		},
 		transform(code, id) {
 			if (id.endsWith('app.css')) {
 				return {
-					code: code.replace(sourceCSSRegex, createSourceCSS(contentPath)),
+					code: addSourcePathToCode(code, contentsPath),
+					map: null
+				}
+			}
+
+			if (id.endsWith('init-slidemd.ts') && existsSync(themesPath)) {
+				return {
+					code: addThemesPatternToCode(code, id, themesPath),
 					map: null
 				}
 			}
