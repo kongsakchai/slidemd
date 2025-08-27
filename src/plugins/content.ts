@@ -4,6 +4,7 @@ import type { Plugin } from 'vite'
 
 const contentsPath = path.resolve(process.env.SLIDEMD_PATH || 'src/examples')
 const themesPath = path.resolve(process.env.SLIDEMD_PATH || 'src/examples', 'themes')
+const componentPath = path.resolve(process.env.SLIDEMD_PATH || 'src/examples', 'components')
 
 const filterMD = (str: string) => {
 	return /^[^.].*\.md$/.test(str) && /\/\./.test(str) === false
@@ -22,6 +23,11 @@ const addThemesPatternToCode = (code: string, id: string, themesPath: string) =>
 	return code.replace(/\/\* @themes-pattern \*\//g, `${relative}/*.css`)
 }
 
+const addCustomElementPatternToCode = (code: string, id: string, componentsPath: string) => {
+	const relative = path.relative(path.dirname(id), componentsPath)
+	return code.replace(/\/\* @custom-element-pattern \*\//g, `${relative}/*.svelte`)
+}
+
 export const slideMD = (): Plugin => {
 	return {
 		name: 'slideMD',
@@ -37,9 +43,16 @@ export const slideMD = (): Plugin => {
 				}
 			}
 
-			if (id.endsWith('init-slidemd.ts') && existsSync(themesPath)) {
+			if (id.endsWith('slidemd.ts')) {
+				if (existsSync(themesPath)) {
+					code = addThemesPatternToCode(code, id, themesPath)
+				}
+				if (existsSync(componentPath)) {
+					code = addCustomElementPatternToCode(code, id, componentPath)
+				}
+
 				return {
-					code: addThemesPatternToCode(code, id, themesPath),
+					code: code,
 					map: null
 				}
 			}
