@@ -1,57 +1,50 @@
 import { env } from '$env/dynamic/private'
 import type { Folder } from '$lib/types'
 
-const loadExample = () => {
-	const examples = import.meta.glob('../../examples/**/*.md', {
-		query: '?url',
-		eager: true,
-		import: 'default'
-	}) as Record<string, string>
+const markdownList = env.SLIDEMD_LIST?.split(',') || []
 
-	return Object.values(examples).map((v) => v.replace('/src/examples', ''))
-}
-
-const isExample = !env.SLIDEMD_MARKDOWN_LIST
-const markdownList = !isExample ? (JSON.parse(env.SLIDEMD_MARKDOWN_LIST || '[]') as string[]) : loadExample()
-
-export const createContentList = (fileList: string[]) => {
-	console.log(fileList)
+export const createContentList = (files: string[]) => {
 	const root: Folder = {
 		folders: {},
-		files: []
+		files: [],
+		path: ''
 	}
 
-	fileList.forEach((item) => {
+	files.forEach((item) => {
 		const pathSplit = item.split('/')
 
 		if (pathSplit.length === 1) {
 			root.files.push({
 				name: pathSplit[0],
-				path: item
+				path: '/view/' + item
 			})
 			return
 		}
 
-		let tempRoot = root
-		pathSplit.forEach((p) => {
-			if (!p) return
+		let parent = root
+		pathSplit.forEach((p, i) => {
+			if (!p) {
+				parent.path = '/'
+				return
+			}
 
-			if (p.endsWith('.md')) {
-				tempRoot.files.push({
+			if (i === pathSplit.length - 1) {
+				parent.files.push({
 					name: p,
-					path: item
+					path: '/view/' + item
 				})
 				return
 			}
 
-			if (!tempRoot.folders[p]) {
-				tempRoot.folders[p] = {
+			if (!parent.folders[p]) {
+				parent.folders[p] = {
 					folders: {},
-					files: []
+					files: [],
+					path: `${parent.path}/${p}`.replace('//', '/')
 				}
 			}
 
-			tempRoot = tempRoot.folders[p]
+			parent = parent.folders[p]
 		})
 	})
 

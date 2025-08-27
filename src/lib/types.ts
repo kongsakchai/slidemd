@@ -1,6 +1,7 @@
 export interface Folder {
 	folders: Record<string, Folder>
 	files: File[]
+	path: string
 }
 
 export interface File {
