@@ -35,7 +35,10 @@ export const regexp = {
 	split: /^<!--\s*split(?::"(.*)"|:'(.*)'|:([^\s]+))?\s*-->$/g,
 	bgKey: /(?<=^|\s)bg(?=\s|$)/,
 	absoluteKey: /(?<=^|\s)absolute(?=\s|$)/,
-	verticalKey: /(?<=^|\s)vertical(?=\s|$)/
+	verticalKey: /(?<=^|\s)vertical(?=\s|$)/,
+
+	// svelte
+	svelte: /^{[#:/@].*}/
 }
 
 export const defaultFilters: Record<string, string> = {
@@ -104,6 +107,10 @@ export class Parser {
 
 	static isBackground(value: string): boolean {
 		return value.match(regexp.bgKey) !== null
+	}
+
+	static isSvelte(value: string): boolean {
+		return value.match(regexp.svelte) !== null
 	}
 
 	newValue(value: string) {

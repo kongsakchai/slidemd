@@ -8,10 +8,11 @@ import { unified, type Processor } from 'unified'
 import {
 	clickTransformer,
 	codeTransformer,
-	enhanceCodeTransformer,
+	escapeSvelteSyntax,
 	htmlTransformer,
 	imageTransformer,
 	initStore,
+	shikiHighlighter,
 	splitTransformer,
 	type Store
 } from './transformers'
@@ -46,7 +47,8 @@ const setupProcessor = () => {
 		.use(codeTransformer)
 		.use(clickTransformer)
 		.use(remarkRehype, { allowDangerousHtml: true })
-		.use(enhanceCodeTransformer)
+		.use(shikiHighlighter)
+		.use(escapeSvelteSyntax)
 		.use(rehypeStringify, { allowDangerousHtml: true })
 
 	return cache
@@ -94,7 +96,7 @@ const toPage = async (markdown: string, baseDirective?: Directive): Promise<Mark
 	console.debug(`Markdown processed in ${Date.now() - timeStart}ms`)
 
 	return {
-		html: file.toString(),
+		html: file.toString().replaceAll(/<\/?unknown>/g, ''),
 		directive: {
 			global,
 			local

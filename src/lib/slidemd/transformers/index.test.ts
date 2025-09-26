@@ -2,15 +2,7 @@ import type { Element, Root as HRoot } from 'hast'
 import type { Root } from 'mdast'
 import { VFile } from 'vfile'
 import { describe, expect, test } from 'vitest'
-import {
-	clickTransformer,
-	codeTransformer,
-	enhanceCodeTransformer,
-	htmlTransformer,
-	imageTransformer,
-	splitTransformer,
-	type Store
-} from '.'
+import { clickTransformer, codeTransformer, htmlTransformer, imageTransformer, splitTransformer, type Store } from '.'
 
 type rootType = 'root'
 
@@ -662,7 +654,7 @@ describe('enhance code transformer', () => {
 			children: [pre]
 		}
 
-		const transform = enhanceCodeTransformer()
+		const transform = shiki()
 		await transform(root)
 
 		expect(pre.properties.class).toContain('shiki')
@@ -699,7 +691,7 @@ describe('enhance code transformer', () => {
 			]
 		} as HRoot
 
-		const transform = enhanceCodeTransformer()
+		const transform = shiki()
 		await transform(pre)
 
 		expect(pre).toEqual(expectedPre)

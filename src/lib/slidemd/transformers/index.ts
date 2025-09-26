@@ -234,6 +234,10 @@ export const imageTransformer = () => {
 	}
 }
 
+const escapeCode = (str: string) => {
+	return str.replace(/[&<>{}]/g, (char) => `{'${char}'}`)
+}
+
 export const codeTransformer = () => {
 	return (tree: Root) => {
 		visit(tree, 'code', (node, index, parent) => {
@@ -249,7 +253,7 @@ export const codeTransformer = () => {
 
 				const mermaid = {
 					type: 'text',
-					value: node.value.trim()
+					value: escapeCode(node.value)
 				}
 				const container = {
 					type: 'parent',
@@ -287,21 +291,6 @@ export const codeTransformer = () => {
 			}
 			parent.children.splice(index, 1, container as RootContent)
 		})
-	}
-}
-
-export const enhanceCodeTransformer = () => {
-	return async (tree: HRoot) => {
-		const preElements: Element[] = []
-
-		visit(tree, { tagName: 'pre' }, (node, index, parent) => {
-			if (typeof index !== 'number' || !parent) return
-			preElements.push(node)
-		})
-
-		for (const pre of preElements) {
-			await transformShiki(pre)
-		}
 	}
 }
 
@@ -356,5 +345,36 @@ export const clickTransformer = () => {
 		const store = getStore(file)
 		store.click = clickInPage
 		file.data.store = store
+	}
+}
+
+export const shikiHighlighter = () => {
+	return async (tree: HRoot) => {
+		const preElements: Element[] = []
+
+		visit(tree, { tagName: 'pre' }, (node, index, parent) => {
+			if (typeof index !== 'number' || !parent) return
+			preElements.push(node)
+		})
+
+		for (const pre of preElements) {
+			await transformShiki(pre)
+
+			visit(pre, { type: 'text' }, (node) => {
+				if ('value' in node) {
+					node.value = escapeCode(node.value)
+				}
+			})
+		}
+	}
+}
+
+export const escapeSvelteSyntax = () => {
+	return (tree: HRoot) => {
+		visit(tree, { tagName: 'p' }, (node) => {
+			if (node.children[0] && 'value' in node.children[0] && Parser.isSvelte(node.children[0].value)) {
+				node.tagName = 'unknown'
+			}
+		})
 	}
 }
