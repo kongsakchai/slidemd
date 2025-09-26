@@ -2,14 +2,13 @@
 	import { settings } from '$lib/state.svelte'
 	import { onMount } from 'svelte'
 	import '../app.css'
-	import { themeNames } from './slidemd'
+	import { themeNames } from './slidemd.load'
 
 	let { children } = $props()
 
 	onMount(() => {
 		settings.themes = ['default', ...themeNames]
-		settings.loadTheme()
-		settings.loadAspectRatio()
+		settings.load()
 	})
 </script>
 

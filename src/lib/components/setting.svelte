@@ -16,52 +16,59 @@
 			value: 1 / 1
 		}
 	]
-
-	const handleSetAspectRatio = (e: Event) => {
-		const target = e.target as HTMLButtonElement
-		const dataIndex = target.getAttribute('data-index')
-		const index = dataIndex ? parseInt(dataIndex) : null
-
-		if (index === null) return
-		settings.setAspectRatio(aspectRatios[index].value, aspectRatios[index].label)
-	}
-
-	const handleSelectTheme = (e: Event) => {
-		const target = e.target as HTMLSelectElement
-		const selectedTheme = target.value
-		settings.setTheme(selectedTheme)
-	}
 </script>
 
 <div
 	class="bg-primary border-line absolute bottom-[calc(100%+16px)] grid w-[350px] grid-cols-[80px_1fr] items-center gap-4 rounded-lg border px-4 py-3 text-sm"
 >
 	<p class="text-primary-foreground text-sm font-medium">Themes</p>
-	<select class="w-full" onchange={handleSelectTheme}>
+	<select class="w-full" bind:value={settings.theme} onchange={() => settings.setTheme(settings.theme)}>
 		{#each settings.themes as theme}
-			<option value={theme} selected={settings.theme === theme}>{theme}</option>
+			<option value={theme}>{theme}</option>
 		{/each}
 	</select>
 
 	<p class="text-primary-foreground text-sm font-medium">Font Size</p>
-	<Range bind:value={settings.fontSize} min={12} max={32} step={2} defaultValue={16} />
+	<Range
+		bind:value={settings.fontSize}
+		min={12}
+		max={32}
+		step={2}
+		defaultValue={16}
+		onchange={() => settings.setFontSize(settings.fontSize)}
+	/>
 
 	<p class="text-primary-foreground text-sm font-medium">Width</p>
-	<Range bind:value={settings.width} min={640} max={1920} step={1} defaultValue={1280} />
+	<Range
+		bind:value={settings.width}
+		min={640}
+		max={1920}
+		step={1}
+		defaultValue={1280}
+		onchange={() => settings.setWidth(settings.width)}
+	/>
 
 	<p class="text-primary-foreground text-sm font-medium">Size</p>
-	<Range bind:value={settings.size} min={0.5} max={1.5} step={0.1} defaultValue={1} />
+	<Range
+		bind:value={settings.size}
+		min={0.5}
+		max={1.5}
+		step={0.1}
+		defaultValue={1}
+		onchange={() => settings.setSize(settings.size)}
+	/>
 
 	<p class="text-primary-foreground text-sm font-medium">Aspect Ratio</p>
 	<div class="flex justify-around gap-2">
-		{#each aspectRatios as { label }, i}
+		{#each aspectRatios as { label, value } (label)}
 			<button
-				class:border-action={settings.aspectRatioLabel === aspectRatios[i].label}
-				class:border-transparent={settings.aspectRatioLabel !== aspectRatios[i].label}
+				class:border-action={settings.aspectRatioLabel === label}
+				class:border-transparent={settings.aspectRatioLabel !== label}
 				class="w-[40px] border-b-2 px-2 text-sm"
-				data-index={i}
-				onclick={handleSetAspectRatio}>{label}</button
+				onclick={() => settings.setAspectRatio(value, label)}
 			>
+				{label}
+			</button>
 		{/each}
 	</div>
 </div>

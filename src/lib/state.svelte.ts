@@ -19,21 +19,49 @@ class Settings {
 		localStorage.setItem('slidemd:aspectRatio', JSON.stringify({ aspectRatio, label }))
 	}
 
-	loadTheme() {
-		this.theme = localStorage.getItem('slidemd:theme') || 'default'
+	setFontSize(fontSize: number) {
+		this.fontSize = fontSize
+		localStorage.setItem('slidemd:fontSize', fontSize.toString())
 	}
 
-	loadAspectRatio() {
-		const saved = localStorage.getItem('slidemd:aspectRatio')
-		if (!saved) return
+	setWidth(width: number) {
+		this.width = width
+		localStorage.setItem('slidemd:width', width.toString())
+	}
 
-		try {
-			const { aspectRatio, label } = JSON.parse(saved)
-			this.aspectRatio = aspectRatio
-			this.aspectRatioLabel = label
-		} catch (e) {
-			console.error('Failed to parse aspect ratio from localStorage', e)
-			localStorage.removeItem('slidemd:aspectRatio')
+	setSize(size: number) {
+		this.size = size
+		localStorage.setItem('slidemd:size', size.toString())
+	}
+
+	load() {
+		this.theme = localStorage.getItem('slidemd:theme') || 'default'
+
+		const saved = localStorage.getItem('slidemd:aspectRatio')
+		if (saved) {
+			try {
+				const { aspectRatio, label } = JSON.parse(saved)
+				this.aspectRatio = aspectRatio
+				this.aspectRatioLabel = label
+			} catch (e) {
+				console.error('Failed to parse aspect ratio from localStorage', e)
+				localStorage.removeItem('slidemd:aspectRatio')
+			}
+		}
+
+		const fontSize = localStorage.getItem('slidemd:fontSize')
+		if (fontSize) {
+			this.fontSize = parseInt(fontSize, 10)
+		}
+
+		const width = localStorage.getItem('slidemd:width')
+		if (width) {
+			this.width = parseInt(width, 10)
+		}
+
+		const size = localStorage.getItem('slidemd:size')
+		if (size) {
+			this.size = parseFloat(size)
 		}
 	}
 }

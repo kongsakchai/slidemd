@@ -5,9 +5,10 @@
 		max?: number
 		step?: number
 		defaultValue?: number
+		onchange?: () => void
 	}
 
-	let { value = $bindable(), min, max, step, defaultValue }: Props = $props()
+	let { value = $bindable(), min, max, step, defaultValue, onchange }: Props = $props()
 
 	const handleReset = () => {
 		if (defaultValue !== undefined) {
@@ -15,13 +16,15 @@
 		} else {
 			value = min || 0
 		}
+
+		if (onchange) onchange()
 	}
 </script>
 
 <div class="grid grid-cols-[1fr_70px_24px] items-center gap-2">
-	<input type="range" {min} {max} {step} class="w-full" bind:value />
+	<input type="range" {min} {max} {step} class="w-full" bind:value {onchange} />
 
-	<input type="number" {min} {max} {step} bind:value />
+	<input type="number" {min} {max} {step} bind:value {onchange} />
 
 	<button
 		class="hover:bg-primary-hover reset-btn h-6 w-6 rounded-sm"
