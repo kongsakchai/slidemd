@@ -1,11 +1,11 @@
-const customElements = import.meta.glob(['/* @custom-element */'], { eager: true })
+const customElements = import.meta.glob(['/* #custom-element */'], { eager: true })
 console.log('🌱 custom elements loaded:', Object.keys(customElements).length)
 
-const css = import.meta.glob(['../themes/*.css', '/* @themes */'], { eager: true })
+const css = import.meta.glob(['../themes/*.css', '/* #external-theme */'], { eager: true })
 console.log('🌱 themes loaded:', Object.keys(css).length)
 
 export const themeNames = Object.keys(css)
-	.filter((p) => p && /\/theme-\w+.css/.test(p))
+	.filter((p) => p && /\/theme-.+.css/.test(p))
 	.map((p) => {
 		return p
 			.split('/')

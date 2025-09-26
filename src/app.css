@@ -1,7 +1,6 @@
 @import 'tailwindcss';
 @source inline("opacity-0");
 @source inline("opacity-100");
-/* @source-path */
 
 :root {
 	font-synthesis: none;

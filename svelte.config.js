@@ -13,7 +13,7 @@ const config = {
 		}),
 		prerender: {
 			entries: ['/', ...prerenderList.map((v) => join('/view', v))],
-			handleHttpError: 'warn'
+			handleHttpError: 'ignore'
 		}
 	}
 }
