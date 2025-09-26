@@ -22,10 +22,6 @@ This is a simple Markdown file that can be used to test the SlideMD application.
 ```go
 package main
 import "fmt"
-
-func main() {
-    fmt.Println("Hello, SlideMD!")
-}
 ```
 
 - [ ] to do
@@ -37,6 +33,10 @@ func main() {
 <!-- split:30% -->
 
 Make Presentation by Markdown
+
+{#each Array.from({ length: 10 }) as i}
+ <p>Item {i}</p>
+{/each}
 
 ---
 
@@ -68,4 +68,4 @@ This text is ***really important***.
 
 ## Custom Element
 
-<my-counter/>
+### This is a custom element

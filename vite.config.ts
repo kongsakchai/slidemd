@@ -1,7 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
-import { slideMD } from './src/plugins/content'
+import { slideMD } from './src/plugins/slidemd'
 
 export default defineConfig({
 	plugins: [slideMD(), tailwindcss(), sveltekit()],

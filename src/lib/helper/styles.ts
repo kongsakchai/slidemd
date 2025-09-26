@@ -1,4 +1,4 @@
-import type { Directive } from '$lib/slide/types'
+import type { Directive } from '$lib/slidemd/types'
 
 const multipleImages = (img: string): string => {
 	return img
