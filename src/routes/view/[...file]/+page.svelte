@@ -7,26 +7,15 @@
 	import { Clickable, setClickable } from '$lib/helper/clickable'
 	import { setCopyCodeButton } from '$lib/helper/copy-code'
 	import { settings } from '$lib/state.svelte'
+	import { slides } from '@slidemd'
 	import mermaid from 'mermaid'
 	import { onMount } from 'svelte'
-	import slides from 'virtual:slidemd'
-
-	// const slidesData: Record<string, Slide> = {
-	// 	/* @slides-data */
-	// }
+	let { data } = $props()
 
 	let start = $state(false)
 
-	let file = $derived.by(() => {
-		let file = page.params.file
-		if (file?.endsWith('/')) {
-			return file.slice(0, -1)
-		}
-		return file
-	})
-
-	let Slide = slides[file || '']?.component
-	let slide = slides[file || '']?.data
+	let Slide = slides[data.file]?.component
+	let slide = slides[data.file]?.data
 
 	let screenWidth = $state(1280)
 	let screenHeight = $state(720)
@@ -40,7 +29,7 @@
 
 	let currentPage = $derived(page.url.hash ? parseInt(page.url.hash.slice(1)) || 1 : 1)
 	let currentClick = $state(0)
-	let maxClicks = $derived(slide?.pages[currentPage - 1].click || 0)
+	let maxClicks = $derived(0)
 
 	let clickableMap: Record<number, Clickable[]> = {}
 
@@ -66,7 +55,7 @@
 			currentClick += 1
 			return
 		}
-		if (currentPage < slide.pages.length) {
+		if (currentPage < slide.slides.length) {
 			currentPage += 1
 			currentClick = 0
 		}
@@ -89,7 +78,7 @@
 </script>
 
 <svelte:head>
-	<title>{slide.properties.title}</title>
+	<title>{slide.title}</title>
 </svelte:head>
 
 <svelte:body bind:clientWidth={screenWidth} bind:clientHeight={screenHeight} />
@@ -108,12 +97,12 @@
 	</div>
 
 	<section
-		class="fixed bottom-0 left-0 z-50 flex w-full p-5 opacity-0 transition-opacity duration-500 hover:opacity-100"
+		class=" fixed bottom-0 left-0 z-50 flex w-full p-5 opacity-0 transition-opacity duration-500 hover:opacity-100"
 	>
 		<Controller
 			{currentPage}
-			maxPage={slide.pages.length}
-			disabledNext={currentPage === slide.pages.length && currentClick >= maxClicks}
+			maxPage={slide.slides.length}
+			disabledNext={currentPage === slide.slides.length && currentClick >= maxClicks}
 			disabledPrevious={currentPage === 1 && currentClick === 0}
 			onNext={nextPage}
 			onPrevious={previousPage}

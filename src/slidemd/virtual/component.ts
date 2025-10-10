@@ -1,4 +1,9 @@
+import { mkdirSync, writeFileSync } from 'fs'
+import path from 'path'
+import type { SlideMD } from '../types'
 import type { VirtualModule } from './types'
+
+const outputpath = path.resolve('.slidemd')
 
 export const createSlideComponent = (src: string): VirtualModule => {
 	const resolveId = `@slidemd/components/${src}.svelte`
@@ -7,17 +12,23 @@ export const createSlideComponent = (src: string): VirtualModule => {
 		id: resolveId,
 		async getContent() {
 			const markdown = this.loadMarkdown(src)
-			const slideData = await this.process(markdown)
+			const { body, metadata } = this.extract(markdown.raw)
+			const title = metadata['title'] || 'Slide MD 🚀'
+			const slides = await this.parse(body, metadata)
 
-			const meta = {
-				title: slideData.title,
-				properties: slideData.frontmatter
+			const pages = slides.map((s) => s.content)
+
+			const meta: SlideMD = {
+				title: title,
+				frontmatter: metadata,
+				slides: slides.map((s) => ({
+					index: s.index,
+					click: s.click
+				})),
+				markdown
 			}
-			const pages = slideData.slides.map(
-				(s) => `<section class:contents class:hidden={currentPage !== ${s.index}}>${s.source}</section>`
-			)
 
-			return [
+			const components = [
 				`<script lang="ts" module>`,
 				`export const meta = ${JSON.stringify(meta)}`,
 				`</script>`,
@@ -26,6 +37,13 @@ export const createSlideComponent = (src: string): VirtualModule => {
 				`</script>`,
 				...pages
 			].join('\n')
+
+			// 🔥 Sync file
+			const syncpath = path.join(outputpath, resolveId)
+			mkdirSync(path.dirname(syncpath), { recursive: true })
+			writeFileSync(syncpath, components)
+
+			return components
 		}
 	}
 }

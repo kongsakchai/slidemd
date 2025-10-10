@@ -1,5 +1,6 @@
 node_modules
 coverage
+.vscode
 
 # Output
 .output
@@ -8,6 +9,7 @@ coverage
 .wrangler
 /.svelte-kit
 /build
+/.slidemd
 
 # OS
 .DS_Store

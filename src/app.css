@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @source inline("opacity-0");
 @source inline("opacity-100");
+@source "../.slidemd/**/*.svelte";
 
 :root {
 	font-synthesis: none;

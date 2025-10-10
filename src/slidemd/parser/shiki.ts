@@ -4,6 +4,7 @@ import {
 	transformerNotationFocus,
 	transformerNotationHighlight
 } from '@shikijs/transformers'
+import type { RootContent } from 'hast'
 import { createHighlighter, createOnigurumaEngine, type BundledLanguage } from 'shiki'
 
 const shikiOptions = {
@@ -41,5 +42,5 @@ export const highlightHast = async (code: string, lang: string) => {
 		...shikiOptions
 	})
 
-	return hast.children.pop()
+	return hast.children.pop() as RootContent
 }

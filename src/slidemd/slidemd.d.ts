@@ -1,14 +1,10 @@
 declare module '@slidemd' {
-	export interface Module {
-		slides: {
-			[key: string]: {
-				component: import('svelte').Component
-				data: import('$lib/slidemd/types').Slide
-			}
+	export const slides: {
+		[key: string]: {
+			component: import('svelte').Component
+			data: import('./types').SlideMD
 		}
-		markdowns: string[]
 	}
 
-	const module: Module
-	export default module
+	export const markdown: string[]
 }

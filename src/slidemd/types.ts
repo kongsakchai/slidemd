@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface SlideInfo {
 	index: number
-	source: string
-	class: string
-	note: string
+	note?: string
+	click?: number
 }
 
-export interface SlideMarkdown {
+export interface SlideContentInfo extends SlideInfo {
+	content: string
+}
+
+export interface Markdown {
 	filepath: string
 	raw: string
 }
@@ -15,11 +18,13 @@ export interface SlideMD {
 	title: string
 	frontmatter?: Record<string, any>
 	slides: SlideInfo[]
-	markdown: SlideMarkdown
+	markdown: Markdown
 }
 
-export interface SlideMDContext {
+export interface Context {
 	load: () => string[]
-	loadMarkdown: (src: string) => SlideMarkdown
-	process: (markdown: SlideMarkdown) => Promise<SlideMD>
+	loadMarkdown: (filepath: string) => Markdown
+	// process: (markdown: Markdown) => Promise<SlideMD>
+	extract: (markdown: string) => { body: string; metadata: Record<string, any> }
+	parse: (markdown: string, properties: Record<string, any>) => Promise<SlideContentInfo[]>
 }

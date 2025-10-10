@@ -1,6 +1,6 @@
-import type { SlideMDContext } from '../types'
+import type { Context } from '../types'
 
 export interface VirtualModule {
 	id: string
-	getContent: (this: SlideMDContext) => string | Promise<string>
+	getContent: (this: Context) => string | Promise<string>
 }

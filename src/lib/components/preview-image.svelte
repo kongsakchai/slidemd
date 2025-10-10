@@ -16,8 +16,6 @@
 			src = target.src
 			alt = target.alt || null
 			open = true
-
-			console.log('Preview opened:', src, alt)
 		}
 
 		const images = document.querySelectorAll('img')

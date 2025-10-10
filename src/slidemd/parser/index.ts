@@ -6,8 +6,8 @@ import remarkGfm from 'remark-gfm'
 import markdown from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
-import type { SlideInfo } from '../types'
-import { remarkSlideMD } from './markdown'
+import type { SlideContentInfo } from '../types'
+import { remarkSlideMD } from './core'
 
 const processor = unified()
 	.use(markdown)
@@ -15,8 +15,7 @@ const processor = unified()
 	.use(remarkGemoji)
 	.use(remarkSlideMD)
 	.use(remarkRehype, { allowDangerousHtml: true })
-	// .use(remarkTagConvert)
-	.use(rehypeStringify, { allowDangerousHtml: true })
+	.use(rehypeStringify, { allowDangerousHtml: true, collapseEmptyAttributes: true })
 
 export const extractFrontmatter = (markdown: string) => {
 	const match = /^---\r?\n([\s\S]*?)---/.exec(markdown)
@@ -32,18 +31,24 @@ export const extractFrontmatter = (markdown: string) => {
 	return { body, metadata }
 }
 
-export const parseSlide = async (markdown: string, properties: Record<string, any>): Promise<SlideInfo[]> => {
+export const parseSlide = async (markdown: string, properties: Record<string, any>): Promise<SlideContentInfo[]> => {
 	const pages = markdown.split(/\r?\n---\r?\n/)
-	const slides = pages.map(async (v, i) => {
-		const file = await processor.process({ value: v, data: properties })
+	const slides: SlideContentInfo[] = []
+	const directive = { ...properties }
+	for (const [index, p] of pages.entries()) {
+		directive.page = index + 1
+		directive.click = undefined
+		directive.note = undefined
 
-		return {
-			index: i + 1,
-			source: file.toString(),
-			class: '',
-			note: ''
-		}
-	})
+		const file = await processor.process({ value: p, data: directive })
 
-	return await Promise.all(slides)
+		slides.push({
+			page: index + 1,
+			note: directive['note'],
+			click: directive['click'],
+			content: file.toString()
+		})
+	}
+
+	return slides
 }

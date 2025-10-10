@@ -14,9 +14,9 @@ export const slide: VirtualModule = {
 
 		return [
 			...imports,
-			`export const slides = [`,
+			`export const slides = {`,
 			...slides,
-			`]`,
+			`}`,
 			`export const markdowns = ${JSON.stringify(markdowns)}`
 		].join('\n')
 	}

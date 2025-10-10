@@ -8,7 +8,7 @@ tags:
 
 # SlideMD :tada:
 
-## Markdown <!-- .hover:bg-red-500 .bg-blue-200 -->
+## Markdown <!-- .hover:bg-red-500 .bg-blue-200 class:font-light="{true}" -->
 
 This is a simple Markdown file that can be used to test the SlideMD application. You can write your content here, and it will be rendered as slides.
 
