@@ -5,7 +5,7 @@ const css = import.meta.glob(['../themes/*.css', '/* #external-theme */'], { eag
 console.log('🌱 themes loaded:', Object.keys(css).length)
 
 export const themeNames = Object.keys(css)
-	.filter((p) => p && /\/theme-[\w\d\s-.]+.css/.test(p))
+	.filter((p) => p && /\/theme-.+.css/.test(p))
 	.map((p) => {
 		return p
 			.split('/')
