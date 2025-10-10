@@ -1,0 +1,32 @@
+[data-theme='dark']:root {
+	color-scheme: dark;
+
+	--primary: #0f172a;
+	--primary-foreground: white;
+	--primary-hover: color-mix(in srgb, white 10%, #0f172a);
+	--primary-foreground-2: color-mix(in srgb, white 80%, #0f172a);
+	--header: #f06292;
+	--masking: #f06292;
+	--link: #f06292;
+	--line: #334155;
+	--table-primary: #0f172a;
+	--table-primary-foreground: #white;
+	--table-secondary: #1e293b;
+	--table-primary-foreground-2: color-mix(in srgb, white 80%, #0f172a);
+
+	--code: #1e293b;
+	--code-foreground: #f06292;
+	--code-highlight: color-mix(in srgb, white 10%, #0f172a);
+	--code-error: color-mix(in srgb, #d20f39 15%, #0f172a);
+	--code-error-foreground: #d20f39;
+	--code-warning: color-mix(in srgb, #df8e1d 15%, #0f172a);
+	--code-warning-foreground: #df8e1d;
+	--code-add: color-mix(in srgb, #40a02b 15%, #0f172a);
+	--code-add-foreground: #40a02b;
+	--code-del: color-mix(in srgb, #d20f39 15%, #0f172a);
+	--code-del-foreground: #d20f39;
+
+	[class*='language-'] span {
+		color: var(--shiki-dark);
+	}
+}
