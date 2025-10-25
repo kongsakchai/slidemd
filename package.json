@@ -16,7 +16,7 @@
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
 		"test:unit": "vitest",
-		"test:cover": "vitest run --coverage",
+		"test:cover": "vitest --coverage",
 		"test": "npm run test:unit -- --run"
 	},
 	"devDependencies": {
@@ -61,6 +61,7 @@
 		"remark-rehype": "^11.1.2",
 		"shiki": "^3.9.2",
 		"unified": "^11.0.5",
+		"unist-util-remove": "^4.0.0",
 		"unist-util-visit": "^5.0.0"
 	}
 }

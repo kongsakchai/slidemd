@@ -22,7 +22,7 @@ export const createSlideComponent = (src: string): VirtualModule => {
 				title: title,
 				frontmatter: metadata,
 				slides: slides.map((s) => ({
-					index: s.index,
+					page: s.page || 0,
 					click: s.click
 				})),
 				markdown
@@ -33,6 +33,7 @@ export const createSlideComponent = (src: string): VirtualModule => {
 				`export const meta = ${JSON.stringify(meta)}`,
 				`</script>`,
 				`<script lang="ts">`,
+				`import { regisClickable } from '$lib/action.svelte'`,
 				`let { currentPage } = $props()`,
 				`</script>`,
 				...pages

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface SlideInfo {
-	index: number
+	page: number
 	note?: string
 	click?: number
 }

@@ -115,7 +115,7 @@ section.slide.split {
 	}
 }
 
-section.slide.split > div.split-contents {
+section.slide.split > section.split-contents {
 	padding: 2.5rem;
 	overflow: auto;
 	place-content: center;

@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { browser } from '$app/environment'
-	import { goto } from '$app/navigation'
 	import { page } from '$app/state'
+	import { onSlideChange } from '$lib/action.svelte.js'
 	import Controller from '$lib/components/controller.svelte'
 	import PreviewImage from '$lib/components/preview-image.svelte'
-	import { Clickable, setClickable } from '$lib/helper/clickable'
 	import { setCopyCodeButton } from '$lib/helper/copy-code'
 	import { settings } from '$lib/state.svelte'
 	import { slides } from '@slidemd'
@@ -29,9 +28,7 @@
 
 	let currentPage = $derived(page.url.hash ? parseInt(page.url.hash.slice(1)) || 1 : 1)
 	let currentClick = $state(0)
-	let maxClicks = $derived(0)
-
-	let clickableMap: Record<number, Clickable[]> = {}
+	let maxClicks = $derived(slide.slides[currentPage - 1].click || 0)
 
 	mermaid.initialize({
 		theme: 'default',
@@ -41,7 +38,6 @@
 
 	onMount(async () => {
 		setCopyCodeButton(browser)
-		clickableMap = setClickable(browser)
 
 		mermaid.run().then(() => console.log('Mermaid diagrams rendered'))
 
@@ -53,28 +49,22 @@
 	const nextPage = () => {
 		if (currentClick < maxClicks) {
 			currentClick += 1
-			return
-		}
-		if (currentPage < slide.slides.length) {
+		} else if (currentPage < slide.slides.length) {
 			currentPage += 1
 			currentClick = 0
 		}
+		onSlideChange(currentPage, currentClick)
 	}
 
 	const previousPage = () => {
 		if (currentClick > 0) {
 			currentClick -= 1
-		}
-		if (currentPage > 1) {
+		} else if (currentPage > 1) {
 			currentPage -= 1
 			currentClick = maxClicks
 		}
+		onSlideChange(currentPage, currentClick)
 	}
-
-	$effect(() => {
-		clickableMap[currentPage]?.forEach((c) => c.click(currentClick))
-		goto(`#${currentPage}`, { replaceState: true })
-	})
 </script>
 
 <svelte:head>
