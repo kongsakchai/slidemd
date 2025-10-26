@@ -15,7 +15,12 @@ const processor = unified()
 	.use(remarkGemoji)
 	.use(remarkSlideMD)
 	.use(remarkRehype, { allowDangerousHtml: true })
-	.use(rehypeStringify, { allowDangerousHtml: true, collapseEmptyAttributes: true })
+	.use(rehypeStringify, {
+		allowDangerousHtml: true,
+		collapseEmptyAttributes: true,
+		allowDangerousCharacters: true,
+		quoteSmart: true
+	})
 
 export const extractFrontmatter = (markdown: string) => {
 	const match = /^---\r?\n([\s\S]*?)---/.exec(markdown)

@@ -164,6 +164,10 @@ export const calculateClickable = (page: number, attrs: Attribuites) => {
 	return maxClick
 }
 
+const escapeSpecialCharacters = (str: string) => {
+	return str.replace(/[&<>{}]/g, (char) => `{'${char}'}`)
+}
+
 // Build
 
 export const buildImageStyle = (attrs: ImageAttributes) => {
@@ -303,10 +307,6 @@ export const combineDirective = (vfile: VFile, attrs: Attribuites) => {
 
 // Create
 
-const escapeSpecialCharacters = (str: string) => {
-	return str.replace(/[&<>{}]/g, (char) => `{'${char}'}`)
-}
-
 const createMermaidContainer = (code: string, attrs: Attribuites, classes: string[]) => {
 	attrs.class = combineClassNames('mermaid', attrs.class, ...classes)
 	const container = {
@@ -382,7 +382,7 @@ const createSlideContainer = (ctx: Context) => {
 			hProperties: {
 				'data-page': ctx.page,
 				class: combineClassNames('slide', ctx.directive.class, ctx.split ? 'split' : ''),
-				'class:hidden': `{currentPage !== ${ctx.page}}`,
+				hidden: `{currentPage !== "${ctx.page}"}`,
 				style: buildSlideStyle(ctx.directive)
 			}
 		}
@@ -422,10 +422,11 @@ export const processHTMLNode = (ctx: Context) => {
 
 			split.end = index
 			const splitContainer = createSplitContainer(ctx, split)
-			parent.children.splice(split.start, index + 1, splitContainer as RootContent)
+			const delCount = split.end - split.start + 1
+			parent.children.splice(split.start, delCount, splitContainer as RootContent)
 
 			split.directive = {}
-			split.start = index
+			split.start = split.end + 1
 			return split.start
 		}
 
@@ -467,7 +468,8 @@ export const processHTMLNode = (ctx: Context) => {
 
 		split.end = ctx.children.length
 		const splitContainer = createSplitContainer(ctx, split)
-		ctx.children.splice(split.start, ctx.children.length, splitContainer as RootContent)
+		const delCount = split.end - split.start + 1
+		ctx.children.splice(split.start, delCount, splitContainer as RootContent)
 	}
 
 	ctx.directive.split = ctx.split
