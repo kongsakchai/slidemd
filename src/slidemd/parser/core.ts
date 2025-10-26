@@ -382,7 +382,7 @@ const createSlideContainer = (ctx: Context) => {
 			hProperties: {
 				'data-page': ctx.page,
 				class: combineClassNames('slide', ctx.directive.class, ctx.split ? 'split' : ''),
-				hidden: `{currentPage !== "${ctx.page}"}`,
+				hidden: `{currentPage !== ${ctx.page}}`,
 				style: buildSlideStyle(ctx.directive)
 			}
 		}
