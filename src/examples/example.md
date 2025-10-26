@@ -8,7 +8,7 @@ tags:
 
 # SlideMD :tada:
 
-## Markdown <!-- .hover:bg-red-500 .bg-blue-200 -->
+## Markdown <!-- .hover:bg-red-500 .bg-blue-200 class:font-light="{true}" -->
 
 This is a simple Markdown file that can be used to test the SlideMD application. You can write your content here, and it will be rendered as slides.
 
@@ -29,7 +29,8 @@ import "fmt"
 
 ---
 
-# Hello, SlideMd <!-- click="1:.opacity-100.translate-y-0 0:.opacity-0.translate-y-[25px]" .transition-all.duration-500 -->
+# Hello, SlideMd <!-- click-1="opacity-100 translate-y-0" click-0="opacity-0 translate-y-[25px]" .transition-all .duration-500 -->
+
 <!-- split:30% -->
 
 Make Presentation by Markdown
@@ -40,7 +41,7 @@ Make Presentation by Markdown
 
 ---
 
-<!-- class:"!bg-blue-100 dark:!bg-gray-500" -->
+<!-- split class:"!bg-blue-100 dark:!bg-gray-500" -->
 
 # Header 1
 

@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @source inline("opacity-0");
 @source inline("opacity-100");
+@source "../.slidemd/**/*.svelte";
 
 :root {
 	font-synthesis: none;
@@ -114,7 +115,7 @@ section.slide.split {
 	}
 }
 
-section.slide.split > div.split-contents {
+section.slide.split > section.split-contents {
 	padding: 2.5rem;
 	overflow: auto;
 	place-content: center;
