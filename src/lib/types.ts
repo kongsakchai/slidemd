@@ -8,3 +8,8 @@ export interface File {
 	name: string
 	path: string
 }
+
+export interface StepNode {
+	node: HTMLElement
+	previous: string[]
+}

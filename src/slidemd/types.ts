@@ -2,7 +2,7 @@
 export interface SlideInfo {
 	page: number
 	note?: string
-	click?: number
+	step?: number
 }
 
 export interface SlideContentInfo extends SlideInfo {

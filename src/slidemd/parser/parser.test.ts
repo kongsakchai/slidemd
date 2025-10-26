@@ -8,7 +8,7 @@ import {
 	buildBackgroundStyle,
 	buildImageStyle,
 	buildSlideStyle,
-	calculateClickable,
+	calculateSteps,
 	combineClassNames,
 	combineDirective,
 	extractAttributes,
@@ -58,10 +58,10 @@ describe('markdown.ts:extractImageAttributes', () => {
 			}
 		},
 		{
-			str: 'cover x:10px w=100% blur h:300% y="21px" top:99% contrast:3 bottom click-1:click class:class-1 no-repeat absolute bg rx:repeat ry:no-repeat vertical left:10px right:10px bottom:12px',
+			str: 'cover x:10px w=100% blur h:300% y="21px" top:99% contrast:3 bottom step-1:click class:class-1 no-repeat absolute bg rx:repeat ry:no-repeat vertical left:10px right:10px bottom:12px',
 			attrs: {
 				'class:class-1': '',
-				'click-1': 'click'
+				'step-1': 'click'
 			},
 			imageAttrs: {
 				filters: ['blur(10px)', 'contrast(3)'],
@@ -516,37 +516,37 @@ describe('markdown.ts:processCodeNode', () => {
 describe('markdown.ts:calculateClickable', () => {
 	it('return click with auto click effect', () => {
 		const attrs = {
-			'click-5': ''
+			'step-5': ''
 		}
 
-		const click = calculateClickable(10, attrs)
+		const click = calculateSteps(10, attrs)
 
 		expect(click).toBe(5)
 		expect(attrs).toEqual({
 			class: 'opacity-0',
-			'click-0': 'opacity-0',
-			'click-5': 'opacity-100',
-			click: true,
-			'use:regisClickable': '{10}'
+			'step-0': 'opacity-0',
+			'step-5': 'opacity-100',
+			step: true,
+			'use:regisSteps': '{10}'
 		})
 	})
 
-	it('return click and assign click-0 to class', () => {
+	it('return click and assign step-0 to class', () => {
 		const attrs = {
 			class: 'text-green',
-			'click-1': 'text-red',
-			'click-0': 'text-blue'
+			'step-1': 'text-red',
+			'step-0': 'text-blue'
 		}
 
-		const click = calculateClickable(10, attrs)
+		const click = calculateSteps(10, attrs)
 
 		expect(click).toBe(1)
 		expect(attrs).toEqual({
 			class: 'text-green text-blue',
-			'click-1': 'text-red',
-			'click-0': 'text-blue',
-			click: true,
-			'use:regisClickable': '{10}'
+			'step-1': 'text-red',
+			'step-0': 'text-blue',
+			step: true,
+			'use:regisSteps': '{10}'
 		})
 	})
 })
@@ -740,7 +740,7 @@ describe('markdown.ts:remarkSlideMD', () => {
 						},
 						{
 							type: 'html',
-							value: '<!-- .class-2 click-1="click" -->'
+							value: '<!-- .class-2 step-1="click" -->'
 						}
 					]
 				},
@@ -763,9 +763,9 @@ describe('markdown.ts:remarkSlideMD', () => {
 				data: {
 					hProperties: {
 						class: 'class-2',
-						'click-1': 'click',
-						click: true,
-						'use:regisClickable': '{10}'
+						'step-1': 'click',
+						step: true,
+						'use:regisSteps': '{10}'
 					}
 				},
 				children: [
@@ -777,7 +777,7 @@ describe('markdown.ts:remarkSlideMD', () => {
 			}
 		])
 		expect(contents.data?.hProperties?.class).toBe('slide class-1')
-		expect(vfile.data.click).toBe(1)
+		expect(vfile.data.step).toBe(1)
 	})
 
 	it('return split screen with attributes', async () => {
@@ -913,7 +913,7 @@ describe('markdown.ts:processHTMLNode', () => {
 						},
 						{
 							type: 'html',
-							value: '<!-- .class-2 click-1="click" -->'
+							value: '<!-- .class-2 step-1="click" -->'
 						}
 					]
 				},
@@ -940,9 +940,9 @@ describe('markdown.ts:processHTMLNode', () => {
 				data: {
 					hProperties: {
 						class: 'class-2',
-						'click-1': 'click',
-						click: true,
-						'use:regisClickable': '{10}'
+						'step-1': 'click',
+						step: true,
+						'use:regisSteps': '{10}'
 					}
 				},
 				children: [
@@ -958,7 +958,7 @@ describe('markdown.ts:processHTMLNode', () => {
 			}
 		])
 		expect(ctx.directive.class).toBe('class-1')
-		expect(ctx.vfile.data.click).toBe(1)
+		expect(ctx.vfile.data.step).toBe(1)
 	})
 
 	it('return split screen with attributes', async () => {

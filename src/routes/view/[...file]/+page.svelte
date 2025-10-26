@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { browser } from '$app/environment'
 	import { replaceState } from '$app/navigation'
 	import { page } from '$app/state'
-	import { handleClickable } from '$lib/action.svelte.js'
+	import { updateStep } from '$lib/action.svelte.js'
 	import Controller from '$lib/components/controller.svelte'
 	import PreviewImage from '$lib/components/preview-image.svelte'
-	import { setCopyCodeButton } from '$lib/helper/copy-code'
 	import { settings } from '$lib/state.svelte'
 	import { slides } from '@slidemd/slides'
 	import mermaid from 'mermaid'
@@ -27,13 +25,11 @@
 		return screenWidth / settings.width
 	})
 
-	let currentClick = $state(0)
 	let currentPage = $derived(parseInt(page.url.hash.slice(1)) || 0)
-	let maxClicks = $derived(slide.slides[currentPage - 1]?.click || 0)
+	let currentStep = $state(0)
+	let stepCount = $derived(slide.slides[currentPage - 1]?.step || 0)
 
 	onMount(async () => {
-		setCopyCodeButton(browser)
-
 		if (currentPage == 0) {
 			currentPage = 1
 		}
@@ -46,29 +42,26 @@
 		mermaid.run().then(() => console.log('Mermaid diagrams rendered'))
 	})
 
-	const handleSlideChange = (currentPage: number, currentClick: number) => {
-		replaceState(`#${currentPage}`, {})
-		handleClickable(currentPage, currentClick)
-	}
-
 	const nextPage = () => {
-		if (currentClick < maxClicks) {
-			currentClick += 1
+		if (currentStep < stepCount) {
+			currentStep += 1
 		} else if (currentPage < slide.slides.length) {
 			currentPage += 1
-			currentClick = 0
+			currentStep = 0
 		}
-		handleSlideChange(currentPage, currentClick)
+		replaceState(`#${currentPage}`, {})
+		updateStep(currentPage, currentStep)
 	}
 
 	const previousPage = () => {
-		if (currentClick > 0) {
-			currentClick -= 1
+		if (currentStep > 0) {
+			currentStep -= 1
 		} else if (currentPage > 1) {
 			currentPage -= 1
-			currentClick = maxClicks
+			currentStep = stepCount
 		}
-		handleSlideChange(currentPage, currentClick)
+		replaceState(`#${currentPage}`, {})
+		updateStep(currentPage, currentStep)
 	}
 </script>
 
@@ -96,8 +89,8 @@
 		<Controller
 			{currentPage}
 			maxPage={slide.slides.length}
-			disabledNext={currentPage === slide.slides.length && currentClick >= maxClicks}
-			disabledPrevious={currentPage === 1 && currentClick === 0}
+			disabledNext={currentPage === slide.slides.length && currentStep >= stepCount}
+			disabledPrevious={currentPage === 1 && currentStep === 0}
 			onNext={nextPage}
 			onPrevious={previousPage}
 		/>

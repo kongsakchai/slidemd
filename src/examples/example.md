@@ -31,7 +31,7 @@ import "fmt"
 
 ---
 
-# Hello, SlideMd <!-- click-1="opacity-100 translate-y-0" click-0="opacity-0 translate-y-[25px]" .transition-all .duration-500 -->
+# Hello, SlideMd <!-- step-1="opacity-100 translate-y-0" step-0="opacity-0 translate-y-[25px]" .transition-all .duration-500 -->
 
 <!-- split:30% -->
 

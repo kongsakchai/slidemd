@@ -42,7 +42,7 @@ export const parseSlide = async (markdown: string, properties: Record<string, an
 	const directive = { ...properties }
 	for (const [index, p] of pages.entries()) {
 		directive.page = index + 1
-		directive.click = undefined
+		directive.step = 0
 		directive.note = undefined
 
 		const file = await processor.process({ value: p, data: directive })
@@ -50,7 +50,7 @@ export const parseSlide = async (markdown: string, properties: Record<string, an
 		slides.push({
 			page: index + 1,
 			note: directive['note'],
-			click: directive['click'],
+			step: directive['step'],
 			content: file.toString()
 		})
 	}

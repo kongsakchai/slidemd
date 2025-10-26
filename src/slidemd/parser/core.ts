@@ -35,7 +35,7 @@ const ATTR_REGEX = /(?<=^|\s)([\w-@]+(?::[^\s=]+)?)(?:="(.*?)"|='(.*?)'|=([^\s]+
 const CLASS_REGEX = /(?<=^|\s)\.([^\s]+)(?=\s|$)/g
 const SPLIT_REGEX = /^<!--\s*split(?:[:=]([^\s]+))?(?:\s+(vertical))?\s*-->$/g
 const COMMENT_REGEX = /^<!--(.*)-->$/g
-const CLICK_REGEX = /^click-(\d)/g
+const STEP_REGEX = /^step-(\d)/g
 
 // Extract
 
@@ -53,8 +53,8 @@ export const extractAttributes = (value: string) => {
 			}
 		}
 
-		if (key.startsWith('click-')) {
-			attrs['click'] = true
+		if (key.startsWith('step-')) {
+			attrs['step'] = true
 		}
 
 		attrs[key] = value
@@ -139,12 +139,12 @@ export const extractImageAttributes = (value: string) => {
 
 // Utils
 
-export const calculateClickable = (page: number, attrs: Attribuites) => {
-	let maxClick = 0
+export const calculateSteps = (page: number, attrs: Attribuites) => {
+	let stepCount = 0
 	const keys = Object.keys(attrs).filter((key) => {
-		for (const match of key.matchAll(CLICK_REGEX)) {
-			const click = parseInt(match[1])
-			maxClick = Math.max(click, maxClick)
+		for (const match of key.matchAll(STEP_REGEX)) {
+			const step = parseInt(match[1])
+			stepCount = Math.max(step, stepCount)
 			return key
 		}
 		return false
@@ -152,16 +152,16 @@ export const calculateClickable = (page: number, attrs: Attribuites) => {
 
 	if (keys.length === 1 && attrs[keys[0]] == '') {
 		attrs[keys[0]] = 'opacity-100'
-		attrs['click-0'] = 'opacity-0'
+		attrs['step-0'] = 'opacity-0'
 	}
 	if (keys.length > 0) {
-		attrs.click = true
-		attrs['use:regisClickable'] = `{${page}}`
+		attrs.step = true
+		attrs['use:regisSteps'] = `{${page}}`
 	}
 
-	attrs.class = combineClassNames(attrs.class as string, attrs['click-0'] as string)
+	attrs.class = combineClassNames(attrs.class as string, attrs['step-0'] as string)
 
-	return maxClick
+	return stepCount
 }
 
 const escapeSpecialCharacters = (str: string) => {
@@ -336,7 +336,7 @@ const createCodeContainer = (lang: string, attrs: Attribuites, classes: string[]
 				...attrs
 			},
 			hChildren: [
-				{ type: 'raw', value: `<button class="copy"></button>` },
+				{ type: 'raw', value: `<button onclick={copyCode} class="copy"></button>` },
 				{ type: 'raw', value: `<span class="lang">${lang}</span>` }
 			]
 		},
@@ -444,10 +444,10 @@ export const processHTMLNode = (ctx: Context) => {
 					ctx.directive = { ...ctx.directive, ...attrs }
 				}
 			} else {
-				if (attrs.click) {
-					ctx.vfile.data.click = Math.max(
-						calculateClickable(ctx.page, attrs),
-						(ctx.vfile.data.click as number) || 0
+				if (attrs.step) {
+					ctx.vfile.data.step = Math.max(
+						calculateSteps(ctx.page, attrs),
+						(ctx.vfile.data.step as number) || 0
 					)
 				}
 
