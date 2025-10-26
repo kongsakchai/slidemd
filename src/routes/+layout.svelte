@@ -1,13 +1,15 @@
 <script lang="ts">
 	import { settings } from '$lib/state.svelte'
+	import { themes } from '@slidemd/config'
 	import { onMount } from 'svelte'
 	import '../app.css'
-	import { themeNames } from './slidemd.load'
 
 	let { children } = $props()
 
 	onMount(() => {
-		settings.themes = ['default', ...themeNames]
+		console.log('🌱 themes loaded:', themes.length)
+
+		settings.themes = ['default', ...themes]
 		settings.load()
 	})
 </script>

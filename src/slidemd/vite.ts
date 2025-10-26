@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'fs'
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs'
 import path from 'path'
 import { env } from 'process'
 import type { Plugin } from 'vite'
@@ -6,33 +6,55 @@ import { extractFrontmatter, parseSlide } from './parser'
 import type { Context, Markdown } from './types'
 import * as virtual from './virtual'
 
-const sourcepath = path.resolve(env.SLIDEMD_PATH || 'src/examples')
+const assetspath = path.resolve(env.SLIDEMD_PATH || 'src/examples')
+const cachepath = path.resolve('.slidemd-cache')
+const builtinpath = path.resolve('src/builtin')
+
+const markdownFilter = (d: string) => /\.md$/.test(d) && !/^\.|\/\./.test(d)
+const cssFilter = (d: string) => /\.css$/.test(d) && !/^\.|\/\./.test(d) && /^themes\//.test(d)
 
 export const slideMD = async (): Promise<Plugin> => {
-	let components: virtual.VirtualModule[] = []
+	const builtinAssets = readdirSync(builtinpath, { recursive: true, encoding: 'utf-8' })
+	const assets = readdirSync(assetspath, { recursive: true, encoding: 'utf-8' })
 
-	function load() {
-		const markdowns = readdirSync(sourcepath, { recursive: true, encoding: 'utf-8' }).filter((d) => {
-			return /\.md$/.test(d) && !/^\.|\/\./.test(d)
-		})
+	const modules: Record<string, virtual.VirtualModule> = {}
+	modules[virtual.config.id] = virtual.config
+	modules[virtual.slide.id] = virtual.slide
 
-		components = markdowns.map(virtual.createSlideComponent)
+	function markdowns() {
+		const markdowns = assets.filter(markdownFilter)
 		env.SLIDEMD_LIST = markdowns.join(',')
+		markdowns.map(virtual.createSlideComponent).forEach((m) => (modules[m.id] = m))
 
 		return markdowns
 	}
 
+	function css() {
+		const css = assets.filter(cssFilter).map((src) => path.join(assetspath, src))
+		const buildinCSS = builtinAssets.filter(cssFilter).map((src) => path.join(builtinpath, src))
+
+		return [...buildinCSS, ...css]
+	}
+
 	function loadMarkdown(src: string): Markdown {
-		const raw = readFileSync(path.join(sourcepath, src), { encoding: 'utf-8' })
+		const raw = readFileSync(path.join(assetspath, src), { encoding: 'utf-8' })
 		return {
 			filepath: src,
 			raw
 		}
 	}
 
+	function writeCache(filepath: string, content: string) {
+		const writepath = path.join(cachepath, filepath)
+		mkdirSync(path.dirname(writepath), { recursive: true })
+		writeFileSync(writepath, content)
+	}
+
 	const context: Context = {
-		load,
+		markdowns,
+		css,
 		loadMarkdown,
+		writeCache,
 
 		extract: extractFrontmatter,
 		parse: parseSlide
@@ -44,24 +66,16 @@ export const slideMD = async (): Promise<Plugin> => {
 		resolveId: {
 			order: 'pre',
 			handler(id) {
-				if (id === virtual.slide.id) {
+				if (modules[id]) {
 					return id
-				}
-
-				if (id.startsWith('@slidemd/components/')) {
-					return `${id}.svelte`
 				}
 			}
 		},
 
 		async load(id) {
-			if (id === virtual.slide.id) {
-				return await virtual.slide.getContent.call(context)
-			}
-
-			const component = components.find((cpnt) => cpnt.id === id)
-			if (component) {
-				return await component.getContent.call(context)
+			const module = modules[id]
+			if (module) {
+				return await module.getContent.call(context)
 			}
 		}
 	}

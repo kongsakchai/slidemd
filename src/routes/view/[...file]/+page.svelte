@@ -1,17 +1,18 @@
 <script lang="ts">
 	import { browser } from '$app/environment'
+	import { replaceState } from '$app/navigation'
 	import { page } from '$app/state'
-	import { onSlideChange } from '$lib/action.svelte.js'
+	import { handleClickable } from '$lib/action.svelte.js'
 	import Controller from '$lib/components/controller.svelte'
 	import PreviewImage from '$lib/components/preview-image.svelte'
 	import { setCopyCodeButton } from '$lib/helper/copy-code'
 	import { settings } from '$lib/state.svelte'
-	import { slides } from '@slidemd'
+	import { slides } from '@slidemd/slides'
 	import mermaid from 'mermaid'
 	import { onMount } from 'svelte'
 	let { data } = $props()
 
-	let start = $state(false)
+	let start = $state(true)
 
 	let Slide = slides[data.file]?.component
 	let slide = slides[data.file]?.data
@@ -26,25 +27,29 @@
 		return screenWidth / settings.width
 	})
 
-	let currentPage = $derived(page.url.hash ? parseInt(page.url.hash.slice(1)) || 1 : 1)
 	let currentClick = $state(0)
-	let maxClicks = $derived(slide.slides[currentPage - 1].click || 0)
-
-	mermaid.initialize({
-		theme: 'default',
-		htmlLabels: false,
-		fontFamily: 'mali'
-	})
+	let currentPage = $derived(parseInt(page.url.hash.slice(1)) || 0)
+	let maxClicks = $derived(slide.slides[currentPage - 1]?.click || 0)
 
 	onMount(async () => {
 		setCopyCodeButton(browser)
 
-		mermaid.run().then(() => console.log('Mermaid diagrams rendered'))
+		if (currentPage == 0) {
+			currentPage = 1
+		}
 
-		setTimeout(() => {
-			start = true
-		}, 500)
+		mermaid.initialize({
+			theme: 'default',
+			htmlLabels: false,
+			fontFamily: 'mali'
+		})
+		mermaid.run().then(() => console.log('Mermaid diagrams rendered'))
 	})
+
+	const handleSlideChange = (currentPage: number, currentClick: number) => {
+		replaceState(`#${currentPage}`, {})
+		handleClickable(currentPage, currentClick)
+	}
 
 	const nextPage = () => {
 		if (currentClick < maxClicks) {
@@ -53,7 +58,7 @@
 			currentPage += 1
 			currentClick = 0
 		}
-		onSlideChange(currentPage, currentClick)
+		handleSlideChange(currentPage, currentClick)
 	}
 
 	const previousPage = () => {
@@ -63,7 +68,7 @@
 			currentPage -= 1
 			currentClick = maxClicks
 		}
-		onSlideChange(currentPage, currentClick)
+		handleSlideChange(currentPage, currentClick)
 	}
 </script>
 
@@ -75,8 +80,7 @@
 
 <main class="relative h-full w-screen overflow-hidden bg-black">
 	<div
-		class="absolute top-1/2 left-1/2 flex -translate-1/2 flex-col overflow-auto transition-all duration-300 ease-in-out"
-		class:opacity-0={!start}
+		class="absolute top-1/2 left-1/2 flex -translate-1/2 flex-col overflow-auto"
 		class:rounded-2xl={settings.size !== 1}
 		style:width="{settings.width}px"
 		style:height="{settings.width / settings.aspectRatio}px"

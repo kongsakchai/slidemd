@@ -1,4 +1,4 @@
-declare module '@slidemd' {
+declare module '@slidemd/slides' {
 	export const slides: {
 		[key: string]: {
 			component: import('svelte').Component
@@ -7,4 +7,8 @@ declare module '@slidemd' {
 	}
 
 	export const markdown: string[]
+}
+
+declare module '@slidemd/config' {
+	export const themes: string[]
 }

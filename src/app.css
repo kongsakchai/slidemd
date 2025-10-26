@@ -1,7 +1,8 @@
 @import 'tailwindcss';
 @source inline("opacity-0");
 @source inline("opacity-100");
-@source "../.slidemd/**/*.svelte";
+@source inline("hidden");
+@source "../.slidemd-cache/**/*.svelte";
 
 :root {
 	font-synthesis: none;

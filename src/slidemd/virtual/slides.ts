@@ -1,14 +1,14 @@
 import type { VirtualModule } from './types'
 
 export const slide: VirtualModule = {
-	id: '@slidemd',
+	id: '@slidemd/slides',
 	getContent() {
 		const imports: string[] = []
 		const slides: string[] = []
-		const markdowns = this.load()
+		const markdowns = this.markdowns()
 
 		markdowns.forEach((src, i) => {
-			imports.push(`import Slide_${i}, {meta as Data_${i}} from '@slidemd/components/${src}'`)
+			imports.push(`import Slide_${i}, {meta as Data_${i}} from '@slidemd/components/${src}.svelte'`)
 			slides.push(`"${src}":{ component:Slide_${i}, data:Data_${i} }`)
 		})
 

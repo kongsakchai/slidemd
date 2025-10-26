@@ -1,9 +1,5 @@
-import { mkdirSync, writeFileSync } from 'fs'
-import path from 'path'
 import type { SlideMD } from '../types'
 import type { VirtualModule } from './types'
-
-const outputpath = path.resolve('.slidemd')
 
 export const createSlideComponent = (src: string): VirtualModule => {
 	const resolveId = `@slidemd/components/${src}.svelte`
@@ -40,9 +36,7 @@ export const createSlideComponent = (src: string): VirtualModule => {
 			].join('\n')
 
 			// 🔥 Sync file
-			const syncpath = path.join(outputpath, resolveId)
-			mkdirSync(path.dirname(syncpath), { recursive: true })
-			writeFileSync(syncpath, components)
+			this.writeCache(resolveId, components)
 
 			return components
 		}

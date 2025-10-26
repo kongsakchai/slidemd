@@ -21,7 +21,7 @@ interface ClickableNode {
 
 const clickableList = $state<Record<number, ClickableNode[]>>({})
 
-export const onSlideChange = (currentPage: number, currentClick: number) => {
+export const handleClickable = (currentPage: number, currentClick: number) => {
 	clickableList[currentPage]?.forEach((c) => {
 		const key = `click-${currentClick}`
 		const next = c.node.getAttribute(key)?.split(' ') || ['']
