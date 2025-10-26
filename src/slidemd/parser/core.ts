@@ -426,7 +426,7 @@ export const processHTMLNode = (ctx: Context) => {
 			parent.children.splice(split.start, delCount, splitContainer as RootContent)
 
 			split.directive = {}
-			split.start = split.end + 1
+			split.start++
 			return split.start
 		}
 
