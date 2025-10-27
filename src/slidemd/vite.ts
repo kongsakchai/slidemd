@@ -59,6 +59,7 @@ export const slideMD = async (): Promise<Plugin> => {
 		extract: extractFrontmatter,
 		parse: parseSlide
 	}
+	markdowns()
 
 	return {
 		name: 'SlideMD',

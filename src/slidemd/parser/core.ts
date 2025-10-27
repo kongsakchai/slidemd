@@ -4,7 +4,6 @@ import type { Node, Parent, Root, RootContent } from 'mdast'
 import type { Plugin } from 'unified'
 import { remove } from 'unist-util-remove'
 import { EXIT, visit } from 'unist-util-visit'
-import { VFile } from 'vfile'
 import { Context } from './context'
 import { highlightHast } from './shiki'
 import { type Attribuites, type CodeToHighlight, type ImageAttributes, type SplitData } from './types'
@@ -34,7 +33,7 @@ const REPEAT_XY_KEYS = new Set(['rx', 'ry'])
 const ATTR_REGEX = /(?<=^|\s)([\w-@]+(?::[^\s=]+)?)(?:="(.*?)"|='(.*?)'|=([^\s]+?))?(?=\s|$)/g
 const CLASS_REGEX = /(?<=^|\s)\.([^\s]+)(?=\s|$)/g
 const SPLIT_REGEX = /^<!--\s*split(?:[:=]([^\s]+))?(?:\s+(vertical))?\s*-->$/g
-const COMMENT_REGEX = /^<!--(.*)-->$/g
+const COMMENT_REGEX = /^<!--([\s\S]*)-->$/g
 const STEP_REGEX = /^step-(\d)/g
 
 // Extract
@@ -225,11 +224,7 @@ export const buildSlideStyle = (attrs: Attribuites) => {
 		styles.push(attrs._style)
 	}
 	if (attrs._bgImg) {
-		const imgs = (attrs._bgImg as string)
-			.split(',')
-			.map((img) => `url(${img})`)
-			.join(', ')
-
+		const imgs = (attrs._bgImg as string).split(',')
 		styles.push(`background-image: ${imgs}`)
 	}
 	if (attrs._bgColor) {
@@ -245,11 +240,11 @@ export const buildSlideStyle = (attrs: Attribuites) => {
 		styles.push(`background-repeat: ${attrs._bgRepeat}`)
 	}
 
-	if (attrs.split) {
-		if (attrs.splitDir === 'vertical') {
-			styles.push(`--split-row: ${attrs.splitSize}`)
+	if (attrs._split) {
+		if (attrs._splitDir === 'vertical') {
+			styles.push(`--split-row: ${attrs._splitSize}`)
 		} else {
-			styles.push(`--split-col: ${attrs.splitSize}`)
+			styles.push(`--split-col: ${attrs._splitSize}`)
 		}
 	}
 
@@ -260,23 +255,6 @@ export const buildSlideStyle = (attrs: Attribuites) => {
 
 // Combine
 
-const DIRECTIVE_KEYS = [
-	'paging',
-	'class',
-	'style',
-	'color',
-	'bgImg',
-	'bgColor',
-	'bgSize',
-	'bgPos',
-	'bgRepeat',
-	'transition',
-	'in',
-	'out',
-	'duration',
-	'timing'
-]
-
 export const combineString = (separator = ' ', ...str: (string | undefined)[]) => {
 	const combine = str.filter(Boolean)
 	return combine.length > 0 ? combine.join(separator) : undefined
@@ -286,21 +264,22 @@ export const combineClassNames = (...classes: (string | undefined)[]) => {
 	return combineString(' ', ...classes)
 }
 
-export const combineDirective = (vfile: VFile, attrs: Attribuites) => {
-	for (const key of DIRECTIVE_KEYS) {
+export const combineDirective = (directive: Attribuites, external: Attribuites) => {
+	const allKey = Object.keys({ ...directive, ...external }).map((k) => (k.startsWith('_') ? k.slice(1) : k))
+
+	for (const key of new Set(allKey)) {
 		const localKey = `_${key}`
 
-		attrs[localKey] ??= attrs[key] ?? vfile.data[key]
-		vfile.data[key] = attrs[key] ?? vfile.data[key]
+		directive[localKey] ??= directive[key] ?? external[key]
+		external[key] = directive[key] ?? external[key]
 
-		if (attrs[localKey] === undefined || attrs[localKey] === '-') {
-			delete attrs[localKey]
+		if (directive[localKey] === '-') {
+			delete directive[localKey]
 		}
-		if (attrs[key] === undefined || attrs[key] === '-') {
-			delete attrs[key]
-		}
-		if (vfile.data[key] === undefined || vfile.data[key] === '-') {
-			delete vfile.data[key]
+
+		if (directive[key] === '-') {
+			delete directive[key]
+			delete external[key]
 		}
 	}
 }
@@ -360,14 +339,17 @@ const createAdvanceBackground = (children: RootContent[], vertical: boolean) => 
 }
 
 const createSplitContainer = (ctx: Context, data: SplitData) => {
+	const directive = { ...data.directive, ...ctx.directive }
+	combineDirective(directive, { ...ctx.vfile.data })
+
 	return {
 		type: 'split-container',
 		children: ctx.subChildren(data.start, data.end),
 		data: {
 			hName: 'section',
 			hProperties: {
-				class: combineClassNames('split-contents', data.directive.class),
-				style: buildSlideStyle(data.directive)
+				class: combineClassNames('split-contents', data.directive._class),
+				style: buildSlideStyle(directive)
 			}
 		}
 	} as Parent
@@ -381,7 +363,7 @@ const createSlideContainer = (ctx: Context) => {
 			hName: 'section',
 			hProperties: {
 				'data-page': ctx.page,
-				class: combineClassNames('slide', ctx.directive.class, ctx.split ? 'split' : ''),
+				class: combineClassNames('slide', ctx.directive._class, ctx.split ? 'split' : ''),
 				hidden: `{currentPage !== ${ctx.page}}`,
 				style: buildSlideStyle(ctx.directive)
 			}
@@ -472,8 +454,9 @@ export const processHTMLNode = (ctx: Context) => {
 		ctx.children.splice(split.start, delCount, splitContainer as RootContent)
 	}
 
-	ctx.directive.split = ctx.split
-	ctx.directive.splitSize = combineString(' ', ...splitSize)
+	ctx.directive._split = ctx.split
+	ctx.directive._splitSize = combineString(' ', ...splitSize)
+	combineDirective(ctx.directive, ctx.vfile.data)
 }
 
 export const processImageNode = (ctx: Context) => {
