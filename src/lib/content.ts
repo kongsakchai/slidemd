@@ -1,7 +1,4 @@
-import { env } from '$env/dynamic/private'
-import type { Folder } from '$lib/types'
-
-const markdownList = env.SLIDEMD_LIST?.split(',') || []
+import type { Folder } from './types'
 
 export const createContentList = (files: string[]) => {
 	const root: Folder = {
@@ -50,5 +47,3 @@ export const createContentList = (files: string[]) => {
 
 	return root
 }
-
-export const contentList = createContentList(markdownList)

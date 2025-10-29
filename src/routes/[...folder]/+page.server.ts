@@ -1,7 +1,9 @@
-import { contentList } from '$lib/server/content'
+import { createContentList } from '$lib/content'
 
 export const ssr = false
 
+const markdowns = process.env.SLIDEMD_LIST?.split(',') || []
+
 export const load = async () => {
-	return { contentList }
+	return { contentList: createContentList(markdowns) }
 }

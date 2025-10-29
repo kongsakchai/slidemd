@@ -2,7 +2,7 @@ import adapter from '@sveltejs/adapter-static'
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 import { join } from 'path'
 
-const prerenderList = process.env.SLIDEMD_LIST ? process.env.SLIDEMD_LIST.split(',') : []
+const prerenderList = process.env.SLIDEMD_LIST?.split(',') || []
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
