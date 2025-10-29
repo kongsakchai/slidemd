@@ -29,9 +29,3 @@ export interface CodeToHighlight {
 	lang: string
 	parent: Parent
 }
-
-export interface SplitData {
-	start: number
-	end?: number
-	directive: Attribuites
-}

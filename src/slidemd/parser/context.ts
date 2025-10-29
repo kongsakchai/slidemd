@@ -1,23 +1,38 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Parent, Root } from 'mdast'
 import { VFile } from 'vfile'
 import type { Attribuites } from './types'
 
 export class Context {
-	page: number
-	vfile: VFile
+	data: Attribuites
 
+	constructor(init: Attribuites = {}) {
+		this.data = init
+	}
+
+	get directive() {
+		this.data.directive ??= {}
+		return this.data.directive as Attribuites
+	}
+
+	set directive(value: Attribuites) {
+		this.data.directive = value
+	}
+}
+
+export class RootContext extends Context {
+	vfile: VFile
 	root: Root
-	directive: Attribuites = {}
-	split: boolean = false
 
 	constructor(root: Root, vfile: VFile) {
-		this.page = (vfile.data.page || 0) as number
-		this.vfile = vfile
+		super()
 		this.root = root
+		this.vfile = vfile
+		this.data.page = (vfile.data.page || 0) as number
 	}
 
 	get parents() {
-		if (this.split) return this.root.children as Parent[]
+		if (this.data.split) return this.root.children as Parent[]
 		return [this.root]
 	}
 

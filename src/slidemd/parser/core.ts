@@ -4,11 +4,9 @@ import type { Node, Parent, Root, RootContent } from 'mdast'
 import type { Plugin } from 'unified'
 import { remove } from 'unist-util-remove'
 import { EXIT, visit } from 'unist-util-visit'
-import { Context } from './context'
+import { Context, RootContext } from './context'
 import { highlightHast } from './shiki'
-import { type Attribuites, type CodeToHighlight, type ImageAttributes, type SplitData } from './types'
-
-const SVELTE_ATTRIBUTES = new Set(['bind', 'use', 'transition', 'in', 'out', 'animate', 'style', 'class'])
+import type { Attribuites, CodeToHighlight, ImageAttributes } from './types'
 
 const DEFAULT_FILTERS: Record<string, string> = {
 	blur: '10px',
@@ -30,27 +28,32 @@ const IMAGE_KEYS = new Set(['bg', 'absolute', 'vertical'])
 const REPEAT_KEYS = new Set(['repeat', 'no-repeat', 'repeat-x', 'repeat-y', 'space', 'round'])
 const REPEAT_XY_KEYS = new Set(['rx', 'ry'])
 
-const ATTR_REGEX = /(?<=^|\s)([\w-@]+(?::[^\s=]+)?)(?:="(.*?)"|='(.*?)'|=([^\s]+?))?(?=\s|$)/g
+const DIRECTIVE_REGEX = /^([\S]+)(?::\s([\s\S]*?))?$/g
+const ATTR_REGEX = /(?<=^|\s)([\w-@:]+)(?:="([\s\S]*?)"|='([\s\S]*?)'|=([^\s]+?))?(?=\s|$)/g
 const CLASS_REGEX = /(?<=^|\s)\.([^\s]+)(?=\s|$)/g
-const SPLIT_REGEX = /^<!--\s*split(?:[:=]([^\s]+))?(?:\s+(vertical))?\s*-->$/g
+const SPLIT_REGEX = /^<!--\s*split(?::\s?([^\s]+))?(?:\s+(vertical))?\s*-->$/g
 const COMMENT_REGEX = /^<!--([\s\S]*)-->$/g
 const STEP_REGEX = /^step-(\d)/g
 
 // Extract
+
+export const extractDirectives = (value: string) => {
+	const directive: Attribuites = {}
+	for (const str of value.trim().split('\n')) {
+		for (const match of str.matchAll(DIRECTIVE_REGEX)) {
+			const key = match[1]
+			const value = match[2] || ''
+			directive[key] = value
+		}
+	}
+	return directive
+}
 
 export const extractAttributes = (value: string) => {
 	const attrs: Attribuites = {}
 	for (const match of value.matchAll(ATTR_REGEX)) {
 		const key = match[1]
 		const value = match[2] || match[3] || match[4] || ''
-
-		if (!value && key.includes(':')) {
-			const [prefix, suffix] = key.split(':', 2)
-			if (!SVELTE_ATTRIBUTES.has(prefix)) {
-				attrs[prefix] = suffix
-				continue
-			}
-		}
 
 		if (key.startsWith('step-')) {
 			attrs['step'] = true
@@ -70,18 +73,8 @@ export const extractImageAttributes = (value: string) => {
 	const attrs: Attribuites = {}
 
 	for (const match of value.matchAll(ATTR_REGEX)) {
-		let key = match[1] as keyof ImageAttributes
-		let value = match[2] || match[3] || match[4] || ''
-
-		if (!value && key.includes(':')) {
-			const [prefix, suffix] = key.split(':', 2)
-			if (SVELTE_ATTRIBUTES.has(prefix)) {
-				attrs[key] = ''
-				continue
-			}
-			key = prefix as keyof ImageAttributes
-			value = suffix
-		}
+		const key = match[1] as keyof ImageAttributes
+		const value = match[2] || match[3] || match[4] || ''
 
 		if (key in DEFAULT_FILTERS) {
 			if (!imgAttrs.filters) imgAttrs.filters = []
@@ -195,7 +188,7 @@ export const buildImageStyle = (attrs: ImageAttributes) => {
 export const buildBackgroundStyle = (url: string, attrs: ImageAttributes) => {
 	const styles = [`background-image: url(${url})`]
 
-	if (attrs.filters && attrs.filters.length > 0) styles.push(`background-filter: ${attrs.filters.join(' ')}`)
+	if (attrs.filters && attrs.filters.length > 0) styles.push(`filter: ${attrs.filters.join(' ')}`)
 
 	if (attrs.x || attrs.y) {
 		styles.push(`background-position: ${attrs.x || '50%'} ${attrs.y || '50%'}`)
@@ -218,33 +211,35 @@ export const buildBackgroundStyle = (url: string, attrs: ImageAttributes) => {
 	return styles.join(';')
 }
 
-export const buildSlideStyle = (attrs: Attribuites) => {
+export const buildSlideStyle = (ctx: Context) => {
 	const styles: string[] = []
-	if (attrs._style) {
-		styles.push(attrs._style)
+	if (ctx.directive._style) {
+		styles.push(ctx.directive._style)
 	}
-	if (attrs._bgImg) {
-		const imgs = (attrs._bgImg as string).split(',')
-		styles.push(`background-image: ${imgs}`)
+	if (ctx.directive._bgImg) {
+		styles.push(`--bg-img: ${ctx.directive._bgImg}`)
 	}
-	if (attrs._bgColor) {
-		styles.push(`background-color: ${attrs._bgColor}`)
+	if (ctx.directive._bgColor) {
+		styles.push(`--bg-color: ${ctx.directive._bgColor}`)
 	}
-	if (attrs._bgSize) {
-		styles.push(`background-size: ${attrs._bgSize}`)
+	if (ctx.directive._bgSize) {
+		styles.push(`--bg-size: ${ctx.directive._bgSize}`)
 	}
-	if (attrs._bgPosition) {
-		styles.push(`background-position: ${attrs._bgPosition}`)
+	if (ctx.directive._bgPosition) {
+		styles.push(`--bg-pos: ${ctx.directive._bgPosition}`)
 	}
-	if (attrs._bgRepeat) {
-		styles.push(`background-repeat: ${attrs._bgRepeat}`)
+	if (ctx.directive._bgRepeat) {
+		styles.push(`--bg-repeat: ${ctx.directive._bgRepeat}`)
+	}
+	if (ctx.directive._bgOpacity) {
+		styles.push(`--bg-opacity: ${ctx.directive._bgOpacity}`)
 	}
 
-	if (attrs._split) {
-		if (attrs._splitDir === 'vertical') {
-			styles.push(`--split-row: ${attrs._splitSize}`)
+	if (ctx.data.split) {
+		if (ctx.data.splitDir === 'vertical') {
+			styles.push(`--split-row: ${ctx.data.splitSize}`)
 		} else {
-			styles.push(`--split-col: ${attrs._splitSize}`)
+			styles.push(`--split-col: ${ctx.data.splitSize}`)
 		}
 	}
 
@@ -338,34 +333,45 @@ const createAdvanceBackground = (children: RootContent[], vertical: boolean) => 
 	} as Parent
 }
 
-const createSplitContainer = (ctx: Context, data: SplitData) => {
-	const directive = { ...data.directive, ...ctx.directive }
-	combineDirective(directive, { ...ctx.vfile.data })
+const createSplitContainer = (ctx: RootContext, split: Context) => {
+	for (const key in split.directive) {
+		if (!key.startsWith('_')) {
+			split.directive[`_${key}`] = split.directive[key]
+			delete split.directive[key]
+		}
+	}
 
+	const isBg = !!split.directive._bgImg || !!split.directive._bgColor
 	return {
 		type: 'split-container',
-		children: ctx.subChildren(data.start, data.end),
+		children: ctx.subChildren(split.data.start, split.data.end),
 		data: {
 			hName: 'section',
 			hProperties: {
-				class: combineClassNames('split-contents', data.directive._class),
-				style: buildSlideStyle(directive)
+				class: combineClassNames('split-contents', split.directive._class, isBg ? 'bg' : ''),
+				style: buildSlideStyle(split)
 			}
 		}
 	} as Parent
 }
 
-const createSlideContainer = (ctx: Context) => {
+const createSlideContainer = (ctx: RootContext) => {
+	const isBg = !!ctx.directive._bgImg || !!ctx.directive._bgColor
 	return {
 		type: 'slide-container',
 		children: ctx.children,
 		data: {
 			hName: 'section',
 			hProperties: {
-				'data-page': ctx.page,
-				class: combineClassNames('slide', ctx.directive._class, ctx.split ? 'split' : ''),
-				hidden: `{currentPage !== ${ctx.page}}`,
-				style: buildSlideStyle(ctx.directive)
+				'data-page': ctx.data.page,
+				class: combineClassNames(
+					'slide',
+					ctx.directive._class,
+					ctx.data.split ? 'split' : '',
+					isBg ? 'bg' : ''
+				),
+				hidden: `{currentPage !== ${ctx.data.page}}`,
+				style: buildSlideStyle(ctx)
 			}
 		}
 	} as Parent
@@ -373,7 +379,7 @@ const createSlideContainer = (ctx: Context) => {
 
 // Process
 
-export const processSvelteSyntax = (ctx: Context) => {
+export const processSvelteSyntax = (ctx: RootContext) => {
 	visit(ctx.root, 'paragraph', (node, index, parent) => {
 		if (typeof index !== 'number' || !parent) return
 
@@ -390,45 +396,47 @@ export const processSvelteSyntax = (ctx: Context) => {
 	})
 }
 
-export const processHTMLNode = (ctx: Context) => {
+export const processHTMLNode = (ctx: RootContext) => {
 	const splitSize: string[] = []
-	const split: SplitData = { start: 0, directive: {} }
+	const splitCtx = new Context({ start: 0 })
 
 	visit(ctx.root, 'html', (node, index, parent) => {
 		if (typeof index !== 'number' || !parent) return
 
 		for (const match of node.value.matchAll(SPLIT_REGEX)) {
 			if (parent != ctx.root) return
-			ctx.split = true
+			ctx.data.split = true
 			splitSize.push(match[1] || '1fr')
 
-			split.end = index
-			const splitContainer = createSplitContainer(ctx, split)
-			const delCount = split.end - split.start + 1
-			parent.children.splice(split.start, delCount, splitContainer as RootContent)
+			splitCtx.data.end = index
+			const splitContainer = createSplitContainer(ctx, splitCtx)
+			const delCount = splitCtx.data.end - splitCtx.data.start + 1
+			parent.children.splice(splitCtx.data.start, delCount, splitContainer as RootContent)
 
-			split.directive = {}
-			split.start++
-			return split.start
+			splitCtx.directive = {}
+			return ++splitCtx.data.start
 		}
 
 		for (const match of node.value.matchAll(COMMENT_REGEX)) {
-			const attrs = extractAttributes(match[1])
-			const classes = extractClassNames(match[1])
-			attrs['class'] = combineClassNames(attrs.class, ...classes)
-
 			if (parent === ctx.root) {
-				if (attrs['@split'] !== undefined) {
-					attrs.class = combineClassNames(split.directive.class, attrs.class)
-					split.directive = { ...split.directive, ...attrs }
+				const directive = extractDirectives(match[1])
+
+				if (directive['@split'] !== undefined) {
+					delete directive['@split']
+					directive.class = combineClassNames(splitCtx.directive.class, directive.class)
+					splitCtx.directive = { ...splitCtx.directive, ...directive }
 				} else {
-					attrs.class = combineClassNames(ctx.directive.class, attrs.class)
-					ctx.directive = { ...ctx.directive, ...attrs }
+					directive.class = combineClassNames(ctx.directive.class, directive.class)
+					ctx.directive = { ...ctx.directive, ...directive }
 				}
 			} else {
+				const attrs = extractAttributes(match[1])
+				const classes = extractClassNames(match[1])
+				attrs['class'] = combineClassNames(attrs.class, ...classes)
+
 				if (attrs.step) {
 					ctx.vfile.data.step = Math.max(
-						calculateSteps(ctx.page, attrs),
+						calculateSteps(ctx.data.page, attrs),
 						(ctx.vfile.data.step as number) || 0
 					)
 				}
@@ -445,21 +453,20 @@ export const processHTMLNode = (ctx: Context) => {
 		}
 	})
 
-	if (ctx.split) {
+	if (ctx.data.split) {
 		splitSize.push('1fr')
 
-		split.end = ctx.children.length
-		const splitContainer = createSplitContainer(ctx, split)
-		const delCount = split.end - split.start + 1
-		ctx.children.splice(split.start, delCount, splitContainer as RootContent)
+		splitCtx.data.end = ctx.children.length
+		const splitContainer = createSplitContainer(ctx, splitCtx)
+		const delCount = splitCtx.data.end - splitCtx.data.start + 1
+		ctx.children.splice(splitCtx.data.start, delCount, splitContainer as RootContent)
 	}
 
-	ctx.directive._split = ctx.split
-	ctx.directive._splitSize = combineString(' ', ...splitSize)
+	ctx.data.splitSize = combineString(' ', ...splitSize)
 	combineDirective(ctx.directive, ctx.vfile.data)
 }
 
-export const processImageNode = (ctx: Context) => {
+export const processImageNode = (ctx: RootContext) => {
 	ctx.parents.forEach((p) => {
 		const backgrounds: RootContent[] = []
 		let vertical = false
@@ -530,7 +537,7 @@ export const processImageNode = (ctx: Context) => {
 	})
 }
 
-export const processCodeNode = async (ctx: Context) => {
+export const processCodeNode = async (ctx: RootContext) => {
 	const highlightList: CodeToHighlight[] = []
 	visit(ctx.root, 'code', (node, index, parent) => {
 		if (typeof index !== 'number' || !parent) return
@@ -572,7 +579,7 @@ export const processCodeNode = async (ctx: Context) => {
 export const remarkSlideMD: Plugin = () => {
 	return async (tree: Node, vfile) => {
 		const root = tree as Root
-		const ctx = new Context(root, vfile)
+		const ctx = new RootContext(root, vfile)
 
 		processHTMLNode(ctx)
 		processImageNode(ctx)

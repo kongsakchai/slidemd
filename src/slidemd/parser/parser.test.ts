@@ -3,7 +3,7 @@ import { unified } from 'unified'
 import { VFile } from 'vfile'
 import { describe, expect, it } from 'vitest'
 import { extractFrontmatter, parseSlide } from '.'
-import { Context } from './context'
+import { Context, RootContext } from './context'
 import {
 	buildBackgroundStyle,
 	buildImageStyle,
@@ -13,6 +13,7 @@ import {
 	combineDirective,
 	extractAttributes,
 	extractClassNames,
+	extractDirectives,
 	extractImageAttributes,
 	processCodeNode,
 	processHTMLNode,
@@ -22,9 +23,32 @@ import {
 } from './core'
 import { highlightHast } from './shiki'
 
+describe('markdown.ts:extractDirectives', () => {
+	it('should return directive with svelte directive', () => {
+		const payload = [
+			'@split',
+			'bind:value',
+			'class: class-1',
+			'class:class-2: {value}',
+			'title: hello',
+			'bg-color: color-1 color-2'
+		].join('\n')
+
+		const attrs = extractDirectives(payload)
+		expect(attrs).toEqual({
+			'@split': '',
+			'bind:value': '',
+			class: 'class-1',
+			'class:class-2': '{value}',
+			title: 'hello',
+			'bg-color': 'color-1 color-2'
+		})
+	})
+})
+
 describe('markdown.ts:extractAttributes', () => {
 	it('should return attributes with svelte attributes', () => {
-		const payload = 'bind:value={value} class:class-1 title:hello bg-color="color-1 color-2" '
+		const payload = 'bind:value={value} class:class-1 title=hello bg-color="color-1 color-2" '
 		const attrs = extractAttributes(payload)
 		expect(attrs).toEqual({
 			'bind:value': '{value}',
@@ -58,7 +82,7 @@ describe('markdown.ts:extractImageAttributes', () => {
 			}
 		},
 		{
-			str: 'cover x:10px w=100% blur h:300% y="21px" top:99% contrast:3 bottom step-1:click class:class-1 no-repeat absolute bg rx:repeat ry:no-repeat vertical left:10px right:10px bottom:12px',
+			str: 'cover x=10px w=100% blur h=300% y="21px" top=99% contrast=3 bottom step-1=click class:class-1 no-repeat absolute bg rx=repeat ry=no-repeat vertical left=10px right=10px bottom=12px',
 			attrs: {
 				'class:class-1': '',
 				'step-1': 'click'
@@ -167,7 +191,7 @@ describe('markdown.ts:buildBackgroundStyle', () => {
 				bg: true,
 				absolute: true
 			},
-			styles: 'background-image: url(mock.com);background-filter: blur(10px) contrast(3);background-position: bottom;background-size: cover;background-repeat: no-repeat'
+			styles: 'background-image: url(mock.com);filter: blur(10px) contrast(3);background-position: bottom;background-size: cover;background-repeat: no-repeat'
 		},
 		{
 			attrs: {
@@ -210,7 +234,7 @@ describe('markdown.ts:processImageNode', () => {
 			children: []
 		} as Parent
 
-		const ctx = new Context(parent as Root, new VFile())
+		const ctx = new RootContext(parent as Root, new VFile())
 		processImageNode(ctx)
 
 		expect(parent).toEqual({
@@ -232,7 +256,7 @@ describe('markdown.ts:processImageNode', () => {
 			]
 		} as Parent
 
-		const ctx = new Context(parent as Root, new VFile())
+		const ctx = new RootContext(parent as Root, new VFile())
 		processImageNode(ctx)
 
 		expect(parent).toEqual({
@@ -271,7 +295,7 @@ describe('markdown.ts:processImageNode', () => {
 			]
 		} as Parent
 
-		const ctx = new Context(parent as Root, new VFile())
+		const ctx = new RootContext(parent as Root, new VFile())
 		processImageNode(ctx)
 
 		expect(parent).toEqual({
@@ -321,7 +345,7 @@ describe('markdown.ts:processImageNode', () => {
 			]
 		} as Parent
 
-		const ctx = new Context(parent as Root, new VFile())
+		const ctx = new RootContext(parent as Root, new VFile())
 		processImageNode(ctx)
 
 		const p = parent.children[0] as Parent
@@ -362,7 +386,7 @@ describe('markdown.ts:processImageNode', () => {
 			]
 		} as Parent
 
-		const ctx = new Context(parent as Root, new VFile())
+		const ctx = new RootContext(parent as Root, new VFile())
 		processImageNode(ctx)
 
 		expect(parent.children.length).toBe(1)
@@ -408,7 +432,7 @@ describe('markdown.ts:processImageNode', () => {
 			]
 		} as Parent
 
-		const ctx = new Context(parent as Root, new VFile())
+		const ctx = new RootContext(parent as Root, new VFile())
 		processImageNode(ctx)
 
 		expect(parent.children.length).toBe(1)
@@ -430,7 +454,7 @@ describe('markdown.ts:processCodeNode', () => {
 			children: []
 		} as Parent
 
-		const ctx = new Context(p as Root, new VFile())
+		const ctx = new RootContext(p as Root, new VFile())
 		await processCodeNode(ctx)
 
 		expect(p).toEqual({
@@ -451,7 +475,7 @@ describe('markdown.ts:processCodeNode', () => {
 			]
 		} as Parent
 
-		const ctx = new Context(p as Root, new VFile())
+		const ctx = new RootContext(p as Root, new VFile())
 		await processCodeNode(ctx)
 
 		const code = p.children[0] as Parent
@@ -472,7 +496,7 @@ describe('markdown.ts:processCodeNode', () => {
 			]
 		} as Parent
 
-		const ctx = new Context(p as Root, new VFile())
+		const ctx = new RootContext(p as Root, new VFile())
 		await processCodeNode(ctx)
 
 		const code = p.children[0] as Parent
@@ -492,7 +516,7 @@ describe('markdown.ts:processCodeNode', () => {
 			]
 		} as Parent
 
-		const ctx = new Context(p as Root, new VFile())
+		const ctx = new RootContext(p as Root, new VFile())
 		await processCodeNode(ctx)
 
 		expect(p.children[0]).toEqual({
@@ -559,41 +583,60 @@ describe('markdown.ts:buildSlideStyle', () => {
 		},
 		{
 			attrs: {
-				_style: 'text-color: red',
-				_bgImg: 'mock1.image.com,mock2.image.com,mock3.image.com'
+				directive: {
+					_style: 'text-color: red',
+					_bgImg: 'url(mock1.image.com), url(mock2.image.com), url(mock3.image.com)'
+				}
 			},
-			expected:
-				'text-color: red;background-image: url(mock1.image.com), url(mock2.image.com), url(mock3.image.com)'
+			expected: 'text-color: red;--bg-img: url(mock1.image.com), url(mock2.image.com), url(mock3.image.com)'
 		},
 		{
 			attrs: {
-				_bgColor: 'red'
+				directive: {
+					_bgColor: 'red'
+				}
 			},
-			expected: 'background-color: red'
+			expected: '--bg-color: red'
 		},
 		{
 			attrs: {
-				_bgColor: 'red'
+				directive: {
+					_bgColor: 'red'
+				}
 			},
-			expected: 'background-color: red'
+			expected: '--bg-color: red'
 		},
 		{
 			attrs: {
-				_bgSize: 'cover'
+				directive: {
+					_bgSize: 'cover'
+				}
 			},
-			expected: 'background-size: cover'
+			expected: '--bg-size: cover'
 		},
 		{
 			attrs: {
-				_bgPosition: 'center'
+				directive: {
+					_bgPosition: 'center'
+				}
 			},
-			expected: 'background-position: center'
+			expected: '--bg-pos: center'
 		},
 		{
 			attrs: {
-				_bgRepeat: 'no-repeat'
+				directive: {
+					_bgRepeat: 'no-repeat'
+				}
 			},
-			expected: 'background-repeat: no-repeat'
+			expected: '--bg-repeat: no-repeat'
+		},
+		{
+			attrs: {
+				directive: {
+					_bgOpacity: '0.5'
+				}
+			},
+			expected: '--bg-opacity: 0.5'
 		},
 		{
 			attrs: {
@@ -614,7 +657,8 @@ describe('markdown.ts:buildSlideStyle', () => {
 
 	testcases.forEach((tc, i) => {
 		it(`should return slide styles #${i}`, () => {
-			const style = buildSlideStyle(tc.attrs)
+			const context = new Context(tc.attrs)
+			const style = buildSlideStyle(context)
 			expect(style).toBe(tc.expected)
 		})
 	})
@@ -646,7 +690,7 @@ describe('markdown.ts:processSvelteSyntax', () => {
 			]
 		} as Parent
 
-		const ctx = new Context(parent as Root, new VFile())
+		const ctx = new RootContext(parent as Root, new VFile())
 		processSvelteSyntax(ctx)
 
 		expect(parent.children).toEqual([
@@ -677,7 +721,7 @@ describe('markdown.ts:processSvelteSyntax', () => {
 			]
 		} as Parent
 
-		const ctx = new Context(parent as Root, new VFile())
+		const ctx = new RootContext(parent as Root, new VFile())
 		processSvelteSyntax(ctx)
 
 		expect(parent).toEqual({
@@ -708,7 +752,7 @@ describe('markdown.ts:combineDirective', () => {
 		},
 		{
 			vfile: { paging: true },
-			attrs: { paging: '-', _paging: true },
+			attrs: { paging: '-', _paging: true, _color: '-' },
 			expectedVFile: {},
 			expectedAttrs: { _paging: true }
 		}
@@ -716,9 +760,7 @@ describe('markdown.ts:combineDirective', () => {
 
 	testcases.forEach((tc, i) => {
 		it(`should combineDirective #${i}`, () => {
-			const vfile = new VFile()
-			vfile.data = tc.vfile
-			combineDirective(vfile, tc.attrs)
+			combineDirective(tc.attrs, tc.vfile)
 
 			expect(tc.vfile, 'vfile').toEqual(tc.expectedVFile)
 			expect(tc.attrs, 'attrs').toEqual(tc.expectedAttrs)
@@ -746,7 +788,7 @@ describe('markdown.ts:remarkSlideMD', () => {
 				},
 				{
 					type: 'html',
-					value: '<!-- .class-1 -->'
+					value: '<!-- class: class-1\nbgColor: red -->'
 				}
 			]
 		} as Parent
@@ -776,7 +818,7 @@ describe('markdown.ts:remarkSlideMD', () => {
 				]
 			}
 		])
-		expect(contents.data?.hProperties?.class).toBe('slide class-1')
+		expect(contents.data?.hProperties?.class).toBe('slide class-1 bg')
 		expect(vfile.data.step).toBe(1)
 	})
 
@@ -786,7 +828,7 @@ describe('markdown.ts:remarkSlideMD', () => {
 			children: [
 				{
 					type: 'html',
-					value: '<!-- @split class=class-1 -->'
+					value: '<!-- @split\nclass: class-1\nbgColor: red -->'
 				},
 				{
 					type: 'html',
@@ -822,8 +864,8 @@ describe('markdown.ts:remarkSlideMD', () => {
 				data: {
 					hName: 'section',
 					hProperties: {
-						class: 'split-contents class-1',
-						style: undefined
+						class: 'split-contents class-1 bg',
+						style: '--bg-color: red'
 					}
 				}
 			},
@@ -890,7 +932,7 @@ describe('markdown.ts:processHTMLNode', () => {
 			children: []
 		} as Parent
 
-		const ctx = new Context(p as Root, new VFile())
+		const ctx = new RootContext(p as Root, new VFile())
 		processHTMLNode(ctx)
 
 		expect(p).toEqual({
@@ -919,7 +961,7 @@ describe('markdown.ts:processHTMLNode', () => {
 				},
 				{
 					type: 'html',
-					value: '<!-- .class-1 -->'
+					value: '<!-- class: class-1 -->'
 				},
 				{
 					type: 'html',
@@ -931,7 +973,7 @@ describe('markdown.ts:processHTMLNode', () => {
 		const vfile = new VFile()
 		vfile.data.page = 10
 
-		const ctx = new Context(p as Root, vfile)
+		const ctx = new RootContext(p as Root, vfile)
 		processHTMLNode(ctx)
 
 		expect(p.children).toEqual([
@@ -967,7 +1009,7 @@ describe('markdown.ts:processHTMLNode', () => {
 			children: [
 				{
 					type: 'html',
-					value: '<!-- @split class=class-1 -->'
+					value: '<!-- @split\nclass: class-1 -->'
 				},
 				{
 					type: 'html',
@@ -993,7 +1035,7 @@ describe('markdown.ts:processHTMLNode', () => {
 			]
 		} as Parent
 
-		const ctx = new Context(p as Root, new VFile())
+		const ctx = new RootContext(p as Root, new VFile())
 		processHTMLNode(ctx)
 
 		expect(p.children).toEqual([
@@ -1046,8 +1088,8 @@ describe('markdown.ts:processHTMLNode', () => {
 			}
 		])
 
-		expect(ctx.directive.split).toBe(true)
-		expect(ctx.directive.splitSize).toBe('1fr 10px 1fr')
+		expect(ctx.data.split).toBe(true)
+		expect(ctx.data.splitSize).toBe('1fr 10px 1fr')
 	})
 })
 
