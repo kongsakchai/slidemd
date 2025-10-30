@@ -23,10 +23,9 @@ export interface SlideMD {
 
 export interface Context {
 	markdowns: () => string[]
-	css: () => string[]
-	loadMarkdown: (filepath: string) => Markdown
-	writeCache: (filepath: string, content: string) => void
-	// process: (markdown: Markdown) => Promise<SlideMD>
+	css: () => { css: string[]; builtin: string[] }
+	read: (filepath: string) => Markdown
+	write: (filepath: string, content: string) => void
 	extract: (markdown: string) => { body: string; metadata: Record<string, any> }
 	parse: (markdown: string, properties: Record<string, any>) => Promise<SlideContentInfo[]>
 }

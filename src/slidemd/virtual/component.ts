@@ -7,7 +7,7 @@ export const createSlideComponent = (src: string): VirtualModule => {
 	return {
 		id: resolveId,
 		async getContent() {
-			const markdown = this.loadMarkdown(src)
+			const markdown = this.read(src)
 			const { body, metadata } = this.extract(markdown.raw)
 			const title = metadata['title'] || 'Slide MD 🚀'
 			const slides = await this.parse(body, metadata)
@@ -36,7 +36,7 @@ export const createSlideComponent = (src: string): VirtualModule => {
 			].join('\n')
 
 			// 🔥 Sync file
-			this.writeCache(resolveId, components)
+			this.write(resolveId, components)
 
 			return components
 		}

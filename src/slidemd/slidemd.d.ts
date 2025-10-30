@@ -6,7 +6,7 @@ declare module '@slidemd/slides' {
 		}
 	}
 
-	export const markdown: string[]
+	export const markdowns: string[]
 }
 
 declare module '@slidemd/config' {

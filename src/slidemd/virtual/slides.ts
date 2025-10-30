@@ -9,7 +9,7 @@ export const slide: VirtualModule = {
 
 		markdowns.forEach((src, i) => {
 			imports.push(`import Slide_${i}, {meta as Data_${i}} from '@slidemd/components/${src}.svelte'`)
-			slides.push(`"${src}":{ component:Slide_${i}, data:Data_${i} }`)
+			slides.push(`"${src}":{ component:Slide_${i}, data:Data_${i} },`)
 		})
 
 		return [

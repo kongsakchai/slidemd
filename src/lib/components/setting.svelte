@@ -24,7 +24,7 @@
 	<p class="text-primary-foreground text-sm font-medium">Themes</p>
 	<select class="w-full" bind:value={settings.theme} onchange={() => settings.setTheme(settings.theme)}>
 		{#each settings.themes as theme}
-			<option value={theme}>{theme}</option>
+			<option value={theme.replace(' (builtin)', '')}>{theme}</option>
 		{/each}
 	</select>
 

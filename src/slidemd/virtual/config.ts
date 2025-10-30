@@ -6,17 +6,23 @@ export const config: VirtualModule = {
 		const imports: string[] = []
 		const themesName: string[] = []
 
-		const css = this.css()
-		css.forEach((f) => {
+		this.css().css.forEach((f) => {
 			for (const match of f.matchAll(/theme-(.*).css/g)) {
-				if (!match[1]) return
-				themesName.push(match[1])
+				if (match[1]) themesName.push(match[1])
 			}
 			imports.push(`import '${f}'`)
 		})
+		this.css().builtin.forEach((f) => {
+			for (const match of f.matchAll(/theme-(.*).css/g)) {
+				if (match[1] && !themesName.includes(match[1])) {
+					themesName.push(`${match[1]}`)
+					imports.push(`import '${f}'`)
+				}
+			}
+		})
 
 		const content = [...imports, `export const themes = ${JSON.stringify(themesName)}`].join('\n')
-		this.writeCache('theme', content)
+		this.write('theme', content)
 
 		return content
 	}

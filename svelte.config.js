@@ -15,6 +15,10 @@ const config = {
 			entries: ['/', ...prerenderList.map((v) => join('/view', v))],
 			handleHttpError: 'ignore'
 		}
+	},
+	onwarn: (warning, handler) => {
+		if (warning.code.includes('a11y')) return
+		handler(warning)
 	}
 }
 
