@@ -29,7 +29,8 @@ export const createSlideComponent = (src: string): VirtualModule => {
 				`export const meta = ${JSON.stringify(meta)}`,
 				`</script>`,
 				`<script lang="ts">`,
-				`import { regisSteps,copyCode } from '$lib/action.svelte'`,
+				`import { copyCode } from '$lib/actions/copy-code'`,
+				`import { regisSteps } from '$lib/states/step.svelte'`,
 				`let { currentPage } = $props()`,
 				`</script>`,
 				...pages
