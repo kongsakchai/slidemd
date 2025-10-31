@@ -10,5 +10,5 @@ declare module '@slidemd/slides' {
 }
 
 declare module '@slidemd/config' {
-	export const themes: string[]
+	export const themes: import('./types').Theme[]
 }

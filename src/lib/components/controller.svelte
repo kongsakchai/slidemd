@@ -1,112 +1,130 @@
 <script lang="ts">
-	import { clickOutside } from '$lib/action.svelte'
-	import Setting from './setting.svelte'
+	import type { SlideController } from '$lib/types'
 
-	interface Props {
-		currentPage: number
-		maxPage: number
-		disabledNext?: boolean
-		disabledPrevious?: boolean
-		onNext?: () => void
-		onPrevious?: () => void
-	}
+	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left'
+	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right'
+	import ExpandIcon from '@lucide/svelte/icons/expand'
+	import MoonIcon from '@lucide/svelte/icons/moon'
+	import PaletteIcon from '@lucide/svelte/icons/palette'
+	import ShrinkIcon from '@lucide/svelte/icons/shrink'
+	import SlideIcon from '@lucide/svelte/icons/sliders-horizontal'
+	import SunIcon from '@lucide/svelte/icons/sun'
 
-	let { currentPage, onNext, onPrevious, maxPage, disabledNext, disabledPrevious }: Props = $props()
-	let openSettings = $state(false)
+	import { defualtSlideConfig, slideConfig } from '$lib/states/config.svelte'
+	import { themes } from '@slidemd/config'
+	import SliderField from './slider-field.svelte'
+	import { Button, buttonVariants } from './ui/button'
+	import * as ButtonGroup from './ui/button-group'
+	import * as DropdownMenu from './ui/dropdown-menu'
+	import * as Popover from './ui/popover'
 
-	const handleCloseSetting = () => {
-		openSettings = false
-	}
-
-	const handleToggleSetting = () => {
-		openSettings = !openSettings
-	}
+	let { page, maxPage, fullscreen, onnext, onprevious, onfullscreen }: SlideController = $props()
 </script>
 
-<svelte:document
-	onkeydown={(e) => {
-		if (e.repeat) return
+<ButtonGroup.Root>
+	<ButtonGroup.Root>
+		<Button variant="outline" size="icon-lg" aria-label="back" onclick={onprevious}>
+			<ArrowLeftIcon />
+		</Button>
+		<Button variant="outline" size="lg" class="px-4" aria-label="Go Back">
+			<p>{page} / {maxPage || 0}</p>
+		</Button>
+		<Button variant="outline" size="icon-lg" aria-label="next" onclick={onnext}>
+			<ArrowRightIcon />
+		</Button>
+		<Button variant="outline" size="icon-lg" aria-label="next" onclick={onfullscreen}>
+			{#if fullscreen}
+				<ShrinkIcon />
+			{:else}
+				<ExpandIcon />
+			{/if}
+		</Button>
+	</ButtonGroup.Root>
 
-		if (e.key === 'ArrowLeft') {
-			onPrevious?.()
-		} else if (e.key === 'ArrowRight') {
-			onNext?.()
-		}
-	}}
-/>
+	<ButtonGroup.Root>
+		<Button
+			variant="outline"
+			size="icon-lg"
+			aria-label="back"
+			onclick={() => (slideConfig.dark = !slideConfig.dark)}
+		>
+			{#if slideConfig.dark}
+				<MoonIcon />
+			{:else}
+				<SunIcon />
+			{/if}
+		</Button>
 
-<div class="menu">
-	<button class="menu-btn previous-btn" aria-label="previous" onclick={onPrevious} disabled={disabledPrevious}
-	></button>
-	<p class="text-sm font-medium select-none">{currentPage} / {maxPage || 0}</p>
-	<button class="menu-btn next-btn" aria-label="next" onclick={onNext} disabled={disabledNext}></button>
+		<!-- Theme -->
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger>
+				{#snippet child({ props })}
+					<Button {...props} variant="outline" size="icon-lg" aria-label="next">
+						<PaletteIcon />
+					</Button>
+				{/snippet}
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content class="w-56" align="start">
+				<DropdownMenu.Label>Themes</DropdownMenu.Label>
+				<DropdownMenu.Group>
+					<DropdownMenu.Item onclick={() => (slideConfig.theme = 'default')}>
+						<span class:text-primary={'default' === slideConfig.theme}>default</span>
+						<DropdownMenu.Shortcut>builtin</DropdownMenu.Shortcut>
+					</DropdownMenu.Item>
+					{#each themes as theme}
+						<DropdownMenu.Item onclick={() => (slideConfig.theme = theme.name)}>
+							<span class:text-primary={theme.name === slideConfig.theme}>{theme.name}</span>
 
-	<div class="divider"></div>
+							{#if theme.builtin}
+								<DropdownMenu.Shortcut>builtin</DropdownMenu.Shortcut>
+							{/if}
+						</DropdownMenu.Item>
+					{/each}
+				</DropdownMenu.Group>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
 
-	<section use:clickOutside={handleCloseSetting} class="relative h-8 w-8">
-		<button class="menu-btn setting-btn" aria-label="settings" onclick={handleToggleSetting}> </button>
-
-		{#if openSettings}
-			<Setting />
-		{/if}
-	</section>
-</div>
+		<!-- Config -->
+		<Popover.Root>
+			<Popover.Trigger class={buttonVariants({ variant: 'outline', size: 'icon-lg' })} aria-label="setting">
+				<SlideIcon />
+			</Popover.Trigger>
+			<Popover.Content class="flex w-90 flex-col gap-4" side="top" align="start">
+				<SliderField
+					title="Font Size"
+					id="font-size"
+					min={10}
+					max={64}
+					step={1}
+					default={defualtSlideConfig.fontSize}
+					bind:value={slideConfig.fontSize}
+				/>
+				<SliderField
+					title="Size"
+					id="size"
+					min={300}
+					max={2048}
+					step={1}
+					default={defualtSlideConfig.size}
+					bind:value={slideConfig.size}
+				/>
+				<SliderField
+					title="Scale"
+					id="scale"
+					min={0.1}
+					max={1}
+					step={0.05}
+					default={defualtSlideConfig.scale}
+					bind:value={slideConfig.scale}
+				/>
+			</Popover.Content>
+		</Popover.Root>
+	</ButtonGroup.Root>
+</ButtonGroup.Root>
 
 <style lang="postcss">
 	p {
 		margin: 0;
 		padding: 0;
-	}
-
-	.menu {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8px;
-		border: 1px solid var(--line);
-		border-radius: 8px;
-		background-color: var(--primary);
-		padding: 8px;
-		color: var(--primary-foreground);
-	}
-
-	.menu-btn {
-		border-radius: 4px;
-		width: 32px;
-		height: 32px;
-
-		&:not(:disabled):hover {
-			background-color: var(--primary-hover);
-		}
-
-		&::before {
-			content: '';
-			display: block;
-			width: 100%;
-			height: 100%;
-			background-color: var(--primary-foreground-2);
-		}
-
-		&:disabled {
-			opacity: 0.5;
-		}
-	}
-
-	.menu-btn.previous-btn::before {
-		mask: url('../icons/left-icon.svg') no-repeat center;
-	}
-
-	.menu-btn.next-btn::before {
-		mask: url('../icons/right-icon.svg') no-repeat center;
-	}
-
-	.menu-btn.setting-btn::before {
-		mask: url('../icons/setting-icon.svg') no-repeat center;
-	}
-
-	.divider {
-		width: 1px;
-		height: 24px;
-		background-color: var(--line);
 	}
 </style>

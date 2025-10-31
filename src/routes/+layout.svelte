@@ -1,16 +1,24 @@
 <script lang="ts">
-	import { settings } from '$lib/state.svelte'
-	import { themes } from '@slidemd/config'
+	import { loadSlideConfig, saveSlideConfig, slideConfig } from '$lib/states/config.svelte'
 	import { onMount } from 'svelte'
 	import '../app.css'
 
 	let { children } = $props()
 
-	onMount(() => {
-		console.log('🌱 themes loaded:', themes.length)
+	onMount(loadSlideConfig)
 
-		settings.themes = ['default', ...themes]
-		settings.load()
+	$effect(saveSlideConfig)
+
+	$effect(() => {
+		if (slideConfig.dark) {
+			document.documentElement.classList.add('dark')
+		} else {
+			document.documentElement.classList.remove('dark')
+		}
+	})
+
+	$effect(() => {
+		document.documentElement.setAttribute('data-theme', slideConfig.theme || 'default')
 	})
 </script>
 

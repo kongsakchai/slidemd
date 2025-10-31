@@ -15,8 +15,8 @@ const cssFilter = (d: string) => /\.css$/.test(d) && !/^\.|\/\./.test(d) && /^th
 const resolvePath = (d: string) => path.join(assetspath, d)
 
 export const slideMD = async (): Promise<Plugin> => {
-	const builtinAssets = readdirSync(builtinpath, { recursive: true, encoding: 'utf-8' })
-	const builtinCSS: string[] = builtinAssets.filter(cssFilter).map((src) => path.join(builtinpath, src))
+	let builtinAssets: string[] = []
+	let builtinCSS: string[] = []
 
 	let assets: string[] = []
 	let modules: Record<string, virtual.VirtualModule> = {}
@@ -26,6 +26,9 @@ export const slideMD = async (): Promise<Plugin> => {
 	let css: string[] = []
 
 	function load() {
+		builtinAssets = readdirSync(builtinpath, { recursive: true, encoding: 'utf-8' })
+		builtinCSS = builtinAssets.filter(cssFilter).map((src) => path.join(builtinpath, src))
+
 		assets = readdirSync(assetspath, { recursive: true, encoding: 'utf-8' })
 		markdowns = assets.filter(markdownFilter)
 		css = assets.filter(cssFilter).map(resolvePath)
@@ -80,6 +83,14 @@ export const slideMD = async (): Promise<Plugin> => {
 		resolveId: {
 			order: 'pre',
 			handler(id) {
+				if (virtual.slide.id === id) {
+					return id
+				}
+
+				if (virtual.config.id === id) {
+					return id
+				}
+
 				if (modules[id]) {
 					return id
 				}
@@ -105,9 +116,8 @@ export const slideMD = async (): Promise<Plugin> => {
 				return virtual.config.getContent.call(context)
 			}
 
-			const module = modules[id]
-			if (module) {
-				return await module.getContent.call(context)
+			if (modules[id]) {
+				return await modules[id].getContent.call(context)
 			}
 		},
 

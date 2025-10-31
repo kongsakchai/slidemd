@@ -21,6 +21,11 @@ export interface SlideMD {
 	markdown: Markdown
 }
 
+export interface Theme {
+	name: string
+	builtin: boolean
+}
+
 export interface Context {
 	markdowns: () => string[]
 	css: () => { css: string[]; builtin: string[] }
