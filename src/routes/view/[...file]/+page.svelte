@@ -1,39 +1,28 @@
 <script lang="ts">
 	import { replaceState } from '$app/navigation'
 	import { page } from '$app/state'
-	import { updateStep } from '$lib/action.svelte.js'
 	import Controller from '$lib/components/controller.svelte'
 	import PreviewImage from '$lib/components/preview-image.svelte'
-	import { settings } from '$lib/state.svelte'
+	import SlideContainer from '$lib/components/slide-container.svelte'
+	import { updateStep } from '$lib/states/step.svelte.js'
 	import { slides } from '@slidemd/slides'
 	import mermaid from 'mermaid'
 	import { onMount } from 'svelte'
+
 	let { data } = $props()
 
-	let start = $state(true)
-
-	let Slide = slides[data.file]?.component
+	let SlideComponent = slides[data.file]?.component
 	let slide = slides[data.file]?.data
-
-	let screenWidth = $state(1280)
-	let screenHeight = $state(720)
-
-	let size = $derived.by(() => {
-		if (screenWidth / settings.aspectRatio > screenHeight) {
-			return screenHeight / (settings.width / settings.aspectRatio)
-		}
-		return screenWidth / settings.width
-	})
 
 	let currentPage = $derived(parseInt(page.url.hash.slice(1)) || 0)
 	let currentStep = $state(0)
 	let stepCount = $derived(slide.slides[currentPage - 1]?.step || 0)
+	let fullscreen = $state(false)
 
 	onMount(async () => {
 		if (currentPage == 0) {
 			currentPage = 1
 		}
-
 		mermaid.initialize({
 			theme: 'default',
 			htmlLabels: false,
@@ -42,7 +31,7 @@
 		mermaid.run().then(() => console.log('Mermaid diagrams rendered'))
 	})
 
-	const nextPage = () => {
+	const onnext = () => {
 		if (currentStep < stepCount) {
 			currentStep += 1
 		} else if (currentPage < slide.slides.length) {
@@ -53,7 +42,7 @@
 		updateStep(currentPage, currentStep)
 	}
 
-	const previousPage = () => {
+	const onprevious = () => {
 		if (currentStep > 0) {
 			currentStep -= 1
 		} else if (currentPage > 1) {
@@ -63,36 +52,35 @@
 		replaceState(`#${currentPage}`, {})
 		updateStep(currentPage, currentStep)
 	}
+
+	const onfullscreen = () => {
+		if (!document.fullscreenElement) {
+			document.documentElement.requestFullscreen()
+		} else {
+			document.exitFullscreen()
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>{slide.title}</title>
 </svelte:head>
 
-<svelte:body bind:clientWidth={screenWidth} bind:clientHeight={screenHeight} />
+<svelte:document onfullscreenchange={() => (fullscreen = document.fullscreenElement !== null)} />
 
 <main class="relative h-full w-screen overflow-hidden bg-black">
-	<div
-		class="absolute top-1/2 left-1/2 flex -translate-1/2 flex-col overflow-auto"
-		class:rounded-2xl={settings.size !== 1}
-		style:width="{settings.width}px"
-		style:height="{settings.width / settings.aspectRatio}px"
-		style:scale={size * settings.size}
-		style:font-size={settings.fontSize + 'px'}
-	>
-		<Slide {currentPage} />
-	</div>
+	<SlideContainer>
+		<SlideComponent {currentPage} />
+	</SlideContainer>
 
-	<section
-		class=" fixed bottom-0 left-0 z-50 flex w-full p-5 opacity-0 transition-opacity duration-500 hover:opacity-100"
-	>
+	<section class=" fixed bottom-0 left-0 z-50 flex w-full p-5 transition-opacity duration-500 hover:opacity-100">
 		<Controller
-			{currentPage}
+			page={currentPage}
 			maxPage={slide.slides.length}
-			disabledNext={currentPage === slide.slides.length && currentStep >= stepCount}
-			disabledPrevious={currentPage === 1 && currentStep === 0}
-			onNext={nextPage}
-			onPrevious={previousPage}
+			{fullscreen}
+			{onnext}
+			{onprevious}
+			{onfullscreen}
 		/>
 	</section>
 

@@ -7,8 +7,13 @@
 		%sveltekit.head%
 	</head>
 	<script>
-		const theme = localStorage.getItem('slidemd:theme') || 'default'
-		document.documentElement.setAttribute('data-theme', theme)
+		const config = JSON.parse(localStorage.getItem('slidemd:config') || '{}')
+		if (config.dark) {
+			document.documentElement.classList.add('dark')
+		} else {
+			document.documentElement.classList.remove('dark')
+		}
+		document.documentElement.setAttribute('data-theme', config.theme || 'default')
 	</script>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">%sveltekit.body%</div>
