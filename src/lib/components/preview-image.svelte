@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { clickOutside } from '$lib/action.svelte'
+	import { clickOutside } from '$lib/actions/click-outside'
 	import { onMount } from 'svelte'
 
 	let open = $state(false)
