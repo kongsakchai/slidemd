@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { loadSlideConfig, saveSlideConfig, slideConfig } from '$lib/states/config.svelte'
+	import '@slidemd/themes'
 	import { onMount } from 'svelte'
 	import '../app.css'
 

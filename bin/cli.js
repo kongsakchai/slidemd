@@ -23,7 +23,7 @@ export const run = (projectPath, contentPath) => {
 		stdio: 'inherit',
 		env: {
 			...process.env,
-			SLIDEMD_PATH: contentPath
+			SLIDE_PATH: contentPath
 		}
 	})
 
@@ -55,8 +55,8 @@ export const build = (projectPath, contentPath, outputPath) => {
 		stdio: 'inherit',
 		env: {
 			...process.env,
-			SLIDEMD_PATH: contentPath,
-			SLIDEMD_OUTPUT: outputPath
+			SLIDE_PATH: contentPath,
+			SLIDE_OUTPUT: outputPath
 		}
 	})
 
