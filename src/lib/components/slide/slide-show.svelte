@@ -1,16 +1,17 @@
 <script lang="ts">
+	import mermaid from 'mermaid'
+	import { onMount } from 'svelte'
+
 	import { replaceState } from '$app/navigation'
 	import { page } from '$app/state'
 
 	import PreviewImage from '$lib/components/preview-image.svelte'
 	import { updateStep } from '$lib/states/step.svelte'
+
 	import type { SlideComponent } from '@slidemd/slides'
 
 	import SlideContainer from './slide-container.svelte'
 	import Controller from './slide-controller.svelte'
-
-	import mermaid from 'mermaid'
-	import { onMount } from 'svelte'
 
 	let { Slide, slide }: SlideComponent = $props()
 

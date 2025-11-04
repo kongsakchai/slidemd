@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { browser } from '$app/environment'
+
 import type { SlideConfig } from '$lib/types'
 
 export const defualtSlideConfig: SlideConfig = {

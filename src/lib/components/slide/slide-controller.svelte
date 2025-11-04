@@ -1,7 +1,4 @@
 <script lang="ts">
-	import { defualtSlideConfig, slideConfig } from '$lib/states/config.svelte'
-	import type { SlideController } from '$lib/types'
-
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left'
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right'
 	import ExpandIcon from '@lucide/svelte/icons/expand'
@@ -11,13 +8,15 @@
 	import SlideIcon from '@lucide/svelte/icons/sliders-horizontal'
 	import SunIcon from '@lucide/svelte/icons/sun'
 
-	import { themes } from '@slidemd/themes'
+	import SliderField from '$lib/components/data/slider-field.svelte'
+	import { Button, buttonVariants } from '$lib/components/ui/button'
+	import * as ButtonGroup from '$lib/components/ui/button-group'
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
+	import * as Popover from '$lib/components/ui/popover'
+	import { defualtSlideConfig, slideConfig } from '$lib/states/config.svelte'
+	import type { SlideController } from '$lib/types'
 
-	import SliderField from '../slider-field.svelte'
-	import { Button, buttonVariants } from '../ui/button'
-	import * as ButtonGroup from '../ui/button-group'
-	import * as DropdownMenu from '../ui/dropdown-menu'
-	import * as Popover from '../ui/popover'
+	import { themes } from '@slidemd/themes'
 
 	let { page, maxPage, fullscreen, onnext, onprevious, onfullscreen }: SlideController = $props()
 </script>

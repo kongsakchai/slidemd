@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state'
+
 	import FileItem from '$lib/components/file-item.svelte'
 	import FolderItem from '$lib/components/folder-item.svelte'
 	import Folders from '$lib/components/folder.svelte'
 	import { createContentList } from '$lib/content'
 	import type { File, Folder } from '$lib/types'
+
 	import { markdowns } from '@slidemd/slides'
 
 	const folders = createContentList(markdowns) || []

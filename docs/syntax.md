@@ -2,23 +2,23 @@
 
 ## 🌱 Properties
 
-| Property | Description |
-|----------|-------------|
-| `title` | The title of the slide. |
-| `paging` | Enables or disables slide paging (true/false). |
-| `class` | Custom CSS class for the slide. |
-| `style` | Inline CSS styles for the slide. |
-| `color` | Text color for the slide. |
-| `bgImg` | URL of the bg image. |
-| `bgColor` | bg color of the slide. |
-| `bgSize` | Size of the bg image (e.g., cover, contain). |
-| `bgPosition` | Position of the bg image (e.g., center, top left). |
-| `bgRepeat` | How the bg image should repeat (e.g., no-repeat, repeat). |
-| `transition` | Type of transition effect (e.g., fade, slide). |
-| `in` | Applies the transition effect when the slide is entered. |
-| `out` | Applies the transition effect when the slide is exited. |
-| `duration` | Duration of the transition effect in milliseconds. |
-| `timing` | Timing function for the transition (e.g., ease-in, ease-out). |
+| Property     | Description                                                   |
+| ------------ | ------------------------------------------------------------- |
+| `title`      | The title of the slide.                                       |
+| `paging`     | Enables or disables slide paging (true/false).                |
+| `class`      | Custom CSS class for the slide.                               |
+| `style`      | Inline CSS styles for the slide.                              |
+| `color`      | Text color for the slide.                                     |
+| `bgImg`      | URL of the bg image.                                          |
+| `bgColor`    | bg color of the slide.                                        |
+| `bgSize`     | Size of the bg image (e.g., cover, contain).                  |
+| `bgPosition` | Position of the bg image (e.g., center, top left).            |
+| `bgRepeat`   | How the bg image should repeat (e.g., no-repeat, repeat).     |
+| `transition` | Type of transition effect (e.g., fade, slide).                |
+| `in`         | Applies the transition effect when the slide is entered.      |
+| `out`        | Applies the transition effect when the slide is exited.       |
+| `duration`   | Duration of the transition effect in milliseconds.            |
+| `timing`     | Timing function for the transition (e.g., ease-in, ease-out). |
 
 ### ✨ Usage
 
@@ -46,22 +46,22 @@ timing: ease-in-out
 
 ## 🚀 Directives
 
-| Directives | Description |
-|----------|-------------|
-| `paging` | Enables or disables slide paging (true/false/hold/skip). |
-| `class` | Custom CSS class for the slide. |
-| `style` | Inline CSS styles for the slide. |
-| `color` | Text color for the slide. |
-| `backgroundImg` | URL of the background image. |
-| `backgroundColor` | Background color of the slide. |
-| `backgroundSize` | Size of the background image (e.g., cover, contain). |
-| `backgroundPosition` | Position of the background image (e.g., center, top left). |
-| `backgroundRepeat` | How the background image should repeat (e.g., no-repeat, repeat). |
-| `transition` | Type of transition effect (e.g., fade, slide). |
-| `in` | Applies the transition effect when the slide is entered. |
-| `out` | Applies the transition effect when the slide is exited. |
-| `duration` | Duration of the transition effect in milliseconds. |
-| `timing` | Timing function for the transition (e.g., ease-in, ease-out). |
+| Directives           | Description                                                       |
+| -------------------- | ----------------------------------------------------------------- |
+| `paging`             | Enables or disables slide paging (true/false/hold/skip).          |
+| `class`              | Custom CSS class for the slide.                                   |
+| `style`              | Inline CSS styles for the slide.                                  |
+| `color`              | Text color for the slide.                                         |
+| `backgroundImg`      | URL of the background image.                                      |
+| `backgroundColor`    | Background color of the slide.                                    |
+| `backgroundSize`     | Size of the background image (e.g., cover, contain).              |
+| `backgroundPosition` | Position of the background image (e.g., center, top left).        |
+| `backgroundRepeat`   | How the background image should repeat (e.g., no-repeat, repeat). |
+| `transition`         | Type of transition effect (e.g., fade, slide).                    |
+| `in`                 | Applies the transition effect when the slide is entered.          |
+| `out`                | Applies the transition effect when the slide is exited.           |
+| `duration`           | Duration of the transition effect in milliseconds.                |
+| `timing`             | Timing function for the transition (e.g., ease-in, ease-out).     |
 
 ### ✨ Usage
 
@@ -87,12 +87,12 @@ The first part of the alt text is used to identify the image, and the rest can b
 
 ### Options
 
-| Option | Description |
-|--------|-------------|
-| `w` | Width of the image (e.g., `w:500px`). |
-| `h` | Height of the image (e.g., `h:500px`). |
-| `contain` |  Apply `object-fit: contain;` to the image. |
-| `cover` |  Apply `object-fit: cover;` to the image. |
+| Option    | Description                                |
+| --------- | ------------------------------------------ |
+| `w`       | Width of the image (e.g., `w:500px`).      |
+| `h`       | Height of the image (e.g., `h:500px`).     |
+| `contain` | Apply `object-fit: contain;` to the image. |
+| `cover`   | Apply `object-fit: cover;` to the image.   |
 
 ### Class
 
@@ -110,17 +110,17 @@ You can apply filters to images using the `filter_name:value` syntax. if you usi
 ![image w:500px h:500px blur:10px brightness:1.5 opacity](image.jpg)
 ```
 
-| Filter | Description | default |
-|--------|-------------| --------|
-| `blur` | Applies a blur effect to the image. | 10px |
-| `brightness` | Adjusts the brightness of the image (e.g., `brightness:0.5`). | 1.5 |
-| `contrast` | Adjusts the contrast of the image (e.g., `contrast:0.5`). | 2 |
-| `grayscale` | Converts the image to grayscale (e.g., `grayscale:0.5`). | 1 |
-| `hue-rotate` | Rotates the hue of the image (e.g., `hue-rotate:90deg`). | 180deg |
-| `invert` | Inverts the colors of the image (e.g., `invert:0.5`). | 1 |
-| `opacity` | Adjusts the opacity of the image (e.g., `opacity:0.5`). | 0.5 |
-| `saturate` | Adjusts the saturation of the image (e.g., `saturate:0.5`). | 2 |
-| `sepia` | Applies a sepia effect to the image (e.g., `sepia:0.5`). | 1 |
+| Filter       | Description                                                   | default |
+| ------------ | ------------------------------------------------------------- | ------- |
+| `blur`       | Applies a blur effect to the image.                           | 10px    |
+| `brightness` | Adjusts the brightness of the image (e.g., `brightness:0.5`). | 1.5     |
+| `contrast`   | Adjusts the contrast of the image (e.g., `contrast:0.5`).     | 2       |
+| `grayscale`  | Converts the image to grayscale (e.g., `grayscale:0.5`).      | 1       |
+| `hue-rotate` | Rotates the hue of the image (e.g., `hue-rotate:90deg`).      | 180deg  |
+| `invert`     | Inverts the colors of the image (e.g., `invert:0.5`).         | 1       |
+| `opacity`    | Adjusts the opacity of the image (e.g., `opacity:0.5`).       | 0.5     |
+| `saturate`   | Adjusts the saturation of the image (e.g., `saturate:0.5`).   | 2       |
+| `sepia`      | Applies a sepia effect to the image (e.g., `sepia:0.5`).      | 1       |
 
 ### Background Image
 
@@ -130,11 +130,11 @@ You can also use the image syntax to set a background image for a slide. Use the
 ![image bg w:100% h:100%](background.jpg)
 ```
 
-| Option | Description |
-|--------|-------------|
-| `bg` | Specifies that the image should be used as a background image. |
-| `bg-cover` | Applies `background-size: cover;` to the background image. |
-| `bg-contain` | Applies `background-size: contain;` to the background image. |
+| Option            | Description                                                                     |
+| ----------------- | ------------------------------------------------------------------------------- |
+| `bg`              | Specifies that the image should be used as a background image.                  |
+| `bg-cover`        | Applies `background-size: cover;` to the background image.                      |
+| `bg-contain`      | Applies `background-size: contain;` to the background image.                    |
 | `bg-repeat:value` | Specifies how the background image should repeat (e.g., `bg-repeat:no-repeat`). |
 
 ---
@@ -157,12 +157,12 @@ will be rendered as:
 
 ### Special Attributes
 
-| Attribute | Description |
-|-----------|-------------|
+| Attribute    | Description                                                         |
+| ------------ | ------------------------------------------------------------------- |
 | `transition` | Specifies the transition effect to apply (e.g., `transition:fade`). |
-| `in` | Applies the transition effect when the object is entered. |
-| `out` | Applies the transition effect when the object is exited. |
-| `step` | Specifies the step number for the object (e.g., `step:1`). |
+| `in`         | Applies the transition effect when the object is entered.           |
+| `out`        | Applies the transition effect when the object is exited.            |
+| `step`       | Specifies the step number for the object (e.g., `step:1`).          |
 
 ### Step Attributes
 
@@ -180,8 +180,9 @@ will be rendered as:
 
 ```html
 <section data-steps="3">
-    <h1 data-step="1">Slide Title</h1>
-    <h2 data-step="3">Slide Content</h2> <!-- this will automatically be step 3 -->
-    <h2 data-step="2">Slide Content</h2>
+	<h1 data-step="1">Slide Title</h1>
+	<h2 data-step="3">Slide Content</h2>
+	<!-- this will automatically be step 3 -->
+	<h2 data-step="2">Slide Content</h2>
 </section>
 ```

@@ -2,6 +2,7 @@ import type { Parent, Root } from 'mdast'
 import { unified } from 'unified'
 import { VFile } from 'vfile'
 import { describe, expect, it } from 'vitest'
+
 import { extractFrontmatter, parseSlide } from '.'
 import { Context, RootContext } from './context'
 import {

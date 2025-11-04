@@ -1,5 +1,6 @@
 <script lang="ts">
 	import SlideShow from '$lib/components/slide/slide-show.svelte'
+
 	import { slides } from '@slidemd/slides'
 
 	let { data } = $props()

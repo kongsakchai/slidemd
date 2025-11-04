@@ -10,16 +10,14 @@ tags:
 
 ## Markdown <!-- .hover:bg-red-500 .bg-blue-200 class:font-light="{true}" -->
 
-{currentPage + "Hello"}
-
 This is a simple Markdown file that can be used to test the SlideMD application. You can write your content here, and it will be rendered as slides.
 
 ![cover](/lorem.png)
 
-| Syntax      | Description |
-| - | - |
-| Header      | Title       |
-| Paragraph   | Text        |
+| Syntax    | Description |
+| --------- | ----------- |
+| Header    | Title       |
+| Paragraph | Text        |
 
 ```go
 package main
@@ -38,6 +36,7 @@ import "fmt"
 Make Presentation by Markdown
 
 {#each Array.from({ length: 10 }) as i}
+
  <p>Item {i}</p>
 {/each}
 
@@ -64,8 +63,8 @@ Make Presentation by Markdown
 I really like using Markdown.I think I'll use it to format all of my documents from now on.
 I just love **bold text**.
 
-Italicized text is the *cat's meow*.
-This text is ***really important***.
+Italicized text is the _cat's meow_.
+This text is **_really important_**.
 
 ---
 

@@ -5,7 +5,7 @@ import {
 	transformerNotationHighlight
 } from '@shikijs/transformers'
 import type { RootContent } from 'hast'
-import { createHighlighter, createOnigurumaEngine, type BundledLanguage } from 'shiki'
+import { type BundledLanguage, createHighlighter, createOnigurumaEngine } from 'shiki'
 
 const shikiOptions = {
 	themes: {

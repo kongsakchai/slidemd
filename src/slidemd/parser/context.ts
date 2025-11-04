@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Parent, Root } from 'mdast'
 import { VFile } from 'vfile'
+
 import type { Attribuites } from './types'
 
 export class Context {

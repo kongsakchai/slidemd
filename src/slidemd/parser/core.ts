@@ -4,6 +4,7 @@ import type { Node, Parent, Root, RootContent } from 'mdast'
 import type { Plugin } from 'unified'
 import { remove } from 'unist-util-remove'
 import { EXIT, visit } from 'unist-util-visit'
+
 import { Context, RootContext } from './context'
 import { highlightHast } from './shiki'
 import type { Attribuites, CodeToHighlight, ImageAttributes } from './types'

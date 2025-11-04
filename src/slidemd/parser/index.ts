@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm'
 import markdown from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
+
 import type { SlideContentInfo } from '../types'
 import { remarkSlideMD } from './core'
 

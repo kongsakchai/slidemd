@@ -1,10 +1,10 @@
 <script lang="ts">
 	import ReloadIcon from '@lucide/svelte/icons/rotate-ccw'
 
-	import { Button } from './ui/button'
-	import { Input } from './ui/input'
-	import { Label } from './ui/label'
-	import { Slider } from './ui/slider'
+	import { Button } from '$lib/components/ui/button'
+	import { Input } from '$lib/components/ui/input'
+	import { Label } from '$lib/components/ui/label'
+	import { Slider } from '$lib/components/ui/slider'
 
 	interface Props {
 		title: string
