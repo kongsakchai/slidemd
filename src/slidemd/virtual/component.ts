@@ -1,17 +1,25 @@
-import type { SlideMD } from '../types'
+import { extractFrontmatter, parseSlide } from '../parser'
+import type { SlideContentInfo, SlideMD } from '../types'
+import { readMarkdown, writeToCache } from '../utils'
 import type { VirtualModule } from './types'
 
+export const resolveComponentId = (src: string) => `@slidemd/components/${src}.svelte`
+
 export const createSlideComponent = (src: string): VirtualModule => {
-	const resolveId = `@slidemd/components/${src}.svelte`
+	const resolveId = resolveComponentId(src)
 
 	return {
 		id: resolveId,
 		async getContent() {
-			const markdown = this.read(src)
-			const { body, metadata } = this.extract(markdown.raw)
-			const title = metadata['title'] || 'Slide MD 🚀'
-			const slides = await this.parse(body, metadata)
+			const markdown = readMarkdown(src)
 
+			const { body, metadata } = extractFrontmatter(markdown.raw)
+
+			const slides = await parseSlide(body, metadata).catch(() => {
+				return [] as SlideContentInfo[]
+			})
+
+			const title = metadata['title'] || 'Slide MD 🚀'
 			const pages = slides.map((s) => s.content)
 
 			const meta: SlideMD = {
@@ -26,7 +34,7 @@ export const createSlideComponent = (src: string): VirtualModule => {
 
 			const components = [
 				`<script lang="ts" module>`,
-				`export const meta = ${JSON.stringify(meta)}`,
+				`export const slide = ${JSON.stringify(meta)}`,
 				`</script>`,
 				`<script lang="ts">`,
 				`import { copyCode } from '$lib/actions/copy-code'`,
@@ -37,7 +45,7 @@ export const createSlideComponent = (src: string): VirtualModule => {
 			].join('\n')
 
 			// 🔥 Sync file
-			this.write(resolveId, components)
+			writeToCache(resolveId, components)
 
 			return components
 		}

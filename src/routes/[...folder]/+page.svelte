@@ -3,13 +3,15 @@
 	import FileItem from '$lib/components/file-item.svelte'
 	import FolderItem from '$lib/components/folder-item.svelte'
 	import Folders from '$lib/components/folder.svelte'
+	import { createContentList } from '$lib/content'
 	import type { File, Folder } from '$lib/types'
+	import { markdowns } from '@slidemd/slides'
 
-	let { data } = $props()
+	const folders = createContentList(markdowns) || []
 
 	const folder = $derived.by(() => {
 		const pathSplit = page.params.folder?.split('/') || []
-		let folder = data.contentList as Folder
+		let folder = folders
 
 		for (let i = 0; i < pathSplit.length; i++) {
 			const key = pathSplit[i]

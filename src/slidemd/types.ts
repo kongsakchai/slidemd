@@ -23,14 +23,11 @@ export interface SlideMD {
 
 export interface Theme {
 	name: string
-	builtin: boolean
+	builtin?: boolean
 }
 
 export interface Context {
-	markdowns: () => string[]
-	css: () => { css: string[]; builtin: string[] }
-	read: (filepath: string) => Markdown
-	write: (filepath: string, content: string) => void
-	extract: (markdown: string) => { body: string; metadata: Record<string, any> }
-	parse: (markdown: string, properties: Record<string, any>) => Promise<SlideContentInfo[]>
+	markdowns?: string[]
+	css?: string[]
+	builtinCSS: string[]
 }

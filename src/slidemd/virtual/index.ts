@@ -1,4 +1,4 @@
 export * from './component'
-export * from './config'
 export * from './slides'
+export * from './theme'
 export * from './types'

@@ -1,81 +1,48 @@
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs'
-import path from 'path'
-import { env } from 'process'
+import { readdirSync } from 'fs'
 import type { Plugin, ViteDevServer } from 'vite'
-import { extractFrontmatter, parseSlide } from './parser'
-import type { Context, Markdown } from './types'
+import { BUILTIN_PATH, SLIDE_PATH } from './env'
+import { cssFilter, markdownFilter, relativeAsset, resolveAsset, resolveBuiltin } from './utils'
 import * as virtual from './virtual'
 
-const assetspath = path.resolve(env.SLIDEMD_PATH || 'src/examples')
-const cachepath = path.resolve('.slidemd-cache')
-const builtinpath = path.resolve('src/builtin')
-
-const markdownFilter = (d: string) => /\.md$/.test(d) && !/^\.|\/\./.test(d)
-const cssFilter = (d: string) => /\.css$/.test(d) && !/^\.|\/\./.test(d) && /^themes\//.test(d)
-const resolvePath = (d: string) => path.join(assetspath, d)
-
 export const slideMD = async (): Promise<Plugin> => {
-	let builtinAssets: string[] = []
-	let builtinCSS: string[] = []
+	const modules: Record<string, virtual.VirtualModule> = {}
+	modules[virtual.slide.id] = virtual.slide
+	modules[virtual.theme.id] = virtual.theme
 
-	let assets: string[] = []
-	let modules: Record<string, virtual.VirtualModule> = {}
-	let sources: Record<string, string> = {}
-
+	let components: Record<string, virtual.VirtualModule> = {}
 	let markdowns: string[] = []
 	let css: string[] = []
+	let builtinCSS: string[] = []
 
-	function load() {
-		builtinAssets = readdirSync(builtinpath, { recursive: true, encoding: 'utf-8' })
-		builtinCSS = builtinAssets.filter(cssFilter).map((src) => path.join(builtinpath, src))
-
-		assets = readdirSync(assetspath, { recursive: true, encoding: 'utf-8' })
-		markdowns = assets.filter(markdownFilter)
-		css = assets.filter(cssFilter).map(resolvePath)
-
-		modules = {}
-		sources = {}
-		markdowns.forEach((src) => {
-			const module = virtual.createSlideComponent(src)
-			modules[module.id] = module
-			sources[resolvePath(src)] = module.id
-		})
-
-		env.SLIDEMD_LIST = markdowns.join(',')
+	function loadBuiltin() {
+		const builtin = readdirSync(BUILTIN_PATH, { recursive: true, encoding: 'utf-8' })
+		builtinCSS = builtin.filter(cssFilter).map(resolveBuiltin)
 	}
 
-	function reloadModule(server: ViteDevServer, id: string, before?: () => void) {
-		const module = server.moduleGraph.getModuleById(id)
+	function loadSlides() {
+		const assets = readdirSync(SLIDE_PATH, { recursive: true, encoding: 'utf-8' })
+		markdowns = assets.filter(markdownFilter)
+		css = assets.filter(cssFilter).map(resolveAsset)
+
+		components = Object.fromEntries(
+			markdowns.map((src) => {
+				const module = virtual.createSlideComponent(src)
+				return [module.id, module]
+			})
+		)
+
+		process.env.SLIDES = markdowns.join(',')
+	}
+
+	function reloadModule(server: ViteDevServer, id?: string) {
+		const module = server.moduleGraph.getModuleById(id || '')
 		if (module) {
-			before?.()
 			server.reloadModule(module)
 		}
 	}
 
-	function read(src: string): Markdown {
-		const raw = readFileSync(resolvePath(src), { encoding: 'utf-8' })
-		return {
-			filepath: src,
-			raw
-		}
-	}
-
-	function write(filepath: string, content: string) {
-		const writepath = path.join(cachepath, filepath)
-		mkdirSync(path.dirname(writepath), { recursive: true })
-		writeFileSync(writepath, content)
-	}
-
-	const context: Context = {
-		markdowns: () => markdowns,
-		css: () => ({ css, builtin: builtinCSS }),
-		read,
-		write,
-		extract: extractFrontmatter,
-		parse: parseSlide
-	}
-
-	load()
+	loadBuiltin()
+	loadSlides()
 
 	return {
 		name: 'SlideMD',
@@ -83,15 +50,11 @@ export const slideMD = async (): Promise<Plugin> => {
 		resolveId: {
 			order: 'pre',
 			handler(id) {
-				if (virtual.slide.id === id) {
-					return id
-				}
-
-				if (virtual.config.id === id) {
-					return id
-				}
-
 				if (modules[id]) {
+					return id
+				}
+
+				if (components[id]) {
 					return id
 				}
 			}
@@ -99,36 +62,38 @@ export const slideMD = async (): Promise<Plugin> => {
 
 		configureServer(server) {
 			const updateSlide = () => {
-				reloadModule(server, virtual.slide.id, load)
+				loadBuiltin()
+				loadSlides()
+
+				reloadModule(server, virtual.theme.id)
+				reloadModule(server, virtual.slide.id)
 			}
 
-			server.watcher.add(path.join(assetspath))
+			server.watcher.add(SLIDE_PATH)
 			server.watcher.on('add', updateSlide)
 			server.watcher.on('unlink', updateSlide)
 		},
 
 		async load(id) {
-			if (virtual.slide.id === id) {
-				return virtual.slide.getContent.call(context)
+			const module = modules[id]
+			if (module) {
+				const data = await module.getContent({ markdowns, css, builtinCSS })
+				return data
 			}
 
-			if (virtual.config.id === id) {
-				return virtual.config.getContent.call(context)
-			}
-
-			if (modules[id]) {
-				return await modules[id].getContent.call(context)
+			const component = components[id]
+			if (component) {
+				return await component.getContent()
 			}
 		},
 
 		handleHotUpdate({ file, server }) {
-			const filepath = path.relative(assetspath, file)
-			if (filepath.endsWith('.md') && sources[filepath]) {
-				reloadModule(server, sources[filepath])
-			}
+			const filepath = relativeAsset(file)
 
-			if (filepath.endsWith('.css')) {
-				reloadModule(server, virtual.config.id)
+			if (filepath.endsWith('.md')) {
+				const id = virtual.resolveComponentId(filepath)
+				const component = components[id]
+				reloadModule(server, component.id)
 			}
 		}
 	}

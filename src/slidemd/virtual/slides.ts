@@ -1,19 +1,20 @@
+import type { Context } from '../types'
 import type { VirtualModule } from './types'
 
 export const slide: VirtualModule = {
 	id: '@slidemd/slides',
-	getContent() {
-		const imports: string[] = []
-		const slides: string[] = []
-		const markdowns = this.markdowns()
+	getContent(ctx?: Context) {
+		const markdowns = ctx?.markdowns || []
 
-		markdowns.forEach((src, i) => {
-			imports.push(`import Slide_${i}, {meta as Data_${i}} from '@slidemd/components/${src}.svelte'`)
-			slides.push(`"${src}":{ component:Slide_${i}, data:Data_${i} },`)
+		const slides: string[] = []
+		markdowns.forEach((src) => {
+			slides.push(`"${src}": async() => {`)
+			slides.push(`const slide = await import('@slidemd/components/${src}.svelte')`)
+			slides.push(`return { Slide:slide.default, slide:slide.slide }`)
+			slides.push(`},`)
 		})
 
 		return [
-			...imports,
 			`export const slides = {`,
 			...slides,
 			`}`,
