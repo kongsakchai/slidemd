@@ -27,6 +27,7 @@ export interface SlideController {
 	page: number
 	maxPage: number
 	fullscreen: boolean
+	zoom?: number
 
 	onnext?: () => void
 	onprevious?: () => void

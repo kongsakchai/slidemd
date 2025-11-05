@@ -3,16 +3,16 @@ import { browser } from '$app/environment'
 
 import type { SlideConfig } from '$lib/types'
 
-export const defualtSlideConfig: SlideConfig = {
+export const defaultSlideConfig: SlideConfig = {
 	theme: 'default',
 	aspect: '16:9',
-	scale: 1,
+	scale: 100,
 	fontSize: 16,
 	size: 1280,
 	dark: false
 }
 
-export const slideConfig = $state<SlideConfig>(defualtSlideConfig)
+export const slideConfig = $state<SlideConfig>(defaultSlideConfig)
 
 export const loadSlideConfig = () => {
 	if (browser) {

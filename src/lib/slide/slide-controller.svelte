@@ -7,19 +7,39 @@
 	import ShrinkIcon from '@lucide/svelte/icons/shrink'
 	import SlideIcon from '@lucide/svelte/icons/sliders-horizontal'
 	import SunIcon from '@lucide/svelte/icons/sun'
+	import ZoomIcon from '@lucide/svelte/icons/zoom-in'
 
-	import SliderField from '$lib/components/data/slider-field.svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import * as ButtonGroup from '$lib/components/ui/button-group'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
 	import * as Popover from '$lib/components/ui/popover'
-	import { defualtSlideConfig, slideConfig } from '$lib/states/config.svelte'
+	import { defaultSlideConfig, slideConfig } from '$lib/states/config.svelte'
 	import type { SlideController } from '$lib/types'
 
 	import { themes } from '@slidemd/themes'
 
-	let { page, maxPage, fullscreen, onnext, onprevious, onfullscreen }: SlideController = $props()
+	import Slider from './slider.svelte'
+
+	let {
+		page,
+		maxPage,
+		fullscreen,
+		onnext,
+		onprevious,
+		onfullscreen,
+		zoom = $bindable(100)
+	}: SlideController = $props()
 </script>
+
+{#snippet themeItem(name: string, builtin: boolean)}
+	<DropdownMenu.Item onclick={() => (slideConfig.theme = name)}>
+		<span class:text-primary={name === slideConfig.theme}>{name}</span>
+
+		{#if builtin}
+			<DropdownMenu.Shortcut>builtin</DropdownMenu.Shortcut>
+		{/if}
+	</DropdownMenu.Item>
+{/snippet}
 
 <section class=" fixed bottom-0 left-0 z-50 flex w-full p-5 transition-opacity duration-500 hover:opacity-100">
 	<ButtonGroup.Root>
@@ -33,6 +53,10 @@
 			<Button variant="outline" size="icon-lg" aria-label="next" onclick={onnext}>
 				<ArrowRightIcon />
 			</Button>
+		</ButtonGroup.Root>
+
+		<ButtonGroup.Root>
+			<!-- Fullscreen -->
 			<Button variant="outline" size="icon-lg" aria-label="next" onclick={onfullscreen}>
 				{#if fullscreen}
 					<ShrinkIcon />
@@ -40,9 +64,20 @@
 					<ExpandIcon />
 				{/if}
 			</Button>
+
+			<!-- Zoom -->
+			<Popover.Root>
+				<Popover.Trigger class={buttonVariants({ variant: 'outline', size: 'icon-lg' })} aria-label="zoom">
+					<ZoomIcon />
+				</Popover.Trigger>
+				<Popover.Content class="flex flex-col gap-2 p-2" side="top" align="center" sideOffset={8}>
+					<Slider id="zoom" min={100} max={500} step={1} default={100} unit="%" bind:value={zoom} />
+				</Popover.Content>
+			</Popover.Root>
 		</ButtonGroup.Root>
 
 		<ButtonGroup.Root>
+			<!-- Dark Mode -->
 			<Button
 				variant="outline"
 				size="icon-lg"
@@ -68,18 +103,9 @@
 				<DropdownMenu.Content class="w-56" align="start">
 					<DropdownMenu.Label>Themes</DropdownMenu.Label>
 					<DropdownMenu.Group>
-						<DropdownMenu.Item onclick={() => (slideConfig.theme = 'default')}>
-							<span class:text-primary={'default' === slideConfig.theme}>default</span>
-							<DropdownMenu.Shortcut>builtin</DropdownMenu.Shortcut>
-						</DropdownMenu.Item>
+						{@render themeItem('default', true)}
 						{#each themes as theme}
-							<DropdownMenu.Item onclick={() => (slideConfig.theme = theme.name)}>
-								<span class:text-primary={theme.name === slideConfig.theme}>{theme.name}</span>
-
-								{#if theme.builtin}
-									<DropdownMenu.Shortcut>builtin</DropdownMenu.Shortcut>
-								{/if}
-							</DropdownMenu.Item>
+							{@render themeItem(theme.name, !!theme.builtin)}
 						{/each}
 					</DropdownMenu.Group>
 				</DropdownMenu.Content>
@@ -90,32 +116,35 @@
 				<Popover.Trigger class={buttonVariants({ variant: 'outline', size: 'icon-lg' })} aria-label="setting">
 					<SlideIcon />
 				</Popover.Trigger>
-				<Popover.Content class="flex w-90 flex-col gap-4" side="top" align="start">
-					<SliderField
+				<Popover.Content class="flex flex-col gap-2 p-2 w-80" side="top" align="center" sideOffset={8}>
+					<Slider
 						title="Font Size"
 						id="font-size"
 						min={10}
 						max={64}
 						step={1}
-						default={defualtSlideConfig.fontSize}
+						default={defaultSlideConfig.fontSize}
+						unit="px"
 						bind:value={slideConfig.fontSize}
 					/>
-					<SliderField
-						title="Size"
-						id="size"
+					<Slider
+						title="Slide Size"
+						id="slide-size"
 						min={300}
 						max={2048}
 						step={1}
-						default={defualtSlideConfig.size}
+						unit="px"
+						default={defaultSlideConfig.size}
 						bind:value={slideConfig.size}
 					/>
-					<SliderField
-						title="Scale"
-						id="scale"
-						min={0.1}
-						max={1}
-						step={0.05}
-						default={defualtSlideConfig.scale}
+					<Slider
+						title="Slide Scale"
+						id="slide-scale"
+						min={10}
+						max={100}
+						step={1}
+						unit="%"
+						default={defaultSlideConfig.scale}
 						bind:value={slideConfig.scale}
 					/>
 				</Popover.Content>

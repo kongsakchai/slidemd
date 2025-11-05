@@ -1,5 +1,4 @@
 <script lang="ts">
-	import mermaid from 'mermaid'
 	import { onMount } from 'svelte'
 
 	import { replaceState } from '$app/navigation'
@@ -11,7 +10,7 @@
 	import type { SlideComponent } from '@slidemd/slides'
 
 	import SlideContainer from './slide-container.svelte'
-	import Controller from './slide-controller.svelte'
+	import SlideController from './slide-controller.svelte'
 
 	let { Slide, slide }: SlideComponent = $props()
 
@@ -20,16 +19,19 @@
 	let stepCount = $derived(slide?.slides[currentPage - 1]?.step || 0)
 	let fullscreen = $state(false)
 
+	let zoom = $state(100)
+	let onhold = $state(false)
+
 	onMount(async () => {
 		if (currentPage == 0) {
 			currentPage = 1
 		}
-		mermaid.initialize({
-			theme: 'default',
-			htmlLabels: false,
-			fontFamily: 'mali'
-		})
-		mermaid.run().then(() => console.log('Mermaid diagrams rendered'))
+		// mermaid.initialize({
+		// 	theme: 'default',
+		// 	htmlLabels: false,
+		// 	fontFamily: 'mali'
+		// })
+		// mermaid.run().then(() => console.log('Mermaid diagrams rendered'))
 	})
 
 	const onnext = () => {
@@ -67,12 +69,24 @@
 	<title>{slide?.title}</title>
 </svelte:head>
 
-<svelte:document onfullscreenchange={() => (fullscreen = document.fullscreenElement !== null)} />
+<svelte:document
+	onmousedown={() => (onhold = true)}
+	onmouseup={() => (onhold = false)}
+	onfullscreenchange={() => (fullscreen = document.fullscreenElement !== null)}
+/>
 
-<SlideContainer>
+<SlideContainer {zoom}>
 	<Slide {currentPage} />
 </SlideContainer>
 
-<Controller page={currentPage} maxPage={slide?.slides.length || 0} {fullscreen} {onnext} {onprevious} {onfullscreen} />
+<SlideController
+	page={currentPage}
+	maxPage={slide?.slides.length || 0}
+	{fullscreen}
+	{onnext}
+	{onprevious}
+	{onfullscreen}
+	bind:zoom
+/>
 
 <PreviewImage />
