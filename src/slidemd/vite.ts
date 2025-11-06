@@ -1,7 +1,7 @@
-import { readdirSync } from 'fs'
+import { readdirSync, rmSync } from 'fs'
 import type { Plugin, ViteDevServer } from 'vite'
 
-import { BUILTIN_PATH, SLIDE_PATH } from './env'
+import { BUILTIN_PATH, CACHE_PATH, SLIDE_PATH } from './env'
 import { cssFilter, markdownFilter, relativeAsset, resolveAsset, resolveBuiltin } from './utils'
 import * as virtual from './virtual'
 
@@ -42,12 +42,17 @@ export const slideMD = async (): Promise<Plugin> => {
 		}
 	}
 
-	loadBuiltin()
-	loadSlides()
-
 	return {
 		name: 'SlideMD',
 		enforce: 'pre',
+
+		config() {
+			// clear cache
+			rmSync(CACHE_PATH, { force: true, recursive: true })
+			loadBuiltin()
+			loadSlides()
+		},
+
 		resolveId: {
 			order: 'pre',
 			handler(id) {
