@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { panzoom } from '$lib/actions/pan.svelte'
 	import { slideConfig } from '$lib/states/config.svelte'
 
 	const ASPECT_RATIO: Record<string, number> = {
@@ -24,12 +25,14 @@
 <svelte:body bind:clientWidth={bodyWidth} bind:clientHeight={bodyHeight} />
 
 <div
-	class="absolute top-1/2 left-1/2 flex -translate-1/2 flex-col overflow-scroll"
+	class="absolute top-1/2 left-1/2 flex -translate-1/2 overflow-hidden"
 	style:font-size={slideConfig.fontSize + 'px'}
 	class:rounded-2xl={slideConfig.scale !== 100}
 	style:width="{slideConfig.size}px"
 	style:height="{slideConfig.size / aspect}px"
 	style:scale={(scale * slideConfig.scale) / 100}
 >
-	{@render children()}
+	<div class="w-full h-full overflow-scroll bg-background" style:scale={zoom / 100} use:panzoom={() => zoom / 100}>
+		{@render children()}
+	</div>
 </div>

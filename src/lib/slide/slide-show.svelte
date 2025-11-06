@@ -35,6 +35,7 @@
 	})
 
 	const onnext = () => {
+		zoom = 100
 		if (currentStep < stepCount) {
 			currentStep += 1
 		} else if (currentPage < (slide?.slides.length || 0)) {
@@ -46,6 +47,7 @@
 	}
 
 	const onprevious = () => {
+		zoom = 100
 		if (currentStep > 0) {
 			currentStep -= 1
 		} else if (currentPage > 1) {
