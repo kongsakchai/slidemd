@@ -3,17 +3,18 @@ import { resolveAll } from 'micromark-util-resolve-all'
 import { codes } from 'micromark-util-symbol'
 import type { Code, Effects, Event, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
+// Highlight extension for micromark; converts token sequences of `==` into highlight tokens
 export const highligh = (): Extension => {
 	const tokenizer = {
 		name: 'highlight',
-		tokenize: tokenizerHighlight,
-		resolveAll: resolveAllHighlight
+		tokenize: tokenizerHighlight, // tokenizer for `==` sequences
+		resolveAll: resolveAllHighlight // resolve all `==` sequences to highlight tokens
 	}
 
 	return {
-		text: { [codes.equalsTo]: tokenizer },
-		insideSpan: { null: [tokenizer] },
-		attentionMarkers: { null: [codes.equalsTo] }
+		text: { [codes.equalsTo]: tokenizer }, // trigger tokenizer when `=` is found in inline text
+		insideSpan: { null: [tokenizer] }, // allow tokenizer inside spans (e.g., emphasis, strong)
+		attentionMarkers: { null: [codes.equalsTo] } // allow `=` as an attention marker (e.g., for emphasis)
 	}
 
 	function tokenizerHighlight(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
@@ -45,6 +46,7 @@ export const highligh = (): Extension => {
 	function resolveAllHighlight(events: Event[], context: TokenizeContext) {
 		for (let open = 0; open < events.length; open++) {
 			// find open
+			// <enter>highlightSequenceTemp<exit>(open) ..some text... <enter>highlightSequenceTemp<exit>(close)
 			if (events[open][0] === 'exit' && events[open][1].type === 'highlightSequenceTemp') {
 				// walk next
 				for (let close = open + 1; close < events.length; close++) {
@@ -96,6 +98,7 @@ export const highligh = (): Extension => {
 	}
 }
 
+// FromMarkdown extension to convert highlight tokens into MDAST nodes
 export const highlightFromMarkdown = (): FromMarkdownExtension => {
 	return {
 		canContainEols: ['highlight'],

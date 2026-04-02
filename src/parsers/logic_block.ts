@@ -18,7 +18,7 @@ export const svelteLogicBlock = (): Extension => {
 	const createTokenizerLogic = (inline?: boolean): Construct => ({
 		name: 'html',
 		tokenize: createTokenizerLogicBlock(inline),
-		concrete: true
+		concrete: !inline
 	})
 
 	return {
@@ -54,10 +54,10 @@ export const svelteLogicBlock = (): Extension => {
 
 			function open(code: Code) {
 				switch (code) {
-					case codes.leftCurlyBrace:
-						if (!inline) break
-						dataFlowType = 'inlineCode'
-						enteredToken.type = 'inlineCode'
+					// case codes.leftCurlyBrace:
+					// 	if (!inline) break
+					// 	dataFlowType = 'inlineCode'
+					// 	enteredToken.type = 'inlineCode'
 					case codes.numberSign: // #if, #each, #key, #await, #snippet
 					case codes.atSign: // @render, @html, @const, @debug
 					case codes.colon: // :else, :then, :catch, :final
@@ -65,7 +65,13 @@ export const svelteLogicBlock = (): Extension => {
 						return more(code)
 				}
 
-				return nok(code)
+				if (!inline) return nok(code)
+
+				dataFlowType = 'inlineCode'
+				enteredToken.type = 'inlineCode'
+
+				return more(code)
+				// return nok(code)
 			}
 
 			function more(code: Code) {
@@ -133,11 +139,12 @@ export const inlineCodeFromMarkdown = (): FromMarkdownExtension => {
 	}
 
 	function enterToken(this: CompileContext, token: Token) {
+		console.log('enterToken', token.type, `"${this.sliceSerialize(token)}"`)
 		const node = this.stack[this.stack.length - 1]
 		if ('children' in node) {
 			const children = node.children as RootContent[]
 			const text = { type: 'text', value: '', position: token } as Text
-			text.value = this.sliceSerialize(token).slice(1, -1)
+			text.value = this.sliceSerialize(token)
 			children.push(text)
 		}
 	}

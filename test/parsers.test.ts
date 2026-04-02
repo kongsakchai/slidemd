@@ -275,8 +275,11 @@ describe('extended syntax', () => {
 			let file = await processor.process(`hello, ==markdown==`)
 			expect(file.value).toEqual('<p>hello, <mark>markdown</mark></p>')
 
-			file = await processor.process(`hello, ===markdown===`)
-			expect(file.value).toEqual('<p>hello, =<mark>markdown=</mark></p>')
+			let file2 = await processor.process(`hello, ===markdown===`)
+			expect(file2.value).toEqual('<p>hello, =<mark>markdown=</mark></p>')
+
+			let file3 = await processor.process(`hello, ==\nmarkdown==`)
+			expect(file3.value).toEqual('<p>hello, <mark>\nmarkdown</mark></p>')
 		})
 
 		it('should return highlight with other syntax', async () => {
@@ -417,6 +420,13 @@ describe('svelte syntax', () => {
 			expect(file.value).toEqual('<h1>hello <img src={src} /></h1>')
 		})
 
+		it('inline html with multiple line', async () => {
+			const processor = initProcessor()
+
+			const file = await processor.process('hello <img\nsrc={src} />')
+			expect(file.value).toEqual('<p>hello <img\nsrc={src} /></p>')
+		})
+
 		it('should return invalid html', async () => {
 			const processor = initProcessor()
 
@@ -447,28 +457,28 @@ describe('svelte syntax', () => {
 			expect(file.value).toEqual('<h1>title <img {src} alt="{name} dances." /></h1>')
 		})
 
-		it('should return html tag', async () => {
+		it('should return html block', async () => {
 			const processor = initProcessor()
 
 			const file = await processor.process('{@html variable}')
 			expect(file.value).toEqual('{@html variable}')
 		})
 
-		it('should return inline html tag', async () => {
+		it('should return inline html block', async () => {
 			const processor = initProcessor()
 
 			const file = await processor.process('hello {@html variable} markdown')
 			expect(file.value).toEqual('<p>hello {@html variable} markdown</p>')
 		})
 
-		it('should return inline html tag in two line', async () => {
+		it('should return inline html block in two line', async () => {
 			const processor = initProcessor()
 
 			const file = await processor.process('hello {@html \nvariable} markdown')
 			expect(file.value).toEqual('<p>hello {@html \nvariable} markdown</p>')
 		})
 
-		it('should return inline html tag and multiple line', async () => {
+		it('should return inline html block and multiple line', async () => {
 			const processor = initProcessor()
 
 			const file = await processor.process('hello {@html \n\nvariable} markdown')
@@ -499,22 +509,22 @@ describe('svelte syntax', () => {
 		it('should return paragraph and variable', async () => {
 			const processor = initProcessor()
 
-			const file = await processor.process('{{variable}}')
+			const file = await processor.process('{variable}')
 			expect(file.value).toEqual('<p>{variable}</p>')
 		})
 
 		it('should return paragraph and ternary', async () => {
 			const processor = initProcessor()
 
-			const file = await processor.process('Age is: {{variable >= 0 ? "\\"OLD\\"":"YOUNG"}}')
+			const file = await processor.process('Age is: {variable >= 0 ? "\\"OLD\\"":"YOUNG"}')
 			expect(file.value).toEqual('<p>Age is: {variable >= 0 ? "\\"OLD\\"":"YOUNG"}</p>')
 		})
 
 		it('should return logic with multiple line', async () => {
 			const processor = initProcessor()
 
-			const file = await processor.process('Age is: {{variable >= 0 \n?\n "\\"OLD\\""\n:"YOUNG"}}')
-			expect(file.value).toEqual('<p>Age is: {variable >= 0 ? "\\"OLD\\"":"YOUNG"}</p>')
+			const file = await processor.process('Age is: {variable >= 0 \n?\n "\\"OLD\\""\n:"YOUNG"}')
+			expect(file.value).toEqual('<p>Age is: {variable >= 0 \n?\n"\\"OLD\\""\n:"YOUNG"}</p>')
 		})
 	})
 })

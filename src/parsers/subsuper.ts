@@ -3,6 +3,7 @@ import { resolveAll } from 'micromark-util-resolve-all'
 import { codes, types } from 'micromark-util-symbol'
 import type { Code, Effects, Event, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
+// Subscript extension for micromark; converts token sequences of `~` into subscript tokens
 export const subscript = (): Extension => {
 	const tokenizer = {
 		name: 'subscript',
@@ -11,9 +12,9 @@ export const subscript = (): Extension => {
 	}
 
 	return {
-		text: { [codes.tilde]: tokenizer },
-		insideSpan: { null: [tokenizer] },
-		attentionMarkers: { null: [codes.tilde] }
+		text: { [codes.tilde]: tokenizer }, // trigger tokenizer when `~` is found in inline text
+		insideSpan: { null: [tokenizer] }, // allow tokenizer inside spans (e.g., emphasis, strong)
+		attentionMarkers: { null: [codes.tilde] } // allow `~` as an attention marker (e.g., for emphasis)
 	}
 
 	function tokenizerSubscript(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
@@ -25,6 +26,7 @@ export const subscript = (): Extension => {
 		function start(code: Code) {
 			if (code != codes.tilde) return nok(code)
 
+			// Prevent subscript if the previous character is `~` and it is not escaped (to allow for literal `~` characters)
 			if (previous === codes.tilde && events[events.length - 1][1].type !== types.characterEscape) {
 				return nok(code)
 			}
@@ -51,6 +53,7 @@ export const subscript = (): Extension => {
 	function resolveAllSubscript(events: Event[], context: TokenizeContext) {
 		for (let open = 0; open < events.length; open++) {
 			// find open
+			// <enter>subscriptSequenceTemp<exit>(open) ..some text... <enter>subscriptSequenceTemp<exit>(close)
 			if (events[open][0] === 'exit' && events[open][1].type === 'subscriptSequenceTemp') {
 				// walk next
 				for (let close = open + 1; close < events.length; close++) {
@@ -102,6 +105,7 @@ export const subscript = (): Extension => {
 	}
 }
 
+// FromMarkdown extension to convert subscript tokens into MDAST nodes
 export const subscriptFromMarkdown = (): FromMarkdownExtension => {
 	return {
 		canContainEols: ['subscript'],
@@ -127,6 +131,7 @@ export const subscriptFromMarkdown = (): FromMarkdownExtension => {
 	}
 }
 
+// Subscript extension for micromark; converts token sequences of `^` into superscript tokens
 export const superscript = (): Extension => {
 	const tokenizer = {
 		name: 'superscript',
@@ -135,9 +140,9 @@ export const superscript = (): Extension => {
 	}
 
 	return {
-		text: { [codes.caret]: tokenizer },
-		insideSpan: { null: [tokenizer] },
-		attentionMarkers: { null: [codes.caret] }
+		text: { [codes.caret]: tokenizer }, // trigger tokenizer when `^` is found in inline text
+		insideSpan: { null: [tokenizer] }, // allow tokenizer inside spans (e.g., emphasis, strong)
+		attentionMarkers: { null: [codes.caret] } // allow `^` as an attention marker (e.g., for emphasis)
 	}
 
 	function tokenizerSuperscript(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
@@ -175,6 +180,7 @@ export const superscript = (): Extension => {
 	function resolveAllSuperscript(events: Event[], context: TokenizeContext) {
 		for (let open = 0; open < events.length; open++) {
 			// find open
+			// <enter>superscriptSequenceTemp<exit>(open) ..some text... <enter>superscriptSequenceTemp<exit>(close)
 			if (events[open][0] === 'exit' && events[open][1].type === 'superscriptSequenceTemp') {
 				// walk next
 				for (let close = open + 1; close < events.length; close++) {
@@ -226,6 +232,7 @@ export const superscript = (): Extension => {
 	}
 }
 
+// FromMarkdown extension to convert superscript tokens into MDAST nodes
 export const superscriptFromMarkdown = (): FromMarkdownExtension => {
 	return {
 		canContainEols: ['superscript'],

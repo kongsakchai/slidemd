@@ -1,5 +1,5 @@
 import { codes, types } from 'micromark-util-symbol'
-import type { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
+import type { Code, Construct, Effects, Extension, State, TokenizeContext, TokenType } from 'micromark-util-types'
 
 enum BlockType {
 	Unknow = 0,
@@ -51,15 +51,15 @@ export const htmlBlock = (): Extension => {
 	const createTokenizerHTML = (inline?: boolean): Construct => ({
 		name: 'html',
 		tokenize: createTokenizerHTMLBlock(inline),
-		concrete: true
+		concrete: !inline
 	})
 
 	return {
 		flow: {
-			[codes.lessThan]: createTokenizerHTML()
+			[codes.lessThan]: createTokenizerHTML() // trigger tokenizer when `<` is found at the start of a line (flow context)
 		},
 		text: {
-			[codes.lessThan]: createTokenizerHTML(true)
+			[codes.lessThan]: createTokenizerHTML(true) // trigger tokenizer when `<` is found in inline text (text context)
 		}
 	}
 
@@ -68,6 +68,9 @@ export const htmlBlock = (): Extension => {
 			let buf = ''
 			let type = 0
 			let previousSlash = false
+			let flowType: TokenType = inline ? types.htmlText : types.htmlFlow
+			let dataFlowType: TokenType = inline ? types.htmlTextData : types.htmlFlowData
+
 			return start
 
 			function consume(code: Code) {
@@ -78,13 +81,14 @@ export const htmlBlock = (): Extension => {
 			function start(code: Code): State | undefined {
 				if (code !== codes.lessThan) return nok(code)
 
-				effects.enter(types.htmlFlow)
-				effects.enter(types.htmlFlowData)
+				effects.enter(flowType)
+				effects.enter(dataFlowType)
 				consume(code)
 
 				return open
 			}
 
+			// check the first character after `<` to determine the block type
 			function open(code: Code): State | undefined {
 				// 2, 4 & 5
 				if (code === codes.exclamationMark) {
@@ -108,6 +112,7 @@ export const htmlBlock = (): Extension => {
 				return nok(code)
 			}
 
+			// For blocks starting with `<!`, determine if it's a comment, CDATA, declaration, or something else based on the next characters
 			function openWithExclamationMark(code: Code) {
 				if (code === codes.dash) {
 					type = BlockType.Comment
@@ -128,6 +133,7 @@ export const htmlBlock = (): Extension => {
 				return nok(code)
 			}
 
+			// For comment blocks, look for the closing `<!--` sequence
 			function openComment(code: Code) {
 				if (code === codes.dash) {
 					consume(code)
@@ -137,6 +143,7 @@ export const htmlBlock = (): Extension => {
 				return nok(code)
 			}
 
+			// For comment blocks, look for the closing `-->` sequence
 			function closeComment(code: Code) {
 				if (code === codes.dash) {
 					consume(code)
@@ -146,6 +153,7 @@ export const htmlBlock = (): Extension => {
 				return more(code)
 			}
 
+			// For CDATA blocks, look for the closing `<![CDATA[` sequence
 			function openCData(code: Code) {
 				if (code === codes.eof) return nok(code)
 
@@ -160,6 +168,7 @@ export const htmlBlock = (): Extension => {
 				return nok(code)
 			}
 
+			// For CDATA blocks, look for the closing `]]>` sequence
 			function closeCData(code: Code) {
 				if (code === codes.rightSquareBracket) {
 					consume(code)
@@ -169,6 +178,7 @@ export const htmlBlock = (): Extension => {
 				return more(code)
 			}
 
+			// For tag blocks, look for the closing `>` and determine if the block is complete or not based on the tag name and content
 			function closeTag(code: Code) {
 				if (code === codes.greaterThan) {
 					consume(code)
@@ -180,6 +190,7 @@ export const htmlBlock = (): Extension => {
 				return more(code)
 			}
 
+			// For tag blocks, after reading the tag name, look for the closing `>` and determine if the block is complete or not based on the tag name and content
 			function tagName(code: Code) {
 				const regex = buf.match(tagNameExpression)
 				if (!regex || regex?.length < 2) nok(code)
@@ -198,6 +209,7 @@ export const htmlBlock = (): Extension => {
 				return more(code)
 			}
 
+			// For all block types, keep consuming characters until the appropriate closing sequence is found, while also handling line breaks for non-inline blocks
 			function more(code: Code): State | undefined {
 				if (code === codes.eof) {
 					return nok(code)
@@ -209,12 +221,13 @@ export const htmlBlock = (): Extension => {
 					return more
 				}
 
+				// For non-inline blocks, allow line breaks and treat them as part of the block content
 				if (!inline && code === codes.lineFeed) {
 					effects.enter(types.lineEnding)
 					consume(code)
 					effects.exit(types.lineEnding)
-					effects.exit(types.htmlFlowData)
-					effects.enter(types.htmlFlowData)
+					effects.exit(dataFlowType)
+					effects.enter(dataFlowType)
 					return more
 				}
 
@@ -250,8 +263,8 @@ export const htmlBlock = (): Extension => {
 			}
 
 			function done(code: Code): State | undefined {
-				effects.exit(types.htmlFlowData)
-				effects.exit(types.htmlFlow)
+				effects.exit(dataFlowType)
+				effects.exit(flowType)
 				return ok(code)
 			}
 		}
