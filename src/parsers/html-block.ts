@@ -63,29 +63,41 @@ export const htmlBlock = (): Extension => {
 		}
 	}
 
-	function createTokenizerHTMLBlock(inline?: boolean) {
+	function createTokenizerHTMLBlock(inline?: boolean, isSub = false) {
 		return function (this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 			let buf = ''
 			let type = 0
-			let previousSlash = false
+			let escape = false
+
 			let flowType: TokenType = inline ? types.htmlText : types.htmlFlow
 			let dataFlowType: TokenType = inline ? types.htmlTextData : types.htmlFlowData
 
-			return start
+			const events = this.events
 
-			function consume(code: Code) {
-				effects.consume(code)
-				if (code !== codes.eof) buf += code < 0 ? ' ' : String.fromCharCode(code)
-			}
+			return start
 
 			function start(code: Code): State | undefined {
 				if (code !== codes.lessThan) return nok(code)
 
-				effects.enter(flowType)
-				effects.enter(dataFlowType)
+				if (!isSub) effects.enter(flowType)
 				consume(code)
 
 				return open
+			}
+
+			function consume(code: Code) {
+				if (!hasChunks() && code !== codes.lineFeed) effects.enter(dataFlowType)
+				if (code !== codes.eof) buf += code < 0 ? ' ' : String.fromCharCode(code)
+				effects.consume(code)
+			}
+
+			// check last event is end
+			function hasChunks() {
+				return (
+					events.length > 0 &&
+					events[events.length - 1][0] === 'enter' &&
+					events[events.length - 1][1].type === dataFlowType
+				)
 			}
 
 			// check the first character after `<` to determine the block type
@@ -195,7 +207,7 @@ export const htmlBlock = (): Extension => {
 				const regex = buf.match(tagNameExpression)
 				if (!regex || regex?.length < 2) nok(code)
 
-				if (previousSlash) {
+				if (escape) {
 					type = BlockType.Complete
 					return more(code)
 				}
@@ -209,6 +221,21 @@ export const htmlBlock = (): Extension => {
 				return more(code)
 			}
 
+			// When a `<` is found inside a block, attempt to parse it as a nested HTML block. If it fails, treat it as part of the current block content and continue parsing
+			function subTag(code: Code) {
+				return effects.attempt(
+					{ tokenize: createTokenizerHTMLBlock(inline, true), partial: true },
+					more,
+					skipSubTag
+				)(code)
+			}
+
+			// If the nested block parsing fails, treat the `<` as part of the current block content and continue parsing
+			function skipSubTag(code: Code) {
+				consume(code)
+				return more
+			}
+
 			// For all block types, keep consuming characters until the appropriate closing sequence is found, while also handling line breaks for non-inline blocks
 			function more(code: Code): State | undefined {
 				if (code === codes.eof) {
@@ -216,18 +243,17 @@ export const htmlBlock = (): Extension => {
 				}
 
 				if (code === codes.slash) {
-					previousSlash = true
+					escape = true
 					consume(code)
 					return more
 				}
 
 				// For non-inline blocks, allow line breaks and treat them as part of the block content
-				if (!inline && code === codes.lineFeed) {
+				if (code === codes.lineFeed) {
+					if (hasChunks()) effects.exit(dataFlowType)
 					effects.enter(types.lineEnding)
 					consume(code)
 					effects.exit(types.lineEnding)
-					effects.exit(dataFlowType)
-					effects.enter(dataFlowType)
 					return more
 				}
 
@@ -257,14 +283,18 @@ export const htmlBlock = (): Extension => {
 					return closeTag(code)
 				}
 
-				previousSlash = false
+				if (code === codes.lessThan) {
+					return subTag(code)
+				}
+
+				escape = false
 				consume(code)
 				return more
 			}
 
 			function done(code: Code): State | undefined {
 				effects.exit(dataFlowType)
-				effects.exit(flowType)
+				if (!isSub) effects.exit(flowType)
 				return ok(code)
 			}
 		}

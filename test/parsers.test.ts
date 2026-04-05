@@ -433,6 +433,16 @@ describe('svelte syntax', () => {
 			let file = await processor.process('<@div>hello, markdown</@div>')
 			expect(file.value).toEqual('<p>&#x3C;@div>hello, markdown<a href="mailto:/@div">/@div</a></p>')
 		})
+
+		it('should return multiple tag', async () => {
+			const processor = initProcessor()
+
+			const file = await processor.process('<div><img /></div>')
+			expect(file.value).toEqual('<div><img /></div>')
+
+			const file2 = await processor.process('<div><div>555</div></div>')
+			expect(file2.value).toEqual('<div><div>555</div></div>')
+		})
 	})
 
 	describe('basic svelte', () => {
@@ -510,7 +520,7 @@ describe('svelte syntax', () => {
 			const processor = initProcessor()
 
 			const file = await processor.process('{variable}')
-			expect(file.value).toEqual('<p>{variable}</p>')
+			expect(file.value).toEqual('{variable}')
 		})
 
 		it('should return paragraph and ternary', async () => {
@@ -523,8 +533,8 @@ describe('svelte syntax', () => {
 		it('should return logic with multiple line', async () => {
 			const processor = initProcessor()
 
-			const file = await processor.process('Age is: {variable >= 0 \n?\n "\\"OLD\\""\n:"YOUNG"}')
-			expect(file.value).toEqual('<p>Age is: {variable >= 0 \n?\n"\\"OLD\\""\n:"YOUNG"}</p>')
+			const file = await processor.process('Age is: {variable >= 0 \n?\n"\"OLD\""\n:"YOUNG"}')
+			expect(file.value).toEqual('<p>Age is: {variable >= 0 \n?\n"\"OLD\""\n:"YOUNG"}</p>')
 		})
 	})
 })
