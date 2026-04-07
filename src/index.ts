@@ -5,6 +5,7 @@ import markdown from 'remark-parse'
 import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 import { slidemdParser } from './parsers'
+import { applyTransformers } from './transform'
 
 export const initProcessor = () => {
 	const mdastTransform = unified()
@@ -12,6 +13,8 @@ export const initProcessor = () => {
 		.use(remarkGemoji)
 		.use(remarkGfm, { singleTilde: false })
 		.use(slidemdParser)
+
+	applyTransformers(mdastTransform)
 
 	const hastTransform = mdastTransform.use(remark2Rehype, {
 		allowDangerousHtml: true,

@@ -24,8 +24,6 @@ export const subscript = (): Extension => {
 		return start
 
 		function start(code: Code) {
-			if (code != codes.tilde) return nok(code)
-
 			// Prevent subscript if the previous character is `~` and it is not escaped (to allow for literal `~` characters)
 			if (previous === codes.tilde && events[events.length - 1][1].type !== types.characterEscape) {
 				return nok(code)
@@ -43,7 +41,6 @@ export const subscript = (): Extension => {
 				size++
 				return more
 			}
-			if (size < 1) return nok(code)
 
 			effects.exit('subscriptSequenceTemp')
 			return ok(code)
@@ -152,9 +149,8 @@ export const superscript = (): Extension => {
 		return start
 
 		function start(code: Code) {
-			if (code != codes.caret) return nok(code)
-
-			if (previous === codes.tilde && events[events.length - 1][1].type !== types.characterEscape) {
+			// Prevent superscript if the previous character is `^` and it is not escaped (to allow for literal `^` characters)
+			if (previous === codes.caret && events[events.length - 1][1].type !== types.characterEscape) {
 				return nok(code)
 			}
 
@@ -170,7 +166,6 @@ export const superscript = (): Extension => {
 				size++
 				return more
 			}
-			if (size < 1) return nok(code)
 
 			effects.exit('superscriptSequenceTemp')
 			return ok(code)

@@ -37,8 +37,6 @@ export const svelteLogicBlock = (): Extension => {
 			}
 
 			function start(code: Code): State | undefined {
-				if (code !== codes.leftCurlyBrace) return nok(code)
-
 				effects.enter(flowType)
 				consume(code)
 				depth = 1

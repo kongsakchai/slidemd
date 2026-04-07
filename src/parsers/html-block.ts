@@ -77,8 +77,6 @@ export const htmlBlock = (): Extension => {
 			return start
 
 			function start(code: Code): State | undefined {
-				if (code !== codes.lessThan) return nok(code)
-
 				if (!isSub) effects.enter(flowType)
 				consume(code)
 
@@ -87,7 +85,7 @@ export const htmlBlock = (): Extension => {
 
 			function consume(code: Code) {
 				if (!hasChunks() && code !== codes.lineFeed) effects.enter(dataFlowType)
-				if (code !== codes.eof) buf += code < 0 ? ' ' : String.fromCharCode(code)
+				buf += !code || code < 0 ? ' ' : String.fromCharCode(code)
 				effects.consume(code)
 			}
 
@@ -205,14 +203,14 @@ export const htmlBlock = (): Extension => {
 			// For tag blocks, after reading the tag name, look for the closing `>` and determine if the block is complete or not based on the tag name and content
 			function tagName(code: Code) {
 				const regex = buf.match(tagNameExpression)
-				if (!regex || regex?.length < 2) nok(code)
+				if (!regex) return nok(code)
 
 				if (escape) {
 					type = BlockType.Complete
 					return more(code)
 				}
 
-				if (rawTagNames.includes(regex?.[1] || '')) {
+				if (rawTagNames.includes(regex[1])) {
 					type = BlockType.Raw
 					return more(code)
 				}
@@ -315,9 +313,7 @@ function shouldEnd(type: BlockType, buf: string): boolean {
 			return cdataExpression.test(buf)
 		case BlockType.Tags:
 			return openCloseTagExpression.test(buf)
-		case BlockType.Complete:
+		default: // complete tag
 			return completeTagExpression.test(buf)
 	}
-
-	return false
 }

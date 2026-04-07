@@ -1,6 +1,6 @@
 import type { CompileContext, Extension as FromMarkdownExtension } from 'mdast-util-from-markdown'
 import { resolveAll } from 'micromark-util-resolve-all'
-import { codes } from 'micromark-util-symbol'
+import { codes, types } from 'micromark-util-symbol'
 import type { Code, Effects, Event, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
 // Highlight extension for micromark; converts token sequences of `==` into highlight tokens
@@ -18,12 +18,18 @@ export const highligh = (): Extension => {
 	}
 
 	function tokenizerHighlight(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+		const previous = this.previous
+		const events = this.events
+
 		let size = 0
 
 		return start
 
 		function start(code: Code) {
-			if (code != codes.equalsTo) return nok(code)
+			// Prevent highlight if the previous character is `=` and it is not escaped (to allow for literal `=` characters)
+			if (previous === codes.equalsTo && events[events.length - 1][1].type !== types.characterEscape) {
+				return nok(code)
+			}
 
 			effects.enter('highlightSequenceTemp')
 			return more(code)
