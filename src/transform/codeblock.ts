@@ -32,10 +32,10 @@ const highlighter = await createHighlighter({
 	engine: jsEngine
 })
 
-function createCodeContainer(lang: string, attrs: Record<string, any>) {
+function createcontainer(lang: string, attrs: Record<string, any>) {
 	attrs.class = [`language-${lang}`, attrs.class].filter(Boolean).join(' ')
 	const container: RootContent = {
-		type: 'codeContainer',
+		type: 'container',
 		data: {
 			hName: 'div',
 			hProperties: attrs
@@ -58,23 +58,52 @@ async function highlightCode(code: string, lang: string) {
 		console.error(`Failed to load language '${lang}'`)
 	}
 
-	return highlighter.codeToHtml(code, {
+	const html = highlighter.codeToHtml(code, {
 		lang: lang,
 		defaultColor: false,
 		themes,
 		transformers
 	})
+
+	return { type: 'html', value: html } as RootContent
 }
 
-export function transformerHighlight(): Transformer {
+function createMermaidContainer(attrs: Record<string, any>) {
+	const container: RootContent = {
+		type: 'container',
+		data: {
+			hName: 'div',
+			hProperties: attrs
+		},
+		children: []
+	}
+	return container
+}
+
+async function mermaidBlock(code: string) {
+	const container: RootContent = {
+		type: 'container',
+		data: {
+			hName: 'pre',
+			hProperties: {
+				class: 'mermaid'
+			}
+		},
+		children: [{ type: 'html', value: code }]
+	}
+	return container
+}
+
+export function transformerCodeblock(): Transformer {
 	return async (tree) => {
 		const codeblocks = mapNode(tree as Root, 'code', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
 
 			const lang = node.lang || 'plaintext'
 			const code = node.value
+			const attrs = getAttributes(node.meta)
 
-			const container = createCodeContainer(lang, getAttributes(node.meta))
+			const container = lang === 'mermaid' ? createMermaidContainer(attrs) : createcontainer(lang, attrs)
 			parent.children.splice(index, 1, container)
 
 			return {
@@ -87,8 +116,9 @@ export function transformerHighlight(): Transformer {
 		await Promise.all(
 			codeblocks.map(async (block) => {
 				if (!block) return
-				const highlighted = await highlightCode(block.code, block.lang)
-				block.container.children.push({ type: 'html', value: highlighted })
+				const isMermaid = block.lang === 'mermaid'
+				const html = isMermaid ? await mermaidBlock(block.code) : await highlightCode(block.code, block.lang)
+				block.container.children.push(html as any)
 				return block
 			})
 		)

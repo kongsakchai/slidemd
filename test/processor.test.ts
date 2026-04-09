@@ -1,5 +1,3 @@
-import { describe, it } from 'vitest'
+import { describe } from 'vitest'
 
-describe('processor', () => {
-	it('remark', async () => {})
-})
+describe('processor', () => {})

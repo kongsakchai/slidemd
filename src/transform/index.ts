@@ -1,6 +1,8 @@
 import { Processor } from 'unified'
-import { transformerCodeHighlight } from './shiki'
+import { transformerAttribute } from './attribute'
+import { transformerCodeblock } from './codeblock'
 
 export function applyTransformers(process: Processor<any, any, any, any>) {
-	process.use(transformerCodeHighlight)
+	process.use(transformerCodeblock)
+	process.use(transformerAttribute)
 }

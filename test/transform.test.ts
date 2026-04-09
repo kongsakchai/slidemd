@@ -1,6 +1,7 @@
 import { VFile } from 'vfile'
 import { describe, expect, it } from 'vitest'
 import { transformerAttribute } from '../src/transform/attribute'
+import { transformerCodeblock } from '../src/transform/codeblock'
 import {
 	extractAttributes,
 	extractClassNames,
@@ -10,7 +11,6 @@ import {
 	getStepMax,
 	mapNode
 } from '../src/transform/helper'
-import { transformerHighlight } from '../src/transform/shiki'
 
 describe('transform helper', () => {
 	it('should attribute extractor work correctly', () => {
@@ -107,7 +107,7 @@ describe('transform helper', () => {
 	})
 })
 
-describe('transformer code highlighter', () => {
+describe('transformer codeblock', () => {
 	it('should highlight code blocks correctly', async () => {
 		const tree = {
 			type: 'root',
@@ -121,11 +121,11 @@ describe('transformer code highlighter', () => {
 			]
 		}
 
-		const transformer = transformerHighlight()
+		const transformer = transformerCodeblock()
 		await transformer(tree, null as any, null as any)
 
 		expect(tree.children.length).toBe(1)
-		expect(tree.children[0].type).toBe('codeContainer')
+		expect(tree.children[0].type).toBe('container')
 		expect((tree.children[0] as any).children[1].value).toEqual('<span class="lang">javascript</span>')
 	})
 
@@ -141,11 +141,11 @@ describe('transformer code highlighter', () => {
 			]
 		}
 
-		const transformer = transformerHighlight()
+		const transformer = transformerCodeblock()
 		await transformer(tree, null as any, null as any)
 
 		expect(tree.children.length).toBe(1)
-		expect(tree.children[0].type).toBe('codeContainer')
+		expect(tree.children[0].type).toBe('container')
 		expect((tree.children[0] as any).children[1].value).toEqual('<span class="lang">plaintext</span>')
 	})
 
@@ -162,11 +162,11 @@ describe('transformer code highlighter', () => {
 			]
 		}
 
-		const transformer = transformerHighlight()
+		const transformer = transformerCodeblock()
 		await transformer(tree, null as any, null as any)
 
 		expect(tree.children.length).toBe(1)
-		expect(tree.children[0].type).toBe('codeContainer')
+		expect(tree.children[0].type).toBe('container')
 		expect((tree.children[0] as any).children[1].value).toEqual('<span class="lang">unknown</span>')
 	})
 
@@ -178,7 +178,7 @@ describe('transformer code highlighter', () => {
 			meta: 'key=value .class1 #id1'
 		}
 
-		const transformer = transformerHighlight()
+		const transformer = transformerCodeblock()
 		await transformer(tree, null as any, null as any)
 
 		expect(tree).toEqual({
@@ -187,6 +187,25 @@ describe('transformer code highlighter', () => {
 			lang: 'unknown',
 			meta: 'key=value .class1 #id1'
 		})
+	})
+
+	it('should return mermaid js', async () => {
+		const tree = {
+			type: 'root',
+			children: [
+				{
+					type: 'code',
+					value: 'graph TB\na-->b',
+					lang: 'mermaid'
+				}
+			]
+		}
+
+		const transformer = transformerCodeblock()
+		await transformer(tree, null as any, null as any)
+
+		expect(tree.children.length).toBe(1)
+		expect(tree.children[0].type).toBe('container')
 	})
 })
 

@@ -39,10 +39,10 @@ declare module 'mdast' {
 				hName: 'sup'
 			}
 		}
-		codeContainer: {
-			type: 'codeContainer'
+		container: {
+			type: 'container'
 			data: {
-				hName: 'div'
+				hName: string
 				hProperties: Record<string, any>
 			}
 			children: import('mdast').PhrasingContent[]
