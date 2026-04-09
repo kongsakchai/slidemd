@@ -1,3 +1,4 @@
+import type { Event, TokenizeContext } from 'micromark-util-types'
 import stringify from 'rehype-stringify'
 import remarkGemoji from 'remark-gemoji'
 import remarkGfm from 'remark-gfm'
@@ -7,7 +8,7 @@ import { unified } from 'unified'
 import { ignoreRender, slidemdParser } from '../src/parsers'
 
 import { describe, expect, it } from 'vitest'
-import { addFromMarkdownExtensions, addMicromarkExtensions } from '../src/parsers/helper'
+import { addFromMarkdownExtensions, addMicromarkExtensions, handleResolveAll } from '../src/parsers/helper'
 import { highlight, highlightFromMarkdown } from '../src/parsers/highlight'
 
 const setupProcessorTestParser = () => {
@@ -624,6 +625,12 @@ describe('helper parsers', () => {
 		addFromMarkdownExtensions(processor, highlightFromMarkdown())
 		expect(processor.data().fromMarkdownExtensions).toBeDefined()
 		expect(processor.data().fromMarkdownExtensions).toHaveLength(1)
+	})
+
+	it('should add original events when construct is undefined', () => {
+		const event: Event[] = []
+		const resp = handleResolveAll(undefined, event, {} as TokenizeContext)
+		expect(resp).toEqual(event)
 	})
 })
 

@@ -202,15 +202,13 @@ export const htmlBlock = (): Extension => {
 
 			// For tag blocks, after reading the tag name, look for the closing `>` and determine if the block is complete or not based on the tag name and content
 			function tagName(code: Code) {
-				const regex = buf.match(tagNameExpression)
-				if (!regex) return nok(code)
-
 				if (escape) {
 					type = BlockType.Complete
 					return more(code)
 				}
 
-				if (rawTagNames.includes(regex[1])) {
+				const regex = buf.match(tagNameExpression)
+				if (regex && rawTagNames.includes(regex[1])) {
 					type = BlockType.Raw
 					return more(code)
 				}

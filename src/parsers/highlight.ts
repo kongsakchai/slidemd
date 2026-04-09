@@ -1,7 +1,7 @@
 import type { CompileContext, Extension as FromMarkdownExtension } from 'mdast-util-from-markdown'
-import { resolveAll } from 'micromark-util-resolve-all'
 import { codes, types } from 'micromark-util-symbol'
 import type { Code, Effects, Event, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
+import { handleResolveAll } from './helper'
 
 // Highlight extension for micromark; converts token sequences of `==` into highlight tokens
 export const highlight = (): Extension => {
@@ -68,9 +68,7 @@ export const highlight = (): Extension => {
 						}
 
 						const insideSpan = context.parser.constructs.insideSpan.null
-						const resolveInside = insideSpan
-							? resolveAll(insideSpan, events.slice(open + 1, close), context)
-							: []
+						const resolveInside = handleResolveAll(insideSpan, events.slice(open + 1, close), context)
 
 						const nextEvents: Array<Event> = [
 							['enter', highlightToken, context],
