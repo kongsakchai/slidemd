@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm'
 import markdown from 'remark-parse'
 import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
-import { slidemdParser } from './parsers'
+import { ignoreRender, slidemdParser } from './parsers'
 import { applyTransformers } from './transform'
 
 export const initProcessor = () => {
@@ -17,13 +17,12 @@ export const initProcessor = () => {
 	applyTransformers(mdastTransform)
 
 	const hastTransform = mdastTransform.use(remark2Rehype, {
-		allowDangerousHtml: true,
-		allowDangerousCharacters: true
+		handles: ignoreRender(),
+		allowDangerousHtml: true
 	})
 
 	const processor = hastTransform.use(stringify, {
-		allowDangerousHtml: true,
-		allowDangerousCharacters: true
+		allowDangerousHtml: true
 	})
 
 	return processor

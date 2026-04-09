@@ -4,7 +4,7 @@ import { codes, types } from 'micromark-util-symbol'
 import type { Code, Effects, Event, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
 // Highlight extension for micromark; converts token sequences of `==` into highlight tokens
-export const highligh = (): Extension => {
+export const highlight = (): Extension => {
 	const tokenizer = {
 		name: 'highlight',
 		tokenize: tokenizerHighlight, // tokenizer for `==` sequences

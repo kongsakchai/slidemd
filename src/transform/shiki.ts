@@ -7,10 +7,10 @@ import {
 import { createHighlighter } from 'shiki'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 
-import { Root, RootContent } from 'mdast'
+import type { Root, RootContent } from 'mdast'
 import type { Transformer } from 'unified'
 
-import { extractAttributes, extractClassNames, extractIDs, mapNode } from './helper'
+import { getAttributes, mapNode } from './helper'
 
 const themes = {
 	light: 'github-light',
@@ -33,7 +33,7 @@ const highlighter = await createHighlighter({
 })
 
 function createCodeContainer(lang: string, attrs: Record<string, any>) {
-	attrs.class = [`language-${lang}`, ...(attrs.class as string[])].filter(Boolean).join(' ')
+	attrs.class = [`language-${lang}`, attrs.class].filter(Boolean).join(' ')
 	const container: RootContent = {
 		type: 'codeContainer',
 		data: {
@@ -74,11 +74,7 @@ export function transformerHighlight(): Transformer {
 			const lang = node.lang || 'plaintext'
 			const code = node.value
 
-			const attrs = extractAttributes(node.meta)
-			attrs.id = extractIDs(node.meta).join(' ') || undefined
-			attrs.class = [...(attrs.class || []), ...extractClassNames(node.meta)].join(' ')
-
-			const container = createCodeContainer(lang, attrs)
+			const container = createCodeContainer(lang, getAttributes(node.meta))
 			parent.children.splice(index, 1, container)
 
 			return {

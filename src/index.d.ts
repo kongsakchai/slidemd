@@ -1,5 +1,5 @@
 import 'mdast'
-import 'micromark-util-types'
+import 'mdast-util-to-hast'
 
 declare module 'micromark-util-types' {
 	interface TokenTypeMap {
@@ -12,7 +12,7 @@ declare module 'micromark-util-types' {
 		superscriptSequenceTemp: {}
 		superscriptSequence: {}
 		superscript: {}
-		inlineCode: {}
+		attribute: {}
 	}
 }
 
@@ -46,6 +46,10 @@ declare module 'mdast' {
 				hProperties: Record<string, any>
 			}
 			children: import('mdast').PhrasingContent[]
+		}
+		attribute: {
+			type: 'attribute'
+			value: string
 		}
 	}
 }

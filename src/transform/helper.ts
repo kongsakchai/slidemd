@@ -1,7 +1,7 @@
 import { Node } from 'unist'
 import { BuildVisitor, visit, type Test } from 'unist-util-visit'
 
-// attribute extractor, used for parsing attributes in code blocks and slide containers
+// attribute extractor, used for parsing attributes in string
 // it's start of string or whitespace
 // followed by key, which can be word characters, hyphen, colon or at sign and must start with a letter
 // optionally followed by = and value, which can be in double quotes, single quotes or unquoted
@@ -19,7 +19,7 @@ export const extractAttributes = (str?: string | null): Record<string, any> => {
 	return attrs
 }
 
-// class extractor, used for parsing class names in code blocks and slide containers
+// class extractor, used for parsing class names in string
 // it's start of string or whitespace
 // followed by a dot and class name, which can be any characters except whitespace
 // it's end of string or whitespace
@@ -30,6 +30,10 @@ export const extractClassNames = (str?: string | null) => {
 	return Array.from(str.matchAll(CLASS_REGEX), (m) => m[1])
 }
 
+// id extractor, used for parsing id name in string
+// it's start of string of whitespace
+// followed by a numberSign and id name, which can be any characters except whitespace
+// it's end of string or whitespace
 const ID_REGEX = /(?<=^|\s)#([^\s]+)(?=\s|$)/g
 
 export const extractIDs = (str?: string | null) => {
@@ -47,4 +51,35 @@ export const mapNode = <Tree extends Node, Check extends Test, T>(
 		results.push(visitor(node, index, parent))
 	})
 	return results
+}
+
+export const fallbackParseInt = (str: string, fallback: number) => {
+	const resp = parseInt(str)
+	return isNaN(resp) ? fallback : resp
+}
+
+export const getStepMax = (cur: number, step: string) => {
+	if (step.startsWith('step-')) {
+		return Math.max(fallbackParseInt(step.slice(5), cur), cur)
+	}
+	return cur
+}
+
+export const getAttributes = (str?: string | null) => {
+	const attrs = extractAttributes(str)
+
+	const ids = extractIDs(str)
+	ids.push(attrs.id)
+	attrs.id = ids.filter(Boolean).join(' ')
+	if (!attrs.id) delete attrs.id
+
+	const className = extractClassNames(str)
+	className.push(attrs.class)
+	attrs.class = className.filter(Boolean).join(' ')
+	if (!attrs.class) delete attrs.class
+
+	attrs.step = Object.keys(attrs).reduce(getStepMax, 0)
+	if (!attrs.step) delete attrs.step
+
+	return attrs
 }
