@@ -10,7 +10,10 @@
 		"strictNullChecks": true,
 		"esModuleInterop": true,
 		"skipDefaultLibCheck": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"paths": {
+			"@slidemd/core": ["./packages/src/index.ts"]
+		}
 	},
-	"include": ["src/*/***", "src/index.d.ts"]
+	"include": ["./packages/**/*.ts", "./packages/**/*.d.ts"]
 }
