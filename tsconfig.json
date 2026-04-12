@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"module": "esnext",
-		"target": "esnext",
-		"lib": ["esnext", "DOM"],
+		"module": "ESNext",
+		"target": "ESNext",
+		"lib": ["ESNext", "DOM"],
 		"moduleResolution": "bundler",
 		"resolveJsonModule": true,
 		"declaration": true,
@@ -12,7 +12,8 @@
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true,
 		"paths": {
-			"@slidemd/core": ["./packages/src/index.ts"]
+			"@slidemd/parse": ["./packages/parse"],
+			"@slidemd/cli": ["./packages/cli"]
 		}
 	},
 	"include": ["./packages/**/*.ts", "./packages/**/*.d.ts"]

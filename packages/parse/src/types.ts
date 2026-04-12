@@ -53,3 +53,10 @@ declare module 'mdast' {
 		}
 	}
 }
+
+export interface SlideContentInfo {
+	content: string
+	page: number
+	note?: string
+	step?: number
+}

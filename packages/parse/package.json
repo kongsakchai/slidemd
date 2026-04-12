@@ -1,12 +1,21 @@
 {
-	"name": "parse",
+	"name": "@slidemd/parse",
 	"version": "1.0.0",
 	"type": "module",
-	"main": "index.js",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js"
+		}
+	},
 	"scripts": {
 		"test:unit": "vitest",
 		"test:cover": "vitest --coverage",
-		"test": "npm run test:unit -- --run"
+		"test": "npm run test:unit -- --run",
+		"build": "tsc"
 	},
 	"keywords": [],
 	"author": "",
@@ -14,14 +23,16 @@
 	"description": "",
 	"devDependencies": {
 		"@shikijs/transformers": "^4.0.2",
+		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^25.5.0",
 		"@vitest/coverage-v8": "^4.0.16",
 		"shiki": "^4.0.2",
 		"typescript": "^5.9.3",
-		"vite": "^7.3.1",
+		"vite": "^8.0.8",
 		"vitest": "^4.0.16"
 	},
 	"dependencies": {
+		"js-yaml": "^4.1.1",
 		"prettier": "^3.7.4",
 		"rehype-stringify": "^10.0.1",
 		"remark-gemoji": "^8.0.0",

@@ -7,9 +7,8 @@
 		"packages/*"
 	],
 	"scripts": {
-		"test:unit": "vitest",
-		"test:cover": "vitest --coverage",
-		"test": "npm run test:unit -- --run"
+		"test": "npm run test --workspaces",
+		"dev": "npm run dev --workspace=@slidemd/cli"
 	},
 	"keywords": [],
 	"author": "",

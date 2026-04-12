@@ -7,7 +7,7 @@ import { unified } from 'unified'
 import { ignoreRender, slidemdParser } from './parsers'
 import { applyTransformers } from './transform'
 
-export const initProcessor = () => {
+export const createProcessor = () => {
 	const mdastTransform = unified()
 		.use(markdown)
 		.use(remarkGemoji)
