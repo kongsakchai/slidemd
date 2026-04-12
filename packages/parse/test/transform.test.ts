@@ -2,6 +2,7 @@ import { VFile } from 'vfile'
 import { describe, expect, it } from 'vitest'
 import { transformerAttribute } from '../src/transform/attribute'
 import { transformerCodeblock } from '../src/transform/codeblock'
+import { transformerExteactScript } from '../src/transform/extract-script'
 import {
 	extractAttributes,
 	extractClassNames,
@@ -102,7 +103,8 @@ describe('transform helper', () => {
 	it('should return attributes without class, id and step', () => {
 		const resp = getAttributes('data=10 step=0')
 		expect(resp).toEqual({
-			data: '10'
+			data: '10',
+			step: 0
 		})
 	})
 })
@@ -278,5 +280,49 @@ describe('transform attribute', () => {
 			type: 'attribute',
 			value: '#id-1 .class-1 .class-2 data=10'
 		})
+	})
+})
+
+describe('extract script', () => {
+	it('should return script', () => {
+		const tree = {
+			type: 'root',
+			children: [
+				{
+					type: 'html',
+					value: '<script lang="ts">console.log("Hello")</script>'
+				},
+				{
+					type: 'html',
+					value: '<style>.hello{ background: red; }</style>'
+				},
+				{
+					type: 'html',
+					value: '<h1>Hello</h1>'
+				}
+			]
+		}
+		const vfile = new VFile()
+
+		const transformer = transformerExteactScript()
+		transformer(tree, vfile, null as any)
+
+		expect(tree.children.length).toEqual(1)
+		expect(vfile.data.script).toEqual('console.log("Hello")')
+		expect(vfile.data.style).toEqual('.hello{ background: red; }')
+	})
+
+	it('should return without parent', () => {
+		const tree = {
+			type: 'html',
+			value: '<script lang="ts">console.log("Hello")</script>'
+		}
+		const vfile = new VFile()
+
+		const transformer = transformerExteactScript()
+		transformer(tree, vfile, null as any)
+
+		expect(vfile.data.script).toEqual(undefined)
+		expect(vfile.data.style).toEqual(undefined)
 	})
 })

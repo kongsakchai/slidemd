@@ -79,7 +79,6 @@ export const getAttributes = (str?: string | null) => {
 	if (!attrs.class) delete attrs.class
 
 	attrs.step = Object.keys(attrs).reduce(getStepMax, 0)
-	if (!attrs.step) delete attrs.step
 
 	return attrs
 }

@@ -32,6 +32,10 @@ const highlighter = await createHighlighter({
 	engine: jsEngine
 })
 
+const escapeSpecialCharacters = (str: string) => {
+	return str.replace(/[&<>{}]/g, (char) => `{'${char}'}`)
+}
+
 function createcontainer(lang: string, attrs: Record<string, any>) {
 	attrs.class = [`language-${lang}`, attrs.class].filter(Boolean).join(' ')
 	const container: RootContent = {
@@ -44,6 +48,18 @@ function createcontainer(lang: string, attrs: Record<string, any>) {
 			{ type: 'html', value: `<button id="code-copy-btn" class="copy"></button>` },
 			{ type: 'html', value: `<span class="lang">${lang}</span>` }
 		]
+	}
+	return container
+}
+
+function createMermaidContainer(attrs: Record<string, any>) {
+	const container: RootContent = {
+		type: 'container',
+		data: {
+			hName: 'div',
+			hProperties: attrs
+		},
+		children: []
 	}
 	return container
 }
@@ -65,19 +81,7 @@ async function highlightCode(code: string, lang: string) {
 		transformers
 	})
 
-	return { type: 'html', value: html } as RootContent
-}
-
-function createMermaidContainer(attrs: Record<string, any>) {
-	const container: RootContent = {
-		type: 'container',
-		data: {
-			hName: 'div',
-			hProperties: attrs
-		},
-		children: []
-	}
-	return container
+	return { type: 'html', value: escapeSpecialCharacters(html) } as RootContent
 }
 
 async function mermaidBlock(code: string) {
@@ -89,7 +93,7 @@ async function mermaidBlock(code: string) {
 				class: 'mermaid'
 			}
 		},
-		children: [{ type: 'html', value: code }]
+		children: [{ type: 'html', value: escapeSpecialCharacters(code) }]
 	}
 	return container
 }
