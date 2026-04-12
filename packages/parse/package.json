@@ -21,19 +21,9 @@
 	"author": "",
 	"license": "ISC",
 	"description": "",
-	"devDependencies": {
-		"@shikijs/transformers": "^4.0.2",
-		"@types/js-yaml": "^4.0.9",
-		"@types/node": "^25.5.0",
-		"@vitest/coverage-v8": "^4.0.16",
-		"shiki": "^4.0.2",
-		"typescript": "^5.9.3",
-		"vite": "^8.0.8",
-		"vitest": "^4.0.16"
-	},
 	"dependencies": {
-		"js-yaml": "^4.1.1",
-		"prettier": "^3.7.4",
+		"@shikijs/transformers": "^4.0.2",
+		"shiki": "^4.0.2",
 		"rehype-stringify": "^10.0.1",
 		"remark-gemoji": "^8.0.0",
 		"remark-gfm": "^4.0.1",

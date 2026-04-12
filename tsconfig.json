@@ -13,7 +13,8 @@
 		"skipLibCheck": true,
 		"paths": {
 			"@slidemd/parse": ["./packages/parse"],
-			"@slidemd/cli": ["./packages/cli"]
+			"@slidemd/cli": ["./packages/cli"],
+			"@slidemd/slidemd": ["./packages/slidemd"]
 		}
 	},
 	"include": ["./packages/**/*.ts", "./packages/**/*.d.ts"]

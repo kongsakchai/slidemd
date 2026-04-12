@@ -13,5 +13,12 @@
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
-	"description": ""
+	"description": "",
+	"devDependencies": {
+		"@types/node": "^25.6.0",
+		"@vitest/coverage-v8": "^4.1.4",
+		"prettier": "^3.8.2",
+		"typescript": "^5.9.3",
+		"vitest": "^4.1.4"
+	}
 }
