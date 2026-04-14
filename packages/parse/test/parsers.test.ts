@@ -245,7 +245,6 @@ describe('extended syntax', () => {
 			const processor = setupProcessorTestParser()
 
 			const file = await processor.process(code)
-			console.log(file.value)
 			expect(file.value).toEqual('<pre><code>console.log("hello, markdown")\n</code></pre>')
 		})
 

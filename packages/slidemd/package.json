@@ -1,0 +1,40 @@
+{
+	"name": "@slidemd/slidemd",
+	"version": "1.0.0",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./actions": {
+			"import": "./dist/actions/index.js",
+			"types": "./dist/actions/index.d.ts"
+		},
+		"./components": {
+			"svelte": "./dist/components/index.js",
+			"import": "./dist/components/index.js",
+			"types": "./dist/components/index.d.ts"
+		}
+	},
+	"scripts": {
+		"test:unit": "vitest",
+		"test:cover": "vitest --coverage",
+		"test": "npm run test:unit -- --run",
+		"build": "tsc"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@types/js-yaml": "^4.0.9",
+		"svelte": "^5.55.3"
+	},
+	"dependencies": {
+		"@slidemd/parse": "*",
+		"js-yaml": "^4.1.1"
+	}
+}

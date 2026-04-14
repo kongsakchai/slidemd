@@ -12,10 +12,9 @@
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true,
 		"paths": {
-			"@slidemd/parse": ["./packages/parse"],
-			"@slidemd/cli": ["./packages/cli"],
-			"@slidemd/slidemd": ["./packages/slidemd"]
+			"@slidemd/parse/*": ["./packages/parse/*"],
+			"@slidemd/slidemd/*": ["./packages/slidemd/src/*"]
 		}
 	},
-	"include": ["./packages/**/*.ts", "./packages/**/*.d.ts"]
+	"include": ["./packages/**/*.ts", "./packages/**/*.d.ts", "./packages/**/*.svelte"]
 }

@@ -4,13 +4,16 @@ import {
 	transformerNotationFocus,
 	transformerNotationHighlight
 } from '@shikijs/transformers'
+import type { PhrasingContent, Root, RootContent } from 'mdast'
 import { createHighlighter } from 'shiki'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
-
-import type { Root, RootContent } from 'mdast'
 import type { Transformer } from 'unified'
-
 import { getAttributes, mapNode } from './helper'
+
+export interface CodeblockOptions {
+	disableCopy?: boolean
+	copyEventName?: string
+}
 
 const themes = {
 	light: 'github-light',
@@ -36,18 +39,21 @@ const escapeSpecialCharacters = (str: string) => {
 	return str.replace(/[&<>{}]/g, (char) => `{'${char}'}`)
 }
 
-function createcontainer(lang: string, attrs: Record<string, any>) {
+function createContainer(lang: string, attrs: Record<string, any>, options?: CodeblockOptions) {
 	attrs.class = [`language-${lang}`, attrs.class].filter(Boolean).join(' ')
+
+	const copyEventName = options?.copyEventName ? `onclick="{${options?.copyEventName}}"` : ''
+	const copyButton: PhrasingContent[] = options?.disableCopy
+		? []
+		: [{ type: 'html', value: `<button id="code-copy-btn" class="copy" ${copyEventName}></button>` }]
+
 	const container: RootContent = {
 		type: 'container',
 		data: {
 			hName: 'div',
 			hProperties: attrs
 		},
-		children: [
-			{ type: 'html', value: `<button id="code-copy-btn" class="copy"></button>` },
-			{ type: 'html', value: `<span class="lang">${lang}</span>` }
-		]
+		children: [...copyButton, { type: 'html', value: `<span class="lang">${lang}</span>` }]
 	}
 	return container
 }
@@ -98,7 +104,7 @@ async function mermaidBlock(code: string) {
 	return container
 }
 
-export function transformerCodeblock(): Transformer {
+export function transformerCodeblock(options?: CodeblockOptions): Transformer {
 	return async (tree) => {
 		const codeblocks = mapNode(tree as Root, 'code', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
@@ -107,7 +113,7 @@ export function transformerCodeblock(): Transformer {
 			const code = node.value
 			const attrs = getAttributes(node.meta)
 
-			const container = lang === 'mermaid' ? createMermaidContainer(attrs) : createcontainer(lang, attrs)
+			const container = lang === 'mermaid' ? createMermaidContainer(attrs) : createContainer(lang, attrs, options)
 			parent.children.splice(index, 1, container)
 
 			return {

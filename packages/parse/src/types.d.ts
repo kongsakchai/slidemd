@@ -53,5 +53,3 @@ declare module 'mdast' {
 		}
 	}
 }
-
-export {}
