@@ -47,6 +47,15 @@ const isAlphabet = (char: number) => {
 	)
 }
 
+function isURL(url: string) {
+	try {
+		new URL(url)
+		return true
+	} catch {
+		return false
+	}
+}
+
 export const htmlBlock = (): Extension => {
 	const createTokenizerHTML = (inline?: boolean): Construct => ({
 		name: 'html',
@@ -202,6 +211,10 @@ export const htmlBlock = (): Extension => {
 
 			// For tag blocks, after reading the tag name, look for the closing `>` and determine if the block is complete or not based on the tag name and content
 			function tagName(code: Code) {
+				if (isURL(buf.slice(1))) {
+					return nok(code)
+				}
+
 				if (escape) {
 					type = BlockType.Complete
 					return more(code)

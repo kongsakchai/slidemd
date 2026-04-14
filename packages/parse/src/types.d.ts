@@ -39,14 +39,6 @@ declare module 'mdast' {
 				hName: 'sup'
 			}
 		}
-		container: {
-			type: 'container'
-			data: {
-				hName: string
-				hProperties: Record<string, any>
-			}
-			children: import('mdast').PhrasingContent[]
-		}
 		attribute: {
 			type: 'attribute'
 			value: string

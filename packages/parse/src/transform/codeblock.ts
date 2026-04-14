@@ -4,10 +4,12 @@ import {
 	transformerNotationFocus,
 	transformerNotationHighlight
 } from '@shikijs/transformers'
-import type { PhrasingContent, Root, RootContent } from 'mdast'
+import type { Element, ElementContent } from 'hast'
+import type { Parent, Root, RootContent } from 'mdast'
 import { createHighlighter } from 'shiki'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import type { Transformer } from 'unified'
+import { visit } from 'unist-util-visit'
 import { getAttributes, mapNode } from './helper'
 
 export interface CodeblockOptions {
@@ -43,27 +45,29 @@ function createContainer(lang: string, attrs: Record<string, any>, options?: Cod
 	attrs.class = [`language-${lang}`, attrs.class].filter(Boolean).join(' ')
 
 	const copyEventName = options?.copyEventName ? `onclick="{${options?.copyEventName}}"` : ''
-	const copyButton: PhrasingContent[] = options?.disableCopy
+	const copyButton: ElementContent[] = options?.disableCopy
 		? []
-		: [{ type: 'html', value: `<button id="code-copy-btn" class="copy" ${copyEventName}></button>` }]
+		: [{ type: 'raw', value: `<button id="code-copy-btn" class="copy" ${copyEventName}></button>` }]
 
-	const container: RootContent = {
+	const container: Parent = {
 		type: 'container',
 		data: {
 			hName: 'div',
-			hProperties: attrs
+			hProperties: attrs,
+			hChildren: [...copyButton, { type: 'raw', value: `<span class="lang">${lang}</span>` }]
 		},
-		children: [...copyButton, { type: 'html', value: `<span class="lang">${lang}</span>` }]
+		children: []
 	}
 	return container
 }
 
 function createMermaidContainer(attrs: Record<string, any>) {
-	const container: RootContent = {
+	const container: Parent = {
 		type: 'container',
 		data: {
 			hName: 'div',
-			hProperties: attrs
+			hProperties: attrs,
+			hChildren: []
 		},
 		children: []
 	}
@@ -80,26 +84,28 @@ async function highlightCode(code: string, lang: string) {
 		console.error(`Failed to load language '${lang}'`)
 	}
 
-	const html = highlighter.codeToHtml(code, {
+	const hast = highlighter.codeToHast(code, {
 		lang: lang,
 		defaultColor: false,
 		themes,
 		transformers
 	})
 
-	return { type: 'html', value: escapeSpecialCharacters(html) } as RootContent
+	visit(hast, 'text', (node) => {
+		node.value = escapeSpecialCharacters(node.value)
+	})
+
+	return hast.children.pop()
 }
 
 async function mermaidBlock(code: string) {
-	const container: RootContent = {
-		type: 'container',
-		data: {
-			hName: 'pre',
-			hProperties: {
-				class: 'mermaid'
-			}
+	const container: Element = {
+		type: 'element',
+		tagName: 'pre',
+		properties: {
+			class: 'mermaid'
 		},
-		children: [{ type: 'html', value: escapeSpecialCharacters(code) }]
+		children: [{ type: 'text', value: escapeSpecialCharacters(code) }]
 	}
 	return container
 }
@@ -114,7 +120,7 @@ export function transformerCodeblock(options?: CodeblockOptions): Transformer {
 			const attrs = getAttributes(node.meta)
 
 			const container = lang === 'mermaid' ? createMermaidContainer(attrs) : createContainer(lang, attrs, options)
-			parent.children.splice(index, 1, container)
+			parent.children.splice(index, 1, container as RootContent)
 
 			return {
 				lang,
@@ -128,8 +134,7 @@ export function transformerCodeblock(options?: CodeblockOptions): Transformer {
 				if (!block) return
 				const isMermaid = block.lang === 'mermaid'
 				const html = isMermaid ? await mermaidBlock(block.code) : await highlightCode(block.code, block.lang)
-				block.container.children.push(html as any)
-				return block
+				block.container.data?.hChildren?.push(html as ElementContent)
 			})
 		)
 	}

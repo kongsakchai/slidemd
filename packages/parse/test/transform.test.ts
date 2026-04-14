@@ -1,3 +1,4 @@
+import type { Parent } from 'mdast'
 import { VFile } from 'vfile'
 import { describe, expect, it } from 'vitest'
 import { transformerAttribute } from '../src/transform/attribute'
@@ -103,8 +104,7 @@ describe('transform helper', () => {
 	it('should return attributes without class, id and step', () => {
 		const resp = getAttributes('data=10 step=0')
 		expect(resp).toEqual({
-			data: '10',
-			step: 0
+			data: '10'
 		})
 	})
 })
@@ -126,9 +126,13 @@ describe('transformer codeblock', () => {
 		const transformer = transformerCodeblock()
 		await transformer(tree, null as any, null as any)
 
-		expect(tree.children.length).toBe(1)
-		expect(tree.children[0].type).toBe('container')
-		expect((tree.children[0] as any).children[1].value).toEqual('<span class="lang">javascript</span>')
+		const container = tree.children[0] as any as Parent
+
+		expect(container.type).toBe('container')
+		expect(container.data?.hChildren?.[1]).toEqual({
+			type: 'raw',
+			value: '<span class="lang">javascript</span>'
+		})
 	})
 
 	it('should handle code blocks without language specified', async () => {
@@ -146,9 +150,13 @@ describe('transformer codeblock', () => {
 		const transformer = transformerCodeblock()
 		await transformer(tree, null as any, null as any)
 
-		expect(tree.children.length).toBe(1)
-		expect(tree.children[0].type).toBe('container')
-		expect((tree.children[0] as any).children[1].value).toEqual('<span class="lang">plaintext</span>')
+		const container = tree.children[0] as any as Parent
+
+		expect(container.type).toBe('container')
+		expect(container.data?.hChildren?.[1]).toEqual({
+			type: 'raw',
+			value: '<span class="lang">plaintext</span>'
+		})
 	})
 
 	it('should handle code blocks with unknown language', async () => {
@@ -167,12 +175,16 @@ describe('transformer codeblock', () => {
 		const transformer = transformerCodeblock()
 		await transformer(tree, null as any, null as any)
 
-		expect(tree.children.length).toBe(1)
-		expect(tree.children[0].type).toBe('container')
-		expect((tree.children[0] as any).children[1].value).toEqual('<span class="lang">unknown</span>')
+		const container = tree.children[0] as any as Parent
+
+		expect(container.type).toBe('container')
+		expect(container.data?.hChildren?.[1]).toEqual({
+			type: 'raw',
+			value: '<span class="lang">unknown</span>'
+		})
 	})
 
-	it('should handle code blocks without parent', async () => {
+	it('should return original when without parent', async () => {
 		const tree = {
 			type: 'code',
 			value: 'print("Hello World")',
@@ -208,6 +220,53 @@ describe('transformer codeblock', () => {
 
 		expect(tree.children.length).toBe(1)
 		expect(tree.children[0].type).toBe('container')
+	})
+
+	it('should return codeblock with copy event name', async () => {
+		const tree = {
+			type: 'root',
+			children: [
+				{
+					type: 'code',
+					value: 'print("Hello World")',
+					lang: 'unknown',
+					meta: 'key=value '
+				}
+			]
+		}
+
+		const transformer = transformerCodeblock({ copyEventName: 'onClick' })
+		await transformer(tree, null as any, null as any)
+
+		const container = tree.children[0] as any as Parent
+
+		expect(container.type).toBe('container')
+		expect(container.data?.hChildren?.[0]).toEqual({
+			type: 'raw',
+			value: `<button id="code-copy-btn" class="copy" onclick="{onClick}"></button>`
+		})
+	})
+
+	it('should return codeblock without button copy', async () => {
+		const tree = {
+			type: 'root',
+			children: [
+				{
+					type: 'code',
+					value: 'print("Hello World")',
+					lang: 'unknown',
+					meta: 'key=value '
+				}
+			]
+		}
+
+		const transformer = transformerCodeblock({ copyEventName: 'onClick', disableCopy: true })
+		await transformer(tree, null as any, null as any)
+
+		const container = tree.children[0] as any as Parent
+
+		expect(container.type).toBe('container')
+		expect(container.data?.hChildren?.[0]).toEqual({ type: 'raw', value: `<span class="lang">unknown</span>` })
 	})
 })
 

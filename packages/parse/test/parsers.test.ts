@@ -497,6 +497,16 @@ describe('svelte syntax', () => {
 			const file2 = await processor.process('<div><div>555</div></div>')
 			expect(file2.value).toEqual('<div><div>555</div></div>')
 		})
+
+		it('should return autolink', async () => {
+			const processor = setupProcessorTestParser()
+
+			const file = await processor.process('<http://www.google.com>')
+			expect(file.value).toEqual('<p><a href="http://www.google.com">http://www.google.com</a></p>')
+
+			const file2 = await processor.process('<https://svelte.dev/>')
+			expect(file2.value).toEqual('<p><a href="https://svelte.dev/">https://svelte.dev/</a></p>')
+		})
 	})
 
 	describe('basic svelte', () => {
