@@ -12,7 +12,7 @@
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true,
 		"paths": {
-			"@slidemd/parse/*": ["./packages/parse/*"],
+			"@slidemd/parse/*": ["./packages/parse/src/*"],
 			"@slidemd/slidemd/*": ["./packages/slidemd/src/*"]
 		}
 	},

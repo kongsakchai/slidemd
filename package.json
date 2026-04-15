@@ -8,13 +8,15 @@
 	],
 	"scripts": {
 		"test": "npm run test --workspaces",
-		"dev": "npm run dev --workspace=@slidemd/cli"
+		"dev": "npm run build --workspace=@slidemd/parse --workspace=@slidemd/slidemd && npm run dev --workspace=@slidemd/cli",
+		"preview": "npm run build --workspace=@slidemd/parse --workspace=@slidemd/slidemd && npm run preview --workspace=@slidemd/preview"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"description": "",
 	"devDependencies": {
+		"@sveltejs/package": "^2.5.7",
 		"@types/node": "^25.6.0",
 		"@vitest/coverage-v8": "^4.1.4",
 		"prettier": "^3.8.2",
