@@ -2,24 +2,7 @@ import { createParser } from '@slidemd/parse'
 import yaml from 'js-yaml'
 import MagicString from 'magic-string'
 import { PreprocessorGroup } from 'svelte/compiler'
-
-export interface SlideInfo {
-	slides: SlideContent[]
-	metadata: Record<string, any>
-	script: string
-	style: string
-}
-
-export interface SlideContent {
-	content: string
-	page: number
-	note?: string
-	step?: number
-}
-
-export interface Options {
-	extension?: string
-}
+import type { Content, Options } from './types'
 
 export function extractFrontmatter(markdown: string) {
 	const match = /^---\r?\n([\s\S]*?)---/.exec(markdown)
@@ -49,7 +32,7 @@ export function slidemd(options?: Options): PreprocessorGroup {
 
 		const pages = body.split(/\r?\n---\r?\n/)
 		const directive = { ...metadata }
-		const slides: SlideContent[] = []
+		const slides: Content[] = []
 
 		for (const [i, page] of pages.entries()) {
 			directive.page = i + 1
@@ -73,19 +56,22 @@ export function slidemd(options?: Options): PreprocessorGroup {
 		const { slides, metadata, script, style } = await parse(markdown)
 
 		const pages = slides.map((slide) => {
+			metadata.pageData.push({ page: slide.page, step: slide.step, note: slide.note })
 			return [
-				`<section class="slide" data-page="${slide.page}" hidden="{currentPage ==${slide.page}}">`,
+				`<section class="slide" data-page="${slide.page}" hidden="{currentPage !== ${slide.page}}">`,
 				slide.content,
 				`</section>`
 			].join('\n')
 		})
 
 		const component = [
+			`<script lang="ts" module>`,
+			`export const slide = ` + JSON.stringify(metadata),
+			`</script>`,
 			'<script lang="ts">',
-			"import {copyCode} from '@slidemd/slidemd/actions'",
+			"import {copyCode} from '@slidemd/slidemd/utils'",
 			script,
-			'let { currentPage } = $props()',
-			'const data = ' + JSON.stringify(metadata),
+			'let { page=$bindable() } = $props()',
 			'</script>',
 			...pages
 		]
