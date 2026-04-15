@@ -1,8 +1,7 @@
 import type { Extension as FromMarkdownExtension } from 'mdast-util-from-markdown'
+import { resolveAll as micromarkResolveAll } from 'micromark-util-resolve-all'
 import type { Construct, Event, Extension as MicromarkExtension, TokenizeContext } from 'micromark-util-types'
 import { Processor } from 'unified'
-
-import { resolveAll as micromarkResolveAll } from 'micromark-util-resolve-all'
 
 export const addMicromarkExtensions = (p: Processor, ...extensions: MicromarkExtension[]) => {
 	const data = p.data() as { micromarkExtensions?: MicromarkExtension[] }

@@ -1,2 +1,2 @@
-export * from './copycode'
-export * from './page'
+export * from './copycode.js'
+export * from './page.js'

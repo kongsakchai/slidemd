@@ -10,7 +10,7 @@ import { createHighlighter } from 'shiki'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
-import { getAttributes, mapNode } from './helper'
+import { getAttributes, mapNode } from './helper.js'
 
 export interface CodeblockOptions {
 	disableCopy?: boolean

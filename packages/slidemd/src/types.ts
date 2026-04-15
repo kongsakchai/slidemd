@@ -20,12 +20,12 @@ export interface Options {
 }
 
 export interface SlideProps {
-	page: string
+	page: number
 }
 
 export interface SlideData {
 	title: string
 	pages: PageData[]
-	markdonw: string
+	markdown: string
 	[key: string]: any
 }

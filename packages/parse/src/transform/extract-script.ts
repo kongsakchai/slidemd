@@ -1,6 +1,5 @@
 import type { Root } from 'mdast'
 import type { Transformer } from 'unified'
-
 import { visit } from 'unist-util-visit'
 
 const rawTagExpression = /^<(script|style)(?:\s[\s\S]*)?>([\s\S]*)<\/\1>$/i

@@ -19,8 +19,8 @@
 			"types": "./dist/components/index.d.ts"
 		},
 		"./themes/*": {
-			"import": "./dist/themes/*.css",
-			"style": "./dist/themes/*.css"
+			"import": "./dist/themes/*",
+			"style": "./dist/themes/*"
 		}
 	},
 	"files": [

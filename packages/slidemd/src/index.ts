@@ -1,2 +1,2 @@
-export * from './slide'
-export * from './types'
+export * from './slide.js'
+export * from './types.js'

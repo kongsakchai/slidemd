@@ -4,8 +4,8 @@ import remarkGfm from 'remark-gfm'
 import markdown from 'remark-parse'
 import remark2Rehype from 'remark-rehype'
 import { Processor, unified } from 'unified'
-import { ignoreRender, slidemdParser } from './parsers'
-import { applyTransformers, TransformOptions } from './transform'
+import { ignoreRender, slidemdParser } from './parsers/index.js'
+import { applyTransformers, TransformOptions } from './transform/index.js'
 
 export interface Options {
 	transform?: TransformOptions

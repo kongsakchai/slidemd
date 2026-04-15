@@ -1,7 +1,7 @@
 import { Processor } from 'unified'
-import { transformerAttribute } from './attribute'
-import { CodeblockOptions, transformerCodeblock } from './codeblock'
-import { transformerExteactScript } from './extract-script'
+import { transformerAttribute } from './attribute.js'
+import { CodeblockOptions, transformerCodeblock } from './codeblock.js'
+import { transformerExteactScript } from './extract-script.js'
 
 export interface TransformOptions {
 	codeblock?: CodeblockOptions

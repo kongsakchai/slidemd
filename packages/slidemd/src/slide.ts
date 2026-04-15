@@ -2,7 +2,7 @@ import { createParser } from '@slidemd/parse'
 import yaml from 'js-yaml'
 import MagicString from 'magic-string'
 import { PreprocessorGroup } from 'svelte/compiler'
-import type { Content, Options } from './types'
+import type { Content, Options, SlideData } from './types.js'
 
 export function extractFrontmatter(markdown: string) {
 	const match = /^---\r?\n([\s\S]*?)---/.exec(markdown)
@@ -55,10 +55,12 @@ export function slidemd(options?: Options): PreprocessorGroup {
 	const toSvelte = async (markdown: string) => {
 		const { slides, metadata, script, style } = await parse(markdown)
 
-		const pages = slides.map((slide) => {
-			metadata.pageData.push({ page: slide.page, step: slide.step, note: slide.note })
+		const pageData: SlideData = { ...metadata, title: metadata.title, pages: [], markdown }
+
+		const contents = slides.map((slide) => {
+			pageData.pages.push({ page: slide.page, step: slide.step, note: slide.note })
 			return [
-				`<section class="slide" data-page="${slide.page}" hidden="{currentPage !== ${slide.page}}">`,
+				`<section class="slide" data-page="${slide.page}" hidden="{page !== ${slide.page}}">`,
 				slide.content,
 				`</section>`
 			].join('\n')
@@ -73,7 +75,7 @@ export function slidemd(options?: Options): PreprocessorGroup {
 			script,
 			'let { page=$bindable() } = $props()',
 			'</script>',
-			...pages
+			...contents
 		]
 
 		return component.join('\n')
