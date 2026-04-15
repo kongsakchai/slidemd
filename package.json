@@ -9,7 +9,7 @@
 	"scripts": {
 		"test": "npm run test --workspaces",
 		"dev": "npm run build --workspace=@slidemd/parse --workspace=@slidemd/slidemd && npm run dev --workspace=@slidemd/cli",
-		"preview": "npm run build --workspace=@slidemd/parse --workspace=@slidemd/slidemd && npm run preview --workspace=@slidemd/preview"
+		"preview": "npm run build --workspace=@slidemd/parse --workspace=@slidemd/slidemd && npm run dev --workspace=@slidemd/dev"
 	},
 	"keywords": [],
 	"author": "",
