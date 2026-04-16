@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync } from 'fs'
+import { existsSync, readFileSync, readdirSync } from 'fs'
 
 export interface Directory {
 	directory: Record<string, Directory>

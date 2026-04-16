@@ -7,6 +7,7 @@
 		"packages/*"
 	],
 	"scripts": {
+		"prettier": "prettier --write .",
 		"test": "npm run test --workspaces",
 		"dev": "npm run build --workspace=@slidemd/parse --workspace=@slidemd/slidemd && npm run dev --workspace=@slidemd/cli",
 		"preview": "npm run build --workspace=@slidemd/parse --workspace=@slidemd/slidemd && npm run dev --workspace=@slidemd/dev"
@@ -17,6 +18,7 @@
 	"description": "",
 	"devDependencies": {
 		"@sveltejs/package": "^2.5.7",
+		"@trivago/prettier-plugin-sort-imports": "^6.0.2",
 		"@types/node": "^25.6.0",
 		"@vitest/coverage-v8": "^4.1.4",
 		"prettier": "^3.8.2",

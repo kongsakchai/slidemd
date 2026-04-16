@@ -1,5 +1,5 @@
 import { Node } from 'unist'
-import { BuildVisitor, visit, type Test } from 'unist-util-visit'
+import { BuildVisitor, type Test, visit } from 'unist-util-visit'
 
 // attribute extractor, used for parsing attributes in string
 // it's start of string or whitespace

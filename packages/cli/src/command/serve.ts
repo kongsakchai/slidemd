@@ -1,11 +1,13 @@
 import { config } from '@/config'
 import { getMarkdowns, readMarkdown } from '@/contents'
-import { templateApp, TemplateOptions, templateSlide, templateSlideLayout } from '@/templates'
+import { TemplateOptions, templateApp, templateSlide, templateSlideLayout } from '@/templates'
 import { makeMap, resolveSlideId, resolveSlideLayoutId } from '@/utils'
+
 import { generateAppHtml } from '@html'
 import { slidemd } from '@slidemd/slidemd'
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 import tailwindcss from '@tailwindcss/vite'
+
 import path from 'path'
 import type { InlineConfig, Plugin } from 'vite'
 import { createServer as createViteServer } from 'vite'

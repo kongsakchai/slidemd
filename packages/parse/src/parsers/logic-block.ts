@@ -1,5 +1,5 @@
 import { codes, types } from 'micromark-util-symbol'
-import type { Code, Construct, Effects, Extension, State, TokenizeContext, TokenType } from 'micromark-util-types'
+import type { Code, Construct, Effects, Extension, State, TokenType, TokenizeContext } from 'micromark-util-types'
 
 const STRING_DELIMS: Code[] = [codes.quotationMark, codes.graveAccent, codes.apostrophe]
 

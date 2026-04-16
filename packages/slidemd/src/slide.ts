@@ -1,7 +1,9 @@
 import { createParser } from '@slidemd/parse'
+
 import yaml from 'js-yaml'
 import MagicString from 'magic-string'
 import { PreprocessorGroup } from 'svelte/compiler'
+
 import type { Content, Options, SlideData } from './types.js'
 
 export function extractFrontmatter(markdown: string) {

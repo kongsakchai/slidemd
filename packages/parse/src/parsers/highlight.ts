@@ -1,6 +1,7 @@
 import type { CompileContext, Extension as FromMarkdownExtension } from 'mdast-util-from-markdown'
 import { codes, types } from 'micromark-util-symbol'
 import type { Code, Effects, Event, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
+
 import { handleResolveAll } from './helper.js'
 
 // Highlight extension for micromark; converts token sequences of `==` into highlight tokens

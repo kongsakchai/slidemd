@@ -1,5 +1,7 @@
 import '@slidemd/slidemd/themes/default.css'
+
 import { mount } from 'svelte'
+
 import App from './App.svelte'
 
 const app = mount(App, {

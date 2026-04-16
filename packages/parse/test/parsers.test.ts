@@ -5,9 +5,9 @@ import remarkGfm from 'remark-gfm'
 import markdown from 'remark-parse'
 import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
-import { ignoreRender, slidemdParser } from '../src/parsers'
-
 import { describe, expect, it } from 'vitest'
+
+import { ignoreRender, slidemdParser } from '../src/parsers'
 import { addFromMarkdownExtensions, addMicromarkExtensions, handleResolveAll } from '../src/parsers/helper'
 import { highlight, highlightFromMarkdown } from '../src/parsers/highlight'
 

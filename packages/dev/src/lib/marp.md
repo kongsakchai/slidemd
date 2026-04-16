@@ -2,8 +2,8 @@
 title: My Custom Marp
 theme: main
 tags:
-  - marp
-  - slide
+    - marp
+    - slide
 ---
 
 <!-- backgroundImage: url(https://fakeimg.pl/800x600/02669d/fff/?text=A) -->
@@ -33,8 +33,8 @@ Make Presentation by Markdown with Marp
 I really like using Markdown.I think I'll use it to format all of my documents from now on.
 I just love **bold text**.
 
-Italicized text is the *cat's meow*.
-This text is ***really important***.
+Italicized text is the _cat's meow_.
+This text is **_really important_**.
 
 ฉันชอบมาร์กดาวจริง ๆ ฉันคิดว่าฉันจะใช้มันในการจัดการเอกสารทั้งหมดของฉัน
 
@@ -77,11 +77,11 @@ Inline `Code`
 import { Elysia } from 'elysia'
 
 new Elysia()
-    .use(swagger()) // [!code ++]
-    .get('/', 'Hello Elysia') // [!code --]
-    .get('/user/:id', ({ params: { id }}) => id) // [!code hl:2]
-    .post('/form', ({ body }) => body)
-    .listen(3000)
+	.use(swagger()) // [!code ++]
+	.get('/', 'Hello Elysia') // [!code --]
+	.get('/user/:id', ({ params: { id } }) => id) // [!code hl:2]
+	.post('/form', ({ body }) => body)
+	.listen(3000)
 ```
 
 ---
@@ -176,19 +176,19 @@ My favorite search engine is [Duck Duck Go](https://duckduckgo.com).
 
 ### Info
 
->[!Info]
+> [!Info]
 > Info alert
 
 ### Example
 
->[!Example]
+> [!Example]
 > Example alert
 
 ---
 
 ### Bug
 
->[!Bug]
+> [!Bug]
 > Bug alert
 
 ---

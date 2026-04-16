@@ -1,6 +1,6 @@
 // const VIRTUAL_ENTRY_ID = 'virtual:slidemd'
-
 import path from 'path'
+
 import { createServer } from './command/serve'
 
 // const devMiddleware = (): Plugin => {
