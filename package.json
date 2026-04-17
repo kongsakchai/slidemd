@@ -7,10 +7,15 @@
 		"packages/*"
 	],
 	"scripts": {
+		"cli": "npm run build:parse && npm run build:slidemd && npm run dev -w @slidemd/cli",
+		"dev": "npm run build:parse && npm run build:slidemd && npm run dev -w @slidemd/dev",
+		"build":"npm run build:parse && npm run build:slidemd",
+		"build:parse":"npm run test -w @slidemd/parse",
+		"build:slidemd":"npm run test -w @slidemd/parse",
 		"prettier": "prettier --write .",
-		"test": "npm run test --workspaces",
-		"dev": "npm run build --workspace=@slidemd/parse --workspace=@slidemd/slidemd && npm run dev --workspace=@slidemd/cli",
-		"preview": "npm run build --workspace=@slidemd/parse --workspace=@slidemd/slidemd && npm run dev --workspace=@slidemd/dev"
+		"test":"npm run test:parse && npm run test:slidemd",
+		"test:parse": "npm run test -w @slidemd/parse",
+		"test:slidemd": "npm run test -w @slidemd/slidemd"
 	},
 	"keywords": [],
 	"author": "",
@@ -22,6 +27,7 @@
 		"@types/node": "^25.6.0",
 		"@vitest/coverage-v8": "^4.1.4",
 		"prettier": "^3.8.2",
+		"tsdown": "^0.21.9",
 		"typescript": "^5.9.3",
 		"vitest": "^4.1.4"
 	}

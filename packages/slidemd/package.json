@@ -30,24 +30,21 @@
 		"**/*.css"
 	],
 	"scripts": {
-		"test:unit": "vitest",
-		"test:cover": "vitest --coverage",
-		"test": "npm run test:unit -- --run",
 		"build": "svelte-package --input src --output dist",
-		"copy-assets": "copyfiles -u 1 \"src/themes/*.css\" dist/themes"
+		"test": "npm run test:unit -- --run",
+		"test:unit": "vitest",
+		"test:cover": "vitest --coverage"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"description": "",
 	"devDependencies": {
-		"@sveltejs/package": "^2.5.7",
 		"@types/js-yaml": "^4.0.9",
-		"copyfiles": "^2.4.1"
+		"svelte": "^5.55.3"
 	},
 	"dependencies": {
 		"@slidemd/parse": "*",
-		"js-yaml": "^4.1.1",
-		"svelte": "^5.55.3"
+		"js-yaml": "^4.1.1"
 	}
 }

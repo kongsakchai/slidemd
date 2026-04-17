@@ -5,16 +5,17 @@
 		"lib": ["ESNext", "DOM"],
 		"moduleResolution": "bundler",
 		"resolveJsonModule": true,
-		"declaration": true,
 		"strict": true,
 		"strictNullChecks": true,
 		"esModuleInterop": true,
-		"skipDefaultLibCheck": true,
 		"skipLibCheck": true,
+		"allowImportingTsExtensions": true,
+		"forceConsistentCasingInFileNames": true,
+		"noUnusedLocals": true,
+		"noEmit": true,
 		"paths": {
 			"@slidemd/parse/*": ["./packages/parse/src/*"],
 			"@slidemd/slidemd/*": ["./packages/slidemd/src/*"]
 		}
-	},
-	"include": ["./packages/**/*.ts", "./packages/**/*.d.ts", "./packages/**/*.svelte"]
+	}
 }

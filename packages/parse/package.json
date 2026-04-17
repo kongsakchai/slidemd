@@ -12,10 +12,10 @@
 		}
 	},
 	"scripts": {
-		"test:unit": "vitest",
-		"test:cover": "vitest --coverage",
+		"build": "tsdown",
 		"test": "npm run test:unit -- --run",
-		"build": "tsc"
+		"test:unit": "vitest",
+		"test:cover": "vitest --coverage"
 	},
 	"keywords": [],
 	"author": "",
