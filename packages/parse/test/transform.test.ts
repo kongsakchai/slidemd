@@ -125,9 +125,9 @@ describe('transformer codeblock', () => {
 		}
 
 		const transformer = transformerCodeblock()
-		await transformer(tree, null as any, null as any)
+		await transformer(tree, null as never, null as never)
 
-		const container = tree.children[0] as any as Parent
+		const container = tree.children[0] as never as Parent
 
 		expect(container.type).toBe('container')
 		expect(container.data?.hChildren?.[1]).toEqual({

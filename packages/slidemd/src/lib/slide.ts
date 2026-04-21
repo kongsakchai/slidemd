@@ -2,7 +2,7 @@ import { createParser } from '@slidemd/parse'
 
 import yaml from 'js-yaml'
 import MagicString from 'magic-string'
-import { PreprocessorGroup } from 'svelte/compiler'
+import type { PreprocessorGroup } from 'svelte/compiler'
 
 import type { Content, Options, SlideData } from './types.js'
 
@@ -86,7 +86,8 @@ export function slidemd(options?: Options): PreprocessorGroup {
 	return {
 		name: 'slidemd',
 		markup: async ({ content, filename }) => {
-			if (filename?.endsWith(options?.extension || '.svmd')) {
+			console.log({ filename })
+			if (filename?.endsWith(options?.extension || '.md')) {
 				const result = new MagicString(content)
 				const parsed = await toSvelte(content)
 

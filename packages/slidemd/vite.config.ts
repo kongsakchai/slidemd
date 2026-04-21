@@ -1,8 +1,9 @@
-import { slidemd } from '@slidemd/slidemd'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import tailwindcss from '@tailwindcss/vite'
 
 import { defineConfig } from 'vite'
+
+import { slidemd } from './src/lib'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -10,7 +11,10 @@ export default defineConfig({
 		tailwindcss(),
 		svelte({
 			extensions: ['.svelte', '.md'],
-			preprocess: [slidemd({ extension: '.md' })]
+			preprocess: [slidemd()]
 		})
-	]
+	],
+	resolve: {
+		tsconfigPaths: true
+	}
 })

@@ -1,9 +1,9 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@source inline("opacity-0");
-@source inline("opacity-100");
-@source inline("hidden");
+@source inline('opacity-0');
+@source inline('opacity-100');
+@source inline('hidden');
 
 @custom-variant dark (&:is(.dark *));
 

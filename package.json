@@ -8,12 +8,13 @@
 	],
 	"scripts": {
 		"cli": "npm run build:parse && npm run build:slidemd && npm run dev -w @slidemd/cli",
-		"dev": "npm run build:parse && npm run build:slidemd && npm run dev -w @slidemd/dev",
-		"build":"npm run build:parse && npm run build:slidemd",
-		"build:parse":"npm run test -w @slidemd/parse",
-		"build:slidemd":"npm run test -w @slidemd/parse",
-		"prettier": "prettier --write .",
-		"test":"npm run test:parse && npm run test:slidemd",
+		"dev": "npm run build:parse && npm run dev -w @slidemd/slidemd",
+		"build": "npm run build:parse && npm run build:slidemd",
+		"build:parse": "npm run build -w @slidemd/parse",
+		"build:slidemd": "npm run build -w @slidemd/slidemd",
+		"lint": "prettier --check . && eslint .",
+		"format": "prettier --write .",
+		"test": "npm run test:parse && npm run test:slidemd",
 		"test:parse": "npm run test -w @slidemd/parse",
 		"test:slidemd": "npm run test -w @slidemd/slidemd"
 	},
@@ -22,13 +23,22 @@
 	"license": "ISC",
 	"description": "",
 	"devDependencies": {
+		"@eslint/compat": "^2.0.4",
+		"@eslint/js": "^10.0.1",
 		"@sveltejs/package": "^2.5.7",
 		"@trivago/prettier-plugin-sort-imports": "^6.0.2",
 		"@types/node": "^25.6.0",
 		"@vitest/coverage-v8": "^4.1.4",
+		"eslint": "^10.2.1",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-svelte": "^3.17.0",
 		"prettier": "^3.8.2",
+		"prettier-plugin-svelte": "^3.5.1",
+		"prettier-plugin-tailwindcss": "^0.7.2",
 		"tsdown": "^0.21.9",
 		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.59.0",
+		"vite": "^8.0.9",
 		"vitest": "^4.1.4"
 	}
 }
