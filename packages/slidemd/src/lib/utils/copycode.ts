@@ -1,4 +1,4 @@
-export const copyCode = (e: Event) => {
+export function copyCode(e: Event) {
 	const button = e.currentTarget as HTMLButtonElement
 	const pre = button.parentNode?.querySelector('pre')
 	if (!pre) return

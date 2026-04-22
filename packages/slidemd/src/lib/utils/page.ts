@@ -32,3 +32,12 @@ export function updatePageState(
 			return state
 	}
 }
+
+export function calPageSize(aspect: number, maxWidth: number, maxHeight: number) {
+	const width = Math.round(maxHeight * aspect)
+	const height = Math.round(maxWidth / aspect)
+	if (height > maxHeight) {
+		return { width, height: maxHeight }
+	}
+	return { width: maxWidth, height }
+}

@@ -1,6 +1,7 @@
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 import tailwindcss from '@tailwindcss/vite'
 
+import path from 'path'
 import { defineConfig } from 'vite'
 
 import { slidemd } from './src/lib'
@@ -11,10 +12,13 @@ export default defineConfig({
 		tailwindcss(),
 		svelte({
 			extensions: ['.svelte', '.md'],
-			preprocess: [slidemd()]
+			preprocess: [slidemd(), vitePreprocess()]
 		})
 	],
 	resolve: {
-		tsconfigPaths: true
+		tsconfigPaths: true,
+		alias: {
+			'@lib': path.resolve(__dirname, './src/lib')
+		}
 	}
 })

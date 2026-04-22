@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createParser } from '@slidemd/parse'
 
 import yaml from 'js-yaml'
@@ -86,7 +87,6 @@ export function slidemd(options?: Options): PreprocessorGroup {
 	return {
 		name: 'slidemd',
 		markup: async ({ content, filename }) => {
-			console.log({ filename })
 			if (filename?.endsWith(options?.extension || '.md')) {
 				const result = new MagicString(content)
 				const parsed = await toSvelte(content)
