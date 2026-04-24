@@ -33,11 +33,14 @@ export function updatePageState(
 	}
 }
 
-export function calPageSize(aspect: number, maxWidth: number, maxHeight: number) {
-	const width = Math.round(maxHeight * aspect)
-	const height = Math.round(maxWidth / aspect)
-	if (height > maxHeight) {
-		return { width, height: maxHeight }
-	}
-	return { width: maxWidth, height }
+export const slideWidth = 1280
+export const slideHeight = 720
+
+export function resolvePageSize(width: number, height: number, viewWidth: number, viewHeight: number) {
+	const aspect = width / height
+	const tempHeight = viewWidth / aspect
+	const isOverHeight = tempHeight > viewHeight
+	const finalWidth = isOverHeight ? viewHeight * aspect : viewWidth
+
+	return finalWidth / width
 }
