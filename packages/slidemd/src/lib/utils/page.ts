@@ -9,11 +9,11 @@ export interface PageState {
 }
 
 export function updatePageState(
+	action: PageAction,
 	page: number,
-	maxPage: number,
 	step: number,
-	maxStep: number,
-	action: PageAction
+	maxPage: number,
+	maxStep: number
 ): PageState {
 	const state = { page, step }
 
@@ -25,7 +25,7 @@ export function updatePageState(
 
 		case PageAction.PREVIOUS:
 			if (step > 0) return { page, step: step - 1 }
-			if (page > 0) return { page: page - 1, step: maxStep }
+			if (page > 1) return { page: page - 1, step: maxStep }
 			return state
 
 		default:

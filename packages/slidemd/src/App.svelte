@@ -1,13 +1,18 @@
 <script lang="ts">
-	import { SlideLayout } from '@lib/components'
+	import { SlideController, SlideLayout } from '@lib/components'
 
-	import Slide from './example/marp.md'
+	import Slide, { slide } from './example/marp.md'
 
 	let page = $state(1)
+	let step = $state(1)
 </script>
 
 <main class="h-full w-full">
 	<SlideLayout>
-		<Slide bind:page />
+		<Slide bind:page bind:step />
+
+		{#snippet controller()}
+			<SlideController bind:page bind:step {slide} />
+		{/snippet}
 	</SlideLayout>
 </main>

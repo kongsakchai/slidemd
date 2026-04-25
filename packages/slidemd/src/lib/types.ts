@@ -15,11 +15,12 @@ export interface Content extends PageData {
 	content: string
 }
 
-// Export
+// Component
 export type SlideMDComponent = import('svelte').Component<SlideProps>
 
 export interface SlideProps {
 	page: number
+	step: number
 }
 
 export interface SlideData {
@@ -32,5 +33,5 @@ export interface SlideData {
 export interface PageData {
 	page: number
 	note?: string
-	step?: number
+	step: number
 }

@@ -71,7 +71,7 @@ export function slidemd(options?: Options): PreprocessorGroup {
 
 		const component = [
 			`<script lang="ts" module>`,
-			`export const slide = ` + JSON.stringify(metadata),
+			`export const slide = ` + JSON.stringify(pageData),
 			`</script>`,
 			'<script lang="ts">',
 			"import {copyCode} from '@slidemd/slidemd/utils'",

@@ -4,10 +4,11 @@
 	import type { Snippet } from 'svelte'
 
 	interface Props {
+		controller?: Snippet
 		children: Snippet
 	}
 
-	let { children }: Props = $props()
+	let { children, controller }: Props = $props()
 
 	let width = $state(0)
 	let height = $state(0)
@@ -28,4 +29,6 @@
 	>
 		{@render children()}
 	</section>
+
+	{@render controller?.()}
 </section>
