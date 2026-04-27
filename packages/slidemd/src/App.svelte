@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { SlideController, SlideLayout } from '@lib/components'
+	import { PageState } from '@lib/utils'
 
 	import Slide, { slide } from './example/marp.md'
 
-	let page = $state(1)
-	let step = $state(1)
+	const state = new PageState(slide)
 </script>
 
 <main class="h-full w-full">
 	<SlideLayout>
-		<Slide bind:page bind:step />
+		<Slide bind:page={state.page} bind:step={state.step} />
 
 		{#snippet controller()}
-			<SlideController bind:page bind:step {slide} />
+			<SlideController {state} />
 		{/snippet}
 	</SlideLayout>
 </main>

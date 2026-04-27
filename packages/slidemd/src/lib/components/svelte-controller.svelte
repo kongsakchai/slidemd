@@ -1,26 +1,31 @@
 <script lang="ts">
-	import type { SlideData } from '@lib/types'
-	import { PageAction, updatePageState } from '@lib/utils'
+	import { PageState } from '@lib/utils'
+
+	import Navigator from './navigator.svelte'
+	import Viewer from './viewer.svelte'
 
 	interface Props {
-		page: number
-		step: number
-		slide: SlideData
+		state: PageState
 	}
 
-	let { page = $bindable(1), step = $bindable(0), slide }: Props = $props()
-
-	console.log(slide)
-
-	function next() {
-		const state = updatePageState(PageAction.NEXT, page, step, slide.pages.length, slide.pages[page - 1].step)
-		page = state.page
-		step = state.step
-
-		console.log(page, step)
-	}
+	let { state }: Props = $props()
 </script>
 
-<div class="absolute bottom-10 left-10 bg-red-500">
-	<button onclick={next}>Next</button>
+<div class="controller absolute bottom-10 left-10 flex gap-4">
+	<Navigator {state} />
+	<Viewer />
 </div>
+
+<style lang="postcss">
+	@reference "tailwindcss";
+	@reference "@lib/themes/slidemd.css";
+
+	.controller :global {
+		.menu {
+			@apply bg-card border-border text-card-foreground flex gap-0.5 rounded-md border p-0.5 shadow-2xl;
+		}
+		.menu-btn {
+			@apply hover:bg-accent hover:text-accent-foreground content-center;
+		}
+	}
+</style>
