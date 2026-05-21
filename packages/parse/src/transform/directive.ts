@@ -20,11 +20,8 @@ export function transformerDirective(): Transformer {
 
 				parent.children.splice(index, 1)
 				return index
-			} catch (e) {
-				console.warn(
-					e,
-					`\x1b[43m\x1b[30m WARN \x1b[0m\x1b[33m directive syntax invalid:\x1b[0m\n---\n${val}\n---`
-				)
+			} catch {
+				console.warn(`\x1b[43m\x1b[30m WARN \x1b[0m\x1b[33m directive syntax invalid:\x1b[0m\n---\n${val}\n---`)
 				return
 			}
 		})

@@ -7,7 +7,13 @@ tags:
     - slide
 ---
 
+<script>
+    const src="https://picsum.photos/id/1/300"
+</script>
+
 # Hello, Marp
+
+<div {src}
 
 Make Presentation by Markdown with Marp @{ .bg-red-500 }
 

@@ -1,7 +1,13 @@
-import { asciiAlpha, asciiAlphanumeric, markdownLineEnding, markdownLineEndingOrSpace } from 'micromark-util-character'
+import {
+	asciiAlpha,
+	asciiAlphanumeric,
+	markdownLineEnding,
+	markdownLineEndingOrSpace,
+	markdownSpace
+} from 'micromark-util-character'
 import { htmlBlockNames, htmlRawNames } from 'micromark-util-html-tag-name'
 import { codes, constants, types } from 'micromark-util-symbol'
-import type { Code, Construct, Effects, State, TokenizeContext } from 'micromark-util-types'
+import type { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
 // Tag Type
 // Type 1: <script> <pre> <style>
@@ -17,10 +23,16 @@ const httpsPrefix = 'https://'
 
 const isAutoLink = (str: string) => str === httpPrefix || str === httpsPrefix
 
-export const htmlFlow: Construct = {
+export const tokenizer: Construct = {
 	concrete: true,
 	name: 'html',
 	tokenize: tokenize
+}
+
+export const htmlBlock: Extension = {
+	flow: {
+		[codes.lessThan]: tokenizer // trigger tokenizer when `<` is found at the start of a line (flow context)
+	}
 }
 
 function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
@@ -221,6 +233,16 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 			return closeCData
 		}
 
+		if (markdownLineEnding(code) && (tagType === constants.htmlBasic || tagType === constants.htmlComplete)) {
+			effects.exit(types.htmlFlowData)
+			return effects.check({ partial: true, tokenize: blankLineTokenize }, close, checkNonLazy)(code)
+		}
+
+		if (code === codes.eof || markdownLineEnding(code)) {
+			effects.exit(types.htmlFlowData)
+			return checkNonLazy(code)
+		}
+
 		effects.consume(code)
 		return more
 	}
@@ -253,11 +275,81 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	function done(code: Code) {
 		if (code === codes.eof || markdownLineEnding(code)) {
 			effects.exit(types.htmlFlowData)
-			effects.exit(types.htmlFlow)
-			return ok(code)
+			return close(code)
 		}
 
 		effects.consume(code)
 		return done
+	}
+
+	function close(code: Code) {
+		effects.exit(types.htmlFlow)
+		return ok(code)
+	}
+
+	function checkNonLazy(code: Code) {
+		return effects.check({ partial: true, tokenize: nonLazyTokenize }, newLine, close)(code)
+	}
+
+	function newLine(code: Code) {
+		effects.enter(types.lineEnding)
+		effects.consume(code)
+		effects.exit(types.lineEnding)
+
+		if (markdownLineEnding(code)) {
+			return newLine(code)
+		}
+
+		if (code === codes.eof) {
+			return close(code)
+		}
+
+		effects.enter(types.htmlFlowData)
+		return more(code)
+	}
+}
+
+function blankLineTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+	return start
+
+	function start(code: Code) {
+		if (!markdownLineEnding(code)) return nok(code)
+
+		effects.enter(types.lineEnding)
+		effects.consume(code)
+		effects.exit(types.lineEnding)
+
+		if (markdownSpace(code)) {
+			effects.enter(types.linePrefix)
+			return pullSpace(code)
+		}
+
+		return checkEnd(code)
+	}
+
+	function pullSpace(code: Code) {
+		if (markdownSpace(code)) {
+			effects.enter(types.linePrefix)
+			return pullSpace(code)
+		}
+
+		effects.exit(types.linePrefix)
+		return ok(code)
+	}
+
+	function checkEnd(code: Code) {
+		return code === codes.eof || markdownLineEnding(code) ? ok(code) : nok(code)
+	}
+}
+
+function nonLazyTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+	return (code: Code) => {
+		if (!markdownLineEnding(code)) return nok(code)
+
+		effects.enter(types.lineEnding)
+		effects.consume(code)
+		effects.exit(types.lineEnding)
+
+		return this.parser.lazy[this.now().line] ? nok(code) : ok(code)
 	}
 }

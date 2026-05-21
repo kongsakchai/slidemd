@@ -323,8 +323,8 @@ describe('extended syntax', () => {
 		it('should return normal text when escape highligh', async () => {
 			const processor = setupProcessorTestParser()
 
-			let file = await processor.process(`hello, =\\==markdown===`)
-			expect(file.value).toEqual('<p>hello, ===markdown===</p>')
+			let file = await processor.process(`=\\==markdown===`)
+			expect(file.value).toEqual('<p>===markdown===</p>')
 
 			file = await processor.process(`hello, ==\\=markdown==`)
 			expect(file.value).toEqual('<p>hello, <mark>=markdown</mark></p>')
@@ -374,6 +374,13 @@ describe('svelte syntax', () => {
 
 			const file = await processor.process('<div>hello, markdown</div>')
 			expect(file.value).toEqual('<div>hello, markdown</div>')
+		})
+
+		it('should return div without close', async () => {
+			const processor = setupProcessorTestParser()
+
+			const file = await processor.process('<div>hello, markdown\n\n# title')
+			expect(file.value).toEqual('<div>hello, markdown\n<h1>title</h1>')
 		})
 
 		it('should return div with attr', async () => {

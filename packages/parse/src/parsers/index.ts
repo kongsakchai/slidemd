@@ -8,13 +8,13 @@ import { svelteLogicBlock } from './logic-block.js'
 import { subscript, subscriptFromMarkdown, superscript, superscriptFromMarkdown } from './subsuper.js'
 
 export function slidemdParser(this: Processor) {
-	addMicromarkExtensions(this, highlight(), subscript(), superscript(), attribute(), htmlBlock(), svelteLogicBlock())
+	addMicromarkExtensions(this, highlight, subscript, superscript, attribute, htmlBlock, svelteLogicBlock)
 	addFromMarkdownExtensions(
 		this,
-		highlightFromMarkdown(),
-		subscriptFromMarkdown(),
-		superscriptFromMarkdown(),
-		attributeFromMarkdown()
+		highlightFromMarkdown,
+		subscriptFromMarkdown,
+		superscriptFromMarkdown,
+		attributeFromMarkdown
 	)
 }
 
