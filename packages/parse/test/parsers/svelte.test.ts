@@ -255,4 +255,25 @@ describe('basic svelte', () => {
 		const file = await processor.process('Age is: {{data:10}}')
 		expect(file.value).toEqual('<p>Age is: {{data:10}}</p>')
 	})
+
+	it('should return custom html', async () => {
+		const processor = setupProcessorTestParser()
+
+		const file = await processor.process('<A># Hello</A>')
+		expect(file.value).toEqual('<A># Hello</A>')
+	})
+
+	it('should return html greaster than in attributes', async () => {
+		const processor = setupProcessorTestParser()
+
+		const file = await processor.process('<div class=">"></div>')
+		expect(file.value).toEqual('<div class=">"></div>')
+	})
+
+	it('should return inline html with greaster than in attributes', async () => {
+		const processor = setupProcessorTestParser()
+
+		const file = await processor.process('hello <div class=">"></div>')
+		expect(file.value).toEqual('<p>hello <div class=">"></div></p>')
+	})
 })

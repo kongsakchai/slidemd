@@ -4,7 +4,7 @@ import type { Code, Construct, Effects, Extension, State, TokenType, TokenizeCon
 const STRING_DELIMS: Code[] = [codes.quotationMark, codes.graveAccent, codes.apostrophe]
 
 const createTokenizerLogic = (inline?: boolean): Construct => ({
-	name: 'html',
+	name: 'logic-block',
 	tokenize: createTokenizerLogicBlock(inline),
 	concrete: true
 })

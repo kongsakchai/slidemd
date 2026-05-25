@@ -18,12 +18,8 @@ import type { Code, Construct, Effects, Extension, State, TokenizeContext } from
 // Type 6: basic
 // Type 7: complete tags <.../>, </...>, component
 
-const HTTP_PREFIX = 'http://'
-const HTTPS_PREFIX = 'https://'
 const RAW_TAGS = new Set(htmlRawNames)
 const BASIC_TAGS = new Set(htmlBlockNames)
-
-const isAutoLink = (str: string) => str === HTTP_PREFIX || str === HTTPS_PREFIX
 
 // --- Tokenizer
 
@@ -33,7 +29,7 @@ export const tokenizer: Construct = {
 	tokenize: tokenize
 }
 
-export const htmlBlock: Extension = {
+export const htmlFlow: Extension = {
 	flow: {
 		[codes.lessThan]: tokenizer
 	}
@@ -46,6 +42,9 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	let tagType = 0
 	let cdataIndex = 0
 	let isClosingTag = false
+
+	const isInterrupt = () => this.interrupt
+	const isLazy = () => this.parser.lazy[this.now().line]
 
 	return start
 
@@ -142,21 +141,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 			code === codes.eof ||
 			markdownLineEndingOrSpace(code)
 		) {
-			const name = String.fromCharCode(...tagNameBuffer).toLowerCase()
-			const isSlash = code === codes.slash
-
-			if (isAutoLink(name)) {
-				return nok(code)
-			}
-
-			resolveTagType(name, isSlash)
-
-			if (isSlash) {
-				effects.consume(code)
-				return afterSlash
-			}
-
-			return isClosingTag ? closeTag(code) : more(code)
+			return endTagName(code)
 		}
 
 		// Continue tag name
@@ -169,32 +154,58 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		return nok(code)
 	}
 
-	function resolveTagType(name: string, isSlash: boolean) {
+	function endTagName(code: Code) {
+		const isSlash = code === codes.slash
+		const name = String.fromCharCode(...tagNameBuffer).toLowerCase()
+
 		if (!isClosingTag && !isSlash && RAW_TAGS.has(name)) {
 			tagType = constants.htmlRaw
-			return
+			return more(code)
 		}
 
 		if (BASIC_TAGS.has(name)) {
 			tagType = constants.htmlBasic
-			return
+		} else {
+			tagType = constants.htmlComplete
+
+			// Do not support complete HTML when interrupting.
+			if (isInterrupt() && !isLazy()) {
+				return nok(code)
+			}
 		}
 
-		tagType = constants.htmlComplete
+		if (isSlash) {
+			effects.consume(code)
+			return completeEnd
+		}
+
+		return isClosingTag ? completeClosingTag(code) : more(code)
 	}
 
 	// check end with `>`
-	function afterSlash(code: Code) {
+	function completeEnd(code: Code) {
 		if (code === codes.greaterThan) {
 			effects.consume(code)
-			return beforeEnd
+			return isInterrupt() ? ok : beforeEnd
 		}
 
 		return nok(code)
 	}
 
+	function completeClosingTag(code: Code) {
+		if (markdownSpace(code)) {
+			effects.consume(code)
+			return completeClosingTag
+		}
+		return completeEnd(code)
+	}
+
 	// --- more
 	function more(code: Code): State | undefined {
+		if (isInterrupt()) {
+			return ok(code)
+		}
+
 		if (code === codes.lessThan && tagType === constants.htmlRaw) {
 			effects.consume(code)
 			return closeRawTag
@@ -321,7 +332,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function checkNextLine(code: Code) {
-		if (markdownLineEnding(code) || code === codes.eof) {
+		if (code === codes.eof || markdownLineEnding(code)) {
 			return checkNonLazy(code)
 		}
 
@@ -370,9 +381,7 @@ function blankLineTokenize(this: TokenizeContext, effects: Effects, ok: State, n
 }
 
 function nonLazyTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
-	const end = (code: Code) => {
-		return this.parser.lazy[this.now().line] ? nok(code) : ok(code)
-	}
+	const isLazy = () => this.parser.lazy[this.now().line]
 
 	return start
 
@@ -386,5 +395,9 @@ function nonLazyTokenize(this: TokenizeContext, effects: Effects, ok: State, nok
 		effects.exit(types.lineEnding)
 
 		return end
+	}
+
+	function end(code: Code) {
+		return isLazy() ? nok(code) : ok(code)
 	}
 }
