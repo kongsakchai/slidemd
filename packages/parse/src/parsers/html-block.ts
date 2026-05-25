@@ -18,10 +18,14 @@ import type { Code, Construct, Effects, Extension, State, TokenizeContext } from
 // Type 6: basic
 // Type 7: complete tags <.../>, </...>, component
 
-const httpPrefix = 'http://'
-const httpsPrefix = 'https://'
+const HTTP_PREFIX = 'http://'
+const HTTPS_PREFIX = 'https://'
+const RAW_TAGS = new Set(htmlRawNames)
+const BASIC_TAGS = new Set(htmlBlockNames)
 
-const isAutoLink = (str: string) => str === httpPrefix || str === httpsPrefix
+const isAutoLink = (str: string) => str === HTTP_PREFIX || str === HTTPS_PREFIX
+
+// --- Tokenizer
 
 export const tokenizer: Construct = {
 	concrete: true,
@@ -31,96 +35,83 @@ export const tokenizer: Construct = {
 
 export const htmlBlock: Extension = {
 	flow: {
-		[codes.lessThan]: tokenizer // trigger tokenizer when `<` is found at the start of a line (flow context)
+		[codes.lessThan]: tokenizer
 	}
 }
 
+// --- Tokenize
+
 function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+	let tagNameBuffer: number[] = []
 	let tagType = 0
 	let cdataIndex = 0
-	let buffer = ''
-	let isClossingTag = false
-
-	// const self = this
+	let isClosingTag = false
 
 	return start
 
 	function start(code: Code): State | undefined {
 		effects.enter(types.htmlFlow)
 		effects.enter(types.htmlFlowData)
-		effects.consume(code)
+		effects.consume(code) // consume `<`
 		return open
 	}
 
-	// check the first character after `<` to determine the block type
+	// Open - check after `<`
 	function open(code: Code): State | undefined {
-		// 2, 4 & 5
-		if (code === codes.exclamationMark) {
-			effects.consume(code)
-			return openWithExclamationMark
+		switch (code) {
+			case codes.exclamationMark:
+				effects.consume(code) // consume `!`
+				return openExclamationMark
+
+			case codes.questionMark:
+				tagType = constants.htmlInstruction
+				effects.consume(code) // consume `?`
+				return more
+
+			case codes.slash:
+				isClosingTag = true
+				effects.consume(code) // consume `\`
+				return startTagName
 		}
 
-		// 3
-		if (code === codes.questionMark) {
-			tagType = constants.htmlInstruction
-			effects.consume(code)
-			return more
-		}
-
-		// case closed tag name
-		if (code === codes.slash) {
-			isClossingTag = true
-			effects.consume(code)
-			return startTagName
-		}
-
-		// 1 & 6 & 7 & nok
 		return startTagName(code)
 	}
 
-	// For blocks starting with `<!`, determine if it's a comment, CDATA, declaration, or something else based on the next characters
-	function openWithExclamationMark(code: Code) {
-		if (code === codes.dash) {
-			tagType = constants.htmlComment
-			effects.consume(code)
-			return openComment
+	// Type 2 / 4 / 6 - check after `<!`
+	function openExclamationMark(code: Code) {
+		switch (code) {
+			case codes.dash:
+				tagType = constants.htmlComment
+				effects.consume(code) // consume `-`
+				return openComment
+
+			case codes.leftSquareBracket:
+				tagType = constants.htmlCdata
+				cdataIndex = 0
+				effects.consume(code) // consume `[`
+				return openCData
 		}
-		if (code === codes.leftSquareBracket) {
-			cdataIndex = 0
-			tagType = constants.htmlCdata
-			effects.consume(code)
-			return openCData
-		}
+
 		if (asciiAlpha(code)) {
 			tagType = constants.htmlDeclaration
-			effects.consume(code)
+			effects.consume(code) // consume alpha
 			return more
 		}
 
 		return nok(code)
 	}
 
-	// For comment blocks, look for the closing `<!--` sequence
+	// Type 2 - comment block
 	function openComment(code: Code) {
 		if (code === codes.dash) {
-			effects.consume(code)
+			effects.consume(code) // comsune `-`
 			return more
 		}
 
 		return nok(code)
 	}
 
-	// For comment blocks, look for the closing `-->` sequence
-	function closeComment(code: Code) {
-		if (code === codes.dash) {
-			effects.consume(code)
-			return closeTag
-		}
-
-		return more(code)
-	}
-
-	// For CDATA blocks, look for the closing `<![CDATA[` sequence
+	// Type 4 - cdata block
 	function openCData(code: Code) {
 		const prefix = constants.cdataOpeningString
 		if (code === prefix.charCodeAt(cdataIndex++)) {
@@ -131,82 +122,78 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		return nok(code)
 	}
 
-	// For CDATA blocks, look for the s `]]>` sequence
-	function closeCData(code: Code) {
-		if (code === codes.rightSquareBracket) {
-			effects.consume(code)
-			return closeTag
-		}
-
-		return more(code)
-	}
-
+	// tag name
 	function startTagName(code: Code) {
-		if (code !== null && asciiAlpha(code)) {
-			effects.consume(code)
-			buffer = String.fromCharCode(code)
-			return endTagName
-		}
-
-		return nok(code)
-	}
-
-	// For tag blocks, after reading the tag name, look for the closing `>` and determine if the block is complete or not based on the tag name and content
-	function endTagName(code: Code) {
-		if (isAutoLink(buffer)) {
+		if (code === null || !asciiAlpha(code)) {
 			return nok(code)
 		}
 
-		// end of tag name: <div>, <div/>, <div\n, <div class="">
+		tagNameBuffer = [code]
+		effects.consume(code) // consume character
+		return tagName
+	}
+
+	// validate tag name
+	function tagName(code: Code) {
+		// tag end with `>`, `\`, null, space
 		if (
 			code === codes.greaterThan ||
 			code === codes.slash ||
 			code === codes.eof ||
 			markdownLineEndingOrSpace(code)
 		) {
-			const name = buffer.toLowerCase()
-			const slash = code === codes.slash
+			const name = String.fromCharCode(...tagNameBuffer).toLowerCase()
+			const isSlash = code === codes.slash
 
-			if (!slash && !isClossingTag && htmlRawNames.includes(name)) {
-				tagType = constants.htmlRaw
-				return more(code)
+			if (isAutoLink(name)) {
+				return nok(code)
 			}
 
-			if (htmlBlockNames.includes(name)) {
-				tagType = constants.htmlBasic
-			} else if (tagType === 0) {
-				tagType = constants.htmlComplete
-			}
+			resolveTagType(name, isSlash)
 
-			if (slash) {
+			if (isSlash) {
 				effects.consume(code)
-				return closeComplete
+				return afterSlash
 			}
 
-			return isClossingTag ? closeTag(code) : more(code)
+			return isClosingTag ? closeTag(code) : more(code)
 		}
 
-		// consume tag name include alphanumberical or -
-		if (code === codes.dash || asciiAlphanumeric(code)) {
+		// Continue tag name
+		if (code != null && (code === codes.dash || asciiAlphanumeric(code))) {
+			tagNameBuffer.push(code)
 			effects.consume(code)
-			buffer += String.fromCharCode(code)
-			return endTagName
+			return tagName
 		}
 
 		return nok(code)
 	}
 
-	function closeRawTag(code: Code) {
-		if (code === codes.slash) {
-			isClossingTag = true
-			effects.consume(code)
-			return startTagName
+	function resolveTagType(name: string, isSlash: boolean) {
+		if (!isClosingTag && !isSlash && RAW_TAGS.has(name)) {
+			tagType = constants.htmlRaw
+			return
 		}
 
-		return more(code)
+		if (BASIC_TAGS.has(name)) {
+			tagType = constants.htmlBasic
+			return
+		}
+
+		tagType = constants.htmlComplete
 	}
 
-	// For all block types, keep consuming characters until the appropriate closing sequence is found, while also handling line breaks for non-inline blocks
+	// check end with `>`
+	function afterSlash(code: Code) {
+		if (code === codes.greaterThan) {
+			effects.consume(code)
+			return beforeEnd
+		}
+
+		return nok(code)
+	}
+
+	// --- more
 	function more(code: Code): State | undefined {
 		if (code === codes.lessThan && tagType === constants.htmlRaw) {
 			effects.consume(code)
@@ -225,7 +212,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 		if (code === codes.greaterThan && tagType === constants.htmlDeclaration) {
 			effects.consume(code)
-			return done
+			return beforeEnd
 		}
 
 		if (code === codes.rightSquareBracket && tagType === constants.htmlCdata) {
@@ -235,7 +222,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 		if (markdownLineEnding(code) && (tagType === constants.htmlBasic || tagType === constants.htmlComplete)) {
 			effects.exit(types.htmlFlowData)
-			return effects.check({ partial: true, tokenize: blankLineTokenize }, close, checkNonLazy)(code)
+			return checkBlankLine(code)
 		}
 
 		if (code === codes.eof || markdownLineEnding(code)) {
@@ -247,13 +234,44 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		return more
 	}
 
+	// close raw tag & read tag name
+	function closeRawTag(code: Code) {
+		if (code === codes.slash) {
+			isClosingTag = true
+			effects.consume(code)
+			return startTagName
+		}
+
+		return more(code)
+	}
+
+	// close comment
+	function closeComment(code: Code) {
+		if (code === codes.dash) {
+			effects.consume(code)
+			return closeTag
+		}
+
+		return more(code)
+	}
+
+	// close cdata
+	function closeCData(code: Code) {
+		if (code === codes.rightSquareBracket) {
+			effects.consume(code)
+			return closeTag
+		}
+
+		return more(code)
+	}
+
+	// close tag with `<` or comment with more dashes
 	function closeTag(code: Code) {
 		if (code === codes.greaterThan) {
 			effects.consume(code)
-			return done
+			return beforeEnd
 		}
 
-		// More dashes for comment case
 		if (code === codes.dash && tagType === constants.htmlComment) {
 			effects.consume(code)
 			return closeTag
@@ -262,46 +280,49 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		return more(code)
 	}
 
-	function closeComplete(code: Code) {
-		if (code === codes.greaterThan) {
-			effects.consume(code)
-			return done
-		}
-
-		return nok(code)
-	}
-
-	//When closed, all characters will be consumed to the new line.
-	function done(code: Code) {
+	// before end consume all characters
+	function beforeEnd(code: Code) {
 		if (code === codes.eof || markdownLineEnding(code)) {
 			effects.exit(types.htmlFlowData)
-			return close(code)
+			return done(code)
 		}
 
 		effects.consume(code)
-		return done
+		return beforeEnd
 	}
 
-	function close(code: Code) {
+	// done
+	function done(code: Code) {
 		effects.exit(types.htmlFlow)
 		return ok(code)
 	}
 
-	function checkNonLazy(code: Code) {
-		return effects.check({ partial: true, tokenize: nonLazyTokenize }, newLine, close)(code)
+	// --- Multiple-line
+
+	// check blank line for normal tag
+	// blank line: done
+	// non blank line: check non lazy
+	function checkBlankLine(code: Code) {
+		return effects.check({ partial: true, tokenize: blankLineTokenize }, done, checkNonLazy)(code)
 	}
 
-	function newLine(code: Code) {
+	// check non lazy line
+	// non lazy: continua
+	// lazy: done
+	function checkNonLazy(code: Code) {
+		return effects.check({ partial: true, tokenize: nonLazyTokenize }, startNextLine, done)(code)
+	}
+
+	function startNextLine(code: Code) {
 		effects.enter(types.lineEnding)
 		effects.consume(code)
 		effects.exit(types.lineEnding)
+		return checkNextLine
+	}
 
-		if (markdownLineEnding(code)) {
-			return newLine(code)
-		}
-
-		if (code === codes.eof) {
-			return close(code)
+	function checkNextLine(code: Code) {
+		if (markdownLineEnding(code) || code === codes.eof) {
+			return checkNonLazy(code)
 		}
 
 		effects.enter(types.htmlFlowData)
@@ -313,43 +334,57 @@ function blankLineTokenize(this: TokenizeContext, effects: Effects, ok: State, n
 	return start
 
 	function start(code: Code) {
-		if (!markdownLineEnding(code)) return nok(code)
+		if (!markdownLineEnding(code)) {
+			return nok(code)
+		}
 
 		effects.enter(types.lineEnding)
 		effects.consume(code)
 		effects.exit(types.lineEnding)
 
-		if (markdownSpace(code)) {
-			effects.enter(types.linePrefix)
-			return pullSpace(code)
-		}
-
-		return checkEnd(code)
+		return next
 	}
 
-	function pullSpace(code: Code) {
-		if (markdownSpace(code)) {
-			effects.enter(types.linePrefix)
-			return pullSpace(code)
+	function next(code: Code) {
+		if (!markdownSpace(code)) {
+			return end(code)
 		}
 
-		effects.exit(types.linePrefix)
-		return ok(code)
+		effects.enter(types.linePrefix)
+		return consumeSpace(code)
 	}
 
-	function checkEnd(code: Code) {
+	function consumeSpace(code: Code) {
+		if (!markdownSpace(code)) {
+			effects.exit(types.linePrefix)
+			return end(code)
+		}
+
+		effects.consume(code)
+		return consumeSpace
+	}
+
+	function end(code: Code) {
 		return code === codes.eof || markdownLineEnding(code) ? ok(code) : nok(code)
 	}
 }
 
 function nonLazyTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
-	return (code: Code) => {
-		if (!markdownLineEnding(code)) return nok(code)
+	const end = (code: Code) => {
+		return this.parser.lazy[this.now().line] ? nok(code) : ok(code)
+	}
+
+	return start
+
+	function start(code: Code) {
+		if (!markdownLineEnding(code)) {
+			return nok(code)
+		}
 
 		effects.enter(types.lineEnding)
 		effects.consume(code)
 		effects.exit(types.lineEnding)
 
-		return this.parser.lazy[this.now().line] ? nok(code) : ok(code)
+		return end
 	}
 }
