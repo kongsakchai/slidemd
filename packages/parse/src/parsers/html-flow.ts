@@ -23,7 +23,7 @@ const BASIC_TAGS = new Set(htmlBlockNames)
 
 // --- Tokenizer
 
-export const tokenizer: Construct = {
+const tokenizer: Construct = {
 	concrete: true,
 	name: 'html',
 	tokenize: tokenize

@@ -196,7 +196,12 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 			return done
 		}
 
-		if (code === codes.quotationMark || code === codes.apostrophe || code === codes.graveAccent) {
+		if (
+			code === codes.quotationMark ||
+			code === codes.apostrophe ||
+			code === codes.graveAccent ||
+			code === codes.leftCurlyBrace
+		) {
 			return checkMarker(code)
 		}
 
@@ -270,15 +275,8 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	function startNextLine(code: Code) {
 		if (markdownSpace(code)) {
 			effects.enter(types.linePrefix)
-			return consumeSpace(code)
-		}
-
-		return checkNextLine(code)
-	}
-
-	function checkNextLine(code: Code) {
-		if (code === codes.eof || markdownLineEnding(code)) {
-			return nok(code)
+			effects.consume(code)
+			return consumeSpace
 		}
 
 		effects.enter(types.htmlTextData)
@@ -288,7 +286,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	function consumeSpace(code: Code) {
 		if (!markdownSpace(code)) {
 			effects.exit(types.linePrefix)
-			return checkNextLine(code)
+			return startNextLine(code)
 		}
 
 		effects.consume(code)
