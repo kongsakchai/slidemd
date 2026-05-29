@@ -9,6 +9,8 @@ import { htmlBlockNames, htmlRawNames } from 'micromark-util-html-tag-name'
 import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
+import { blankLineTokenize, nonLazyTokenize } from './next-line'
+
 // Tag Type
 // Type 1: <script> <pre> <style>
 // Type 2: Comment
@@ -338,66 +340,5 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 		effects.enter(types.htmlFlowData)
 		return more(code)
-	}
-}
-
-function blankLineTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
-	return start
-
-	function start(code: Code) {
-		if (!markdownLineEnding(code)) {
-			return nok(code)
-		}
-
-		effects.enter(types.lineEnding)
-		effects.consume(code)
-		effects.exit(types.lineEnding)
-
-		return next
-	}
-
-	function next(code: Code) {
-		if (!markdownSpace(code)) {
-			return end(code)
-		}
-
-		effects.enter(types.linePrefix)
-		return consumeSpace(code)
-	}
-
-	function consumeSpace(code: Code) {
-		if (!markdownSpace(code)) {
-			effects.exit(types.linePrefix)
-			return end(code)
-		}
-
-		effects.consume(code)
-		return consumeSpace
-	}
-
-	function end(code: Code) {
-		return code === codes.eof || markdownLineEnding(code) ? ok(code) : nok(code)
-	}
-}
-
-function nonLazyTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
-	const isLazy = () => this.parser.lazy[this.now().line]
-
-	return start
-
-	function start(code: Code) {
-		if (!markdownLineEnding(code)) {
-			return nok(code)
-		}
-
-		effects.enter(types.lineEnding)
-		effects.consume(code)
-		effects.exit(types.lineEnding)
-
-		return end
-	}
-
-	function end(code: Code) {
-		return isLazy() ? nok(code) : ok(code)
 	}
 }

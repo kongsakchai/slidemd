@@ -5,11 +5,11 @@ import { addFromMarkdownExtensions, addMicromarkExtensions } from './helper.js'
 import { highlight, highlightFromMarkdown } from './highlight.js'
 import { htmlFlow } from './html-flow.js'
 import { htmlText } from './html-text.js'
-import { svelteLogicBlock } from './logic-block.js'
 import { subscript, subscriptFromMarkdown, superscript, superscriptFromMarkdown } from './subsuper.js'
+import { svelteBlock } from './svelte-block.js'
 
 export function slidemdParser(this: Processor) {
-	addMicromarkExtensions(this, highlight, subscript, superscript, attribute, htmlFlow, htmlText, svelteLogicBlock)
+	addMicromarkExtensions(this, highlight, subscript, superscript, attribute, htmlFlow, htmlText, svelteBlock)
 	addFromMarkdownExtensions(
 		this,
 		highlightFromMarkdown,

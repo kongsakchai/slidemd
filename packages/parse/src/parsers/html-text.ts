@@ -8,6 +8,10 @@ import {
 import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
+const QOUTE_LIST = new Set<Code>([codes.quotationMark, codes.apostrophe, codes.graveAccent])
+
+const isQoute = (code: Code) => QOUTE_LIST.has(code)
+
 // --- Tokenizer
 
 export const tokenizer: Construct = {
@@ -196,13 +200,12 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 			return done
 		}
 
-		if (
-			code === codes.quotationMark ||
-			code === codes.apostrophe ||
-			code === codes.graveAccent ||
-			code === codes.leftCurlyBrace
-		) {
-			return checkMarker(code)
+		if (isQoute(code)) {
+			return checkQoute(code)
+		}
+
+		if (code === codes.leftCurlyBrace || code === codes.rightCurlyBrace) {
+			return checkScope(code)
 		}
 
 		if (markdownLineEnding(code)) {
@@ -217,20 +220,22 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		return more
 	}
 
-	function checkMarker(code: Code) {
-		const inQoute =
-			latestMarker() === codes.quotationMark ||
-			latestMarker() === codes.apostrophe ||
-			latestMarker() === codes.graveAccent
-
-		const currentIsQoute = code === codes.quotationMark || code === codes.apostrophe || code === codes.graveAccent
-
-		if (latestMarker() === code) {
+	function checkQoute(code: Code) {
+		if (code === latestMarker()) {
 			markers.pop()
-		} else if (inQoute && !currentIsQoute) {
+		} else if (!isQoute(latestMarker())) {
 			markers.push(code)
-		} else if (!inQoute) {
+		}
+
+		effects.consume(code)
+		return more
+	}
+
+	function checkScope(code: Code) {
+		if (code === codes.leftCurlyBrace) {
 			markers.push(code)
+		} else if (latestMarker() === codes.leftCurlyBrace) {
+			markers.pop()
 		}
 
 		effects.consume(code)
@@ -275,8 +280,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	function startNextLine(code: Code) {
 		if (markdownSpace(code)) {
 			effects.enter(types.linePrefix)
-			effects.consume(code)
-			return consumeSpace
+			return consumeSpace(code)
 		}
 
 		effects.enter(types.htmlTextData)
@@ -286,11 +290,16 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	function consumeSpace(code: Code) {
 		if (!markdownSpace(code)) {
 			effects.exit(types.linePrefix)
-			return startNextLine(code)
+			return endNextLine(code)
 		}
 
 		effects.consume(code)
 		return consumeSpace
+	}
+
+	function endNextLine(code: Code) {
+		effects.enter(types.htmlTextData)
+		return more(code)
 	}
 
 	// done

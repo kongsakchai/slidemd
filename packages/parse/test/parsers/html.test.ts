@@ -12,8 +12,13 @@ describe('html flow', () => {
 			},
 			{
 				title: 'should return div with attributes',
-				value: '<div class="bg-primary {className}">hello, markdown</div>',
-				expected: '<div class="bg-primary {className}">hello, markdown</div>'
+				value: '<div {id} class="bg-primary {className}">hello, markdown</div>',
+				expected: '<div {id} class="bg-primary {className}">hello, markdown</div>'
+			},
+			{
+				title: 'should return img with shorthand',
+				value: `<img {src} />`,
+				expected: `<img {src} />`
 			},
 			{
 				title: 'should return raw',
@@ -102,6 +107,16 @@ describe('html flow', () => {
 				title: 'should return multiple line cdata',
 				value: '<![CDATA[ \n]\n]]\n ]]>',
 				expected: '<![CDATA[ \n]\n]]\n ]]>'
+			},
+			{
+				title: 'should return multiple line cdata',
+				value: '<![CDATA[ \n]\n]]\n ]]>',
+				expected: '<![CDATA[ \n]\n]]\n ]]>'
+			},
+			{
+				title: 'should return multiple with lazy',
+				value: '> <div>\n555555</div>',
+				expected: '<blockquote>\n<div>\n</blockquote>\n<p>555555</div></p>'
 			}
 		]
 
@@ -196,8 +211,18 @@ describe('html text', () => {
 			},
 			{
 				title: 'should return div with attributes',
-				value: `Hello <div class="bg-primary ' {className}">markdown</div>`,
-				expected: `<p>Hello <div class="bg-primary ' {className}">markdown</div></p>`
+				value: `Hello <div {id} class="bg-primary }' {className}">markdown</div>`,
+				expected: `<p>Hello <div {id} class="bg-primary }' {className}">markdown</div></p>`
+			},
+			{
+				title: 'should return div with shorthand',
+				value: `Hello <div {className}>markdown</div>`,
+				expected: `<p>Hello <div {className}>markdown</div></p>`
+			},
+			{
+				title: 'should return img with shorthand',
+				value: `Hello <img {src} />`,
+				expected: `<p>Hello <img {src} /></p>`
 			},
 			{
 				title: 'should return comment',
