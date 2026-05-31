@@ -5,7 +5,7 @@ import { parse } from 'yaml'
 
 import { Directive } from './types'
 
-export function transformerDirective(): Transformer {
+export function directiveTransformer(): Transformer {
 	return (tree, vfile) => {
 		visit(tree as Root, 'html', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent || parent != tree) return

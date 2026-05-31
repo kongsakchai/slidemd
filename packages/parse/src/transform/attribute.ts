@@ -4,7 +4,7 @@ import { visit } from 'unist-util-visit'
 
 import { getAttributes, maxValue } from './helper.js'
 
-export function transformerAttribute(): Transformer {
+export function attributeTransformer(): Transformer {
 	return (tree, vfile) => {
 		visit(tree as Root, 'attribute', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return

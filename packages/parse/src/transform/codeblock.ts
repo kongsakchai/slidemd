@@ -113,7 +113,7 @@ async function mermaidBlock(code: string) {
 	return container
 }
 
-export function transformerCodeblock(options?: CodeblockOptions): Transformer {
+export function codeblockTransformer(options?: CodeblockOptions): Transformer {
 	return async (tree, vfile) => {
 		const codeblocks = mapNode(tree as Root, 'code', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return

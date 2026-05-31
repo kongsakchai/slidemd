@@ -53,7 +53,7 @@ export const extractMaxStep = (str?: string | null) => {
 	if (!str) return 0
 	let step = 0
 	for (const match of str.matchAll(STEP_REGEX)) {
-		step = Math.max(parseInt(match[1]), step)
+		step = Math.max(Number.parseInt(match[1]), step)
 	}
 	return step
 }

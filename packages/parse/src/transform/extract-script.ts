@@ -4,7 +4,7 @@ import { visit } from 'unist-util-visit'
 
 const rawTagExpression = /^<(script|style)(?:\s[\s\S]*)?>([\s\S]*)<\/\1>$/i
 
-export function transformerExteactScript(): Transformer {
+export function extractScriptTransformer(): Transformer {
 	return async (tree, vfile) => {
 		visit(tree as Root, 'html', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return

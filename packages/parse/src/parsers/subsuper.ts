@@ -25,7 +25,7 @@ function subscriptTokenize(this: TokenizeContext, effects: Effects, ok: State, n
 
 	function start(code: Code) {
 		// Prevent subscript if the previous character is `~` and it is not escaped (to allow for literal `~` characters)
-		if (previous === codes.tilde && events[events.length - 1][1].type !== types.characterEscape) {
+		if (previous === codes.tilde && events.at(-1)?.[1].type !== types.characterEscape) {
 			return nok(code)
 		}
 
@@ -61,8 +61,8 @@ function resolveAllSubscript(events: Event[], context: TokenizeContext) {
 
 					const highlightToken: Token = {
 						type: 'subscript',
-						start: Object.assign({}, events[open][1].start),
-						end: Object.assign({}, events[close][1].end)
+						start: { ...events[open][1].start },
+						end: { ...events[close][1].end }
 					}
 
 					const insideSpan = context.parser.constructs.insideSpan.null
@@ -90,9 +90,9 @@ function resolveAllSubscript(events: Event[], context: TokenizeContext) {
 	}
 
 	// reset type
-	for (let index = 0; index < events.length; index++) {
-		if (events[index][1].type === 'subscriptSequenceTemp') {
-			events[index][1].type = 'data'
+	for (const event of events) {
+		if (event[1].type === 'subscriptSequenceTemp') {
+			event[1].type = 'data'
 		}
 	}
 
@@ -144,7 +144,7 @@ function superscriptTokenize(this: TokenizeContext, effects: Effects, ok: State,
 
 	function start(code: Code) {
 		// Prevent superscript if the previous character is `^` and it is not escaped (to allow for literal `^` characters)
-		if (previous === codes.caret && events[events.length - 1][1].type !== types.characterEscape) {
+		if (previous === codes.caret && events.at(-1)?.[1].type !== types.characterEscape) {
 			return nok(code)
 		}
 
@@ -180,8 +180,8 @@ function resolveAllSuperscript(events: Event[], context: TokenizeContext) {
 
 					const highlightToken: Token = {
 						type: 'superscript',
-						start: Object.assign({}, events[open][1].start),
-						end: Object.assign({}, events[close][1].end)
+						start: { ...events[open][1].start },
+						end: { ...events[close][1].end }
 					}
 
 					const insideSpan = context.parser.constructs.insideSpan.null
@@ -209,9 +209,9 @@ function resolveAllSuperscript(events: Event[], context: TokenizeContext) {
 	}
 
 	// reset type
-	for (let index = 0; index < events.length; index++) {
-		if (events[index][1].type === 'superscriptSequenceTemp') {
-			events[index][1].type = 'data'
+	for (const event of events) {
+		if (event[1].type === 'superscriptSequenceTemp') {
+			event[1].type = 'data'
 		}
 	}
 
