@@ -6,14 +6,15 @@ export enum PageAction {
 }
 
 export class SlideState {
-	#slide = $state<SlideData>({ title: '', markdown: '', pages: [] })
+	readonly #slide = $state<SlideData>({ title: '', markdown: '', pages: [] })
+	readonly #maxPage = $derived(this.#slide?.pages.length || 0)
+
 	#page = $state(1)
 	#step = $state(0)
-	#maxPage = $derived(this.#slide?.pages.length || 0)
 
-	zoom = $state(1)
-	fontSize = $state(16)
-	scale = $state(1)
+	#zoom = $state(1)
+	#fontSize = $state(16)
+	#scale = $state(1)
 
 	constructor(data: SlideData) {
 		this.#slide = data
@@ -33,6 +34,30 @@ export class SlideState {
 
 	get maxStep() {
 		return this.#slide.pages[this.#page - 1].step
+	}
+
+	get zoom() {
+		return this.#zoom
+	}
+
+	set zoom(val: number) {
+		this.#zoom = val
+	}
+
+	get fontSize() {
+		return this.#fontSize
+	}
+
+	set fontSize(val: number) {
+		this.#fontSize = val
+	}
+
+	get scale() {
+		return this.#scale
+	}
+
+	set scale(val: number) {
+		this.#scale = val
 	}
 
 	initial() {}
@@ -59,14 +84,14 @@ export class SlideState {
 	}
 
 	resetZoom() {
-		this.zoom = 1
+		this.#zoom = 1
 	}
 
 	resetFontSize() {
-		this.fontSize = 16
+		this.#fontSize = 16
 	}
 
 	resetScale() {
-		this.scale = 1
+		this.#scale = 1
 	}
 }

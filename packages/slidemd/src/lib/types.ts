@@ -6,29 +6,22 @@ export interface Options {
 }
 
 // Parser
-export interface SlideInfo {
-	slides: SlideContent[]
-	metadata: Record<string, string | boolean | number>
-	script: string
-	style: string
-}
+export type Transformer = (content: string, store: Store, directive: Directive) => string
 
-export interface SlideContent extends SlidePageData {
+export interface Content {
+	page: number
+	step: number
+	note?: string
 	content: string
 	directive: Directive
 }
 
-export interface SlideDirective {
-	class: string
-	style: string
-	page: string
+export interface Store {
+	paginate: number
+	class: string[]
+	style: string[]
 	footer: string
 	header: string
-	background: string
-}
-
-export interface SlidePageStore {
-	page: number
 }
 
 // Component
@@ -47,6 +40,6 @@ export interface SlideData {
 
 export interface SlidePageData {
 	page: number
-	note?: string
 	step: number
+	note?: string
 }

@@ -4,8 +4,9 @@ import yaml from 'js-yaml'
 import MagicString from 'magic-string'
 import type { PreprocessorGroup } from 'svelte/compiler'
 
-import { asNumber, asString, makeSlideDirective, resolveDirectives } from './helper'
-import type { Options, SlideContent, SlideData, SlidePageStore } from './types.js'
+import { asNumber, asString } from './helper'
+import { createTransformer } from './transform'
+import type { Content, Options, SlideData, Store } from './types'
 
 export function extractFrontmatter(markdown: string) {
 	const match = /^---\r?\n([\s\S]*?)---/.exec(markdown)
@@ -28,40 +29,40 @@ export function slidemd(options?: Options): PreprocessorGroup {
 		}
 	})
 
+	const transformer = createTransformer()
+
 	const parse = async (markdown: string) => {
 		const { body, metadata } = extractFrontmatter(markdown)
 
 		const pages = body.split(/\r?\n---\r?\n/)
-		const slides: SlideContent[] = []
+		const slides: Content[] = []
 
-		let scriptTag = ''
-		let styleTag = ''
-		let sharedDirective = { ...metadata }
+		let script = ''
+		let style = ''
+
+		let global: Directive = { ...metadata }
 
 		for (const [i, page] of pages.entries()) {
-			const file = await parser.parse(page, { ...sharedDirective, index: i + 1 })
-			const { local, shared } = resolveDirectives(file.data)
-			sharedDirective = shared
+			const file = await parser.parse(page, { global })
 
+			const directive = { ...file.data.global, ...file.data.local }
 			slides.push({
 				page: i + 1,
-				note: asString(local.note),
-				step: asNumber(local.step, 0),
-				directive: local,
+				step: asNumber(file.data.step, 0),
+				note: asString(directive.note),
+				directive: directive,
 				content: file.value
 			})
 
-			scriptTag = asString(shared.scriptTag, scriptTag)
-			styleTag = asString(shared.styleTag, styleTag)
+			script = file.data.script
+			style = file.data.style
 
 			// clear unshare directive
-			shared.step = undefined
-			shared.note = undefined
-			shared.scriptTag = undefined
-			shared.styleTag = undefined
+			global = file.data.global
+			global.note = undefined
 		}
 
-		return { slides, metadata, script: scriptTag, style: styleTag }
+		return { slides, metadata, script: script, style: style }
 	}
 
 	const toSvelte = async (markdown: string) => {
@@ -69,22 +70,23 @@ export function slidemd(options?: Options): PreprocessorGroup {
 
 		const slideData: SlideData = {
 			...metadata,
-			title: metadata.title?.toString() || 'slidemd',
-			pages: [],
-			markdown
+			title: typeof metadata.title === 'string' ? metadata.title : 'slidemd',
+			pages: []
 		}
 
-		const store: SlidePageStore = { page: 0 }
+		const store: Store = { paginate: 0, class: [], style: [], footer: '', header: '' }
 		const contents = slides.map((slide) => {
 			slideData.pages.push({ page: slide.page, step: slide.step, note: slide.note })
+			store.class = []
+			store.style = []
+			store.footer = ''
+			store.header = ''
 
-			const directive = makeSlideDirective(slide.directive, store)
+			const content = transformer.process(slide.content, store, slide.directive)
 
 			return [
-				`<section class='slide ${directive.class}' style='${directive.style}' data-page='${slide.page}' hidden='{page !== ${slide.page}}'>`,
-				directive.background,
-				directive.page,
-				slide.content,
+				`<section class='slide ${store.class}' style='${store.style}' data-page='${slide.page}' hidden='{page !== ${slide.page}}'>`,
+				content,
 				`</section>`
 			].join('\n')
 		})

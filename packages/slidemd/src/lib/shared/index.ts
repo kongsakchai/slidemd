@@ -1,2 +1,2 @@
-export * from './copycode.js'
-export * from './theme.js'
+export * from './copycode'
+export * from './theme'

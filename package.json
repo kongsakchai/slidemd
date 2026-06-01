@@ -7,8 +7,8 @@
 		"packages/*"
 	],
 	"scripts": {
-		"cli": "npm run build:parse && npm run build:slidemd && npm run dev -w @slidemd/cli",
-		"dev": "npm run build:parse && npm run dev -w @slidemd/slidemd",
+		"cli": "npm run dev -w @slidemd/cli",
+		"dev": "npm run dev -w @slidemd/slidemd",
 		"build": "npm run build:parse && npm run build:slidemd",
 		"build:parse": "npm run build -w @slidemd/parse",
 		"build:slidemd": "npm run build -w @slidemd/slidemd",

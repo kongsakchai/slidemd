@@ -1,1 +1,1 @@
-export * from './slide-state.svelte.js'
+export * from './slide-state.svelte'
