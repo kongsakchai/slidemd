@@ -29,8 +29,8 @@ describe('extract script', () => {
 		transformer(tree, vfile, null as any)
 
 		expect(tree.children.length).toEqual(1)
-		expect(vfile.data.scriptTag).toEqual('console.log("Hello")')
-		expect(vfile.data.styleTag).toEqual('.hello{ background: red; }')
+		expect(vfile.data.script).toEqual('console.log("Hello")')
+		expect(vfile.data.style).toEqual('.hello{ background: red; }')
 	})
 
 	it('should return without parent', () => {

@@ -6,7 +6,8 @@ import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 
 import { ignoreRender, slidemdParser } from './parsers/index.js'
-import { Attribute, AttributeValue, Directive, TransformOptions, applyTransformers } from './transform/index.js'
+import { asNumber, asString } from './transform/helper.js'
+import { Directive, TransformOptions, applyTransformers } from './transform/index.js'
 
 export interface Options {
 	transform?: TransformOptions
@@ -14,10 +15,16 @@ export interface Options {
 
 export interface File {
 	value: string
-	data: Directive
+	data: {
+		style: string
+		script: string
+		step: number
+		global: Directive
+		local: Directive
+	}
 }
 
-export type { Attribute, AttributeValue, Directive }
+export type { Directive }
 
 export function createParser(options?: Options) {
 	const mdastTransform = unified()
@@ -38,11 +45,17 @@ export function createParser(options?: Options) {
 	})
 
 	return {
-		parse: async (value: string, data: Directive): Promise<File> => {
-			const file = await parser.process({ value: value, data: data })
+		parse: async (value: string, shared: Directive): Promise<File> => {
+			const file = await parser.process({ value: value, data: shared })
 			return {
 				value: file.toString(),
-				data: file.data as Directive
+				data: {
+					script: asString(file.data.script, ''),
+					style: asString(file.data.style, ''),
+					step: asNumber(file.data.step, 0),
+					global: file.data.global as Directive,
+					local: file.data.local as Directive
+				}
 			}
 		}
 	}
