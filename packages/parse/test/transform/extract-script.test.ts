@@ -2,7 +2,7 @@
 import { VFile } from 'vfile'
 import { describe, expect, it } from 'vitest'
 
-import { transformerExteactScript } from '../../src/transform/extract-script'
+import { extractScriptTransformer } from '../../src/transform/extract-script'
 
 describe('extract script', () => {
 	it('should return script', () => {
@@ -25,7 +25,7 @@ describe('extract script', () => {
 		}
 		const vfile = new VFile()
 
-		const transformer = transformerExteactScript()
+		const transformer = extractScriptTransformer()
 		transformer(tree, vfile, null as any)
 
 		expect(tree.children.length).toEqual(1)
@@ -40,7 +40,7 @@ describe('extract script', () => {
 		}
 		const vfile = new VFile()
 
-		const transformer = transformerExteactScript()
+		const transformer = extractScriptTransformer()
 		transformer(tree, vfile, null as any)
 
 		expect(vfile.data.script).toEqual(undefined)

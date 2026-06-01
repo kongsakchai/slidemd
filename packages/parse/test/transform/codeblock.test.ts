@@ -3,7 +3,7 @@ import type { Parent } from 'mdast'
 import { VFile } from 'vfile'
 import { describe, expect, it } from 'vitest'
 
-import { transformerCodeblock } from '../../src/transform/codeblock'
+import { codeblockTransformer } from '../../src/transform/codeblock'
 
 describe('transformer codeblock', () => {
 	it('should highlight code blocks correctly', async () => {
@@ -20,7 +20,7 @@ describe('transformer codeblock', () => {
 		}
 
 		const vfile = new VFile()
-		const transformer = transformerCodeblock()
+		const transformer = codeblockTransformer()
 		await transformer(tree, vfile, null as never)
 
 		const container = tree.children[0] as never as Parent
@@ -45,7 +45,7 @@ describe('transformer codeblock', () => {
 		}
 
 		const vfile = new VFile()
-		const transformer = transformerCodeblock()
+		const transformer = codeblockTransformer()
 		await transformer(tree, vfile, null as any)
 
 		const container = tree.children[0] as any as Parent
@@ -71,7 +71,7 @@ describe('transformer codeblock', () => {
 		}
 
 		const vfile = new VFile()
-		const transformer = transformerCodeblock()
+		const transformer = codeblockTransformer()
 		await transformer(tree, vfile, null as any)
 
 		const container = tree.children[0] as any as Parent
@@ -92,7 +92,7 @@ describe('transformer codeblock', () => {
 		}
 
 		const vfile = new VFile()
-		const transformer = transformerCodeblock()
+		const transformer = codeblockTransformer()
 		await transformer(tree, vfile, null as any)
 
 		expect(tree).toEqual({
@@ -116,7 +116,7 @@ describe('transformer codeblock', () => {
 		}
 
 		const vfile = new VFile()
-		const transformer = transformerCodeblock()
+		const transformer = codeblockTransformer()
 		await transformer(tree, vfile, null as any)
 
 		expect(tree.children.length).toBe(1)
@@ -137,7 +137,7 @@ describe('transformer codeblock', () => {
 		}
 
 		const vfile = new VFile()
-		const transformer = transformerCodeblock({ copyEventName: 'onClick' })
+		const transformer = codeblockTransformer({ copyEventName: 'onClick' })
 		await transformer(tree, vfile, null as any)
 
 		const container = tree.children[0] as any as Parent
@@ -163,7 +163,7 @@ describe('transformer codeblock', () => {
 		}
 
 		const vfile = new VFile()
-		const transformer = transformerCodeblock({ copyEventName: 'onClick', disableCopy: true })
+		const transformer = codeblockTransformer({ copyEventName: 'onClick', disableCopy: true })
 		await transformer(tree, vfile, null as any)
 
 		const container = tree.children[0] as any as Parent

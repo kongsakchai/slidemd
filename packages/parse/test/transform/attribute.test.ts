@@ -2,7 +2,7 @@
 import { VFile } from 'vfile'
 import { describe, expect, it } from 'vitest'
 
-import { transformerAttribute } from '../../src/transform/attribute'
+import { attributeTransformer } from '../../src/transform/attribute'
 
 describe('transform attribute', () => {
 	it('should return parent have attriubte', () => {
@@ -20,7 +20,7 @@ describe('transform attribute', () => {
 		}
 		const vfile = new VFile()
 
-		const transformer = transformerAttribute()
+		const transformer = attributeTransformer()
 		transformer(tree, vfile, null as any)
 
 		expect(tree.data.hProperties).toEqual({
@@ -50,7 +50,7 @@ describe('transform attribute', () => {
 		const vfile = new VFile()
 		vfile.data.step = 1
 
-		const transformer = transformerAttribute()
+		const transformer = attributeTransformer()
 		transformer(tree, vfile, null as any)
 
 		expect(tree.data.hProperties).toEqual({
@@ -67,7 +67,7 @@ describe('transform attribute', () => {
 		}
 		const vfile = new VFile()
 
-		const transformer = transformerAttribute()
+		const transformer = attributeTransformer()
 		transformer(tree, vfile, null as any)
 
 		expect(tree).toEqual({
@@ -95,7 +95,7 @@ describe('transform attribute', () => {
 		}
 		const vfile = new VFile()
 
-		const transformer = transformerAttribute()
+		const transformer = attributeTransformer()
 		transformer(tree, vfile, null as any)
 
 		expect(tree.children.length).toEqual(2)

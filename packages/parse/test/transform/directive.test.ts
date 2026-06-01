@@ -2,7 +2,7 @@
 import { VFile } from 'vfile'
 import { describe, expect, it } from 'vitest'
 
-import { transformerDirective } from '../../src/transform/directive'
+import { directiveTransformer } from '../../src/transform/directive'
 
 describe('transform directive', () => {
 	it('should return data from directive', () => {
@@ -14,6 +14,12 @@ describe('transform directive', () => {
 					value: `<!--
 background-color: "#e5e5f7"
 "opacity": 0.8
+-->`
+				},
+				{
+					type: 'html',
+					value: `<!--
+"opacity": 0.9
 "background-image": "radial-gradient(#444cf7 0.5px, #e5e5f7 0.5px)"
 "background-size": 10px 10px
 -->`
@@ -29,15 +35,17 @@ background-color: "#e5e5f7"
 		}
 		const vfile = new VFile()
 
-		const transformer = transformerDirective()
+		const transformer = directiveTransformer()
 		transformer(tree, vfile, null as any)
 
 		expect(tree.children.length).toEqual(1)
 		expect(vfile.data).toEqual({
-			'background-color': '#e5e5f7',
-			opacity: 0.8,
-			'background-image': 'radial-gradient(#444cf7 0.5px, #e5e5f7 0.5px)',
-			'background-size': '10px 10px'
+			local: {
+				'background-color': '#e5e5f7',
+				opacity: 0.9,
+				'background-image': 'radial-gradient(#444cf7 0.5px, #e5e5f7 0.5px)',
+				'background-size': '10px 10px'
+			}
 		})
 	})
 
@@ -65,15 +73,17 @@ transition:in: fade
 		}
 		const vfile = new VFile()
 
-		const transformer = transformerDirective()
+		const transformer = directiveTransformer()
 		transformer(tree, vfile, null as any)
 
 		expect(tree.children.length).toEqual(1)
 		expect(vfile.data).toEqual({
-			'background-color': 'red',
-			'background-image': 'img',
-			'transition:in': 'fade',
-			'use:clickoutside': '{data.value}'
+			local: {
+				'background-color': 'red',
+				'background-image': 'img',
+				'transition:in': 'fade',
+				'use:clickoutside': '{data.value}'
+			}
 		})
 	})
 
@@ -89,7 +99,7 @@ background-image: img
 		}
 		const vfile = new VFile()
 
-		const transformer = transformerDirective()
+		const transformer = directiveTransformer()
 		transformer(tree, vfile, null as any)
 
 		expect(vfile.data).toEqual({})
@@ -119,9 +129,53 @@ background-color: red
 		}
 		const vfile = new VFile()
 
-		const transformer = transformerDirective()
+		const transformer = directiveTransformer()
 		transformer(tree, vfile, null as any)
 
 		expect(vfile.data).toEqual({})
+	})
+
+	it('should return data from global directive', () => {
+		const tree = {
+			type: 'root',
+			children: [
+				{
+					type: 'html',
+					value: `<!--global
+background-color: "#e5e5f7"
+"opacity": 0.8
+-->`
+				},
+				{
+					type: 'html',
+					value: `<!--global
+"opacity": 0.9
+"background-image": "radial-gradient(#444cf7 0.5px, #e5e5f7 0.5px)"
+"background-size": 10px 10px
+-->`
+				},
+				{
+					type: 'html',
+					value: '<div></div>'
+				}
+			],
+			data: {
+				hProperties: {}
+			}
+		}
+		const vfile = new VFile()
+
+		const transformer = directiveTransformer()
+		transformer(tree, vfile, null as any)
+
+		expect(tree.children.length).toEqual(1)
+		expect(vfile.data).toEqual({
+			global: {
+				'background-color': '#e5e5f7',
+				opacity: 0.9,
+				'background-image': 'radial-gradient(#444cf7 0.5px, #e5e5f7 0.5px)',
+				'background-size': '10px 10px'
+			}
+		})
 	})
 })

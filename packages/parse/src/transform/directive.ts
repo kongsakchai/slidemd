@@ -7,16 +7,22 @@ import { Directive } from './types'
 
 export function directiveTransformer(): Transformer {
 	return (tree, vfile) => {
+		const data = { ...vfile.data }
 		visit(tree as Root, 'html', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent || parent != tree) return
 
-			const match = /^<!--([\s\S]*)-->$/.exec(node.value)
+			const match = /^<!--(global\s)?([\s\S]*)-->$/.exec(node.value)
 			if (!match) return
 
-			const val = match[1].trim()
+			const global = match[1]
+			const val = match[2].trim()
 			try {
 				const directive = parse(val) as Directive
-				vfile.data = { ...vfile.data, ...directive }
+				if (global) {
+					data.global = data.global ? { ...data.global, ...directive } : directive
+				} else {
+					data.local = data.local ? { ...data.local, ...directive } : directive
+				}
 
 				parent.children.splice(index, 1)
 				return index
@@ -25,5 +31,7 @@ export function directiveTransformer(): Transformer {
 				return
 			}
 		})
+
+		vfile.data = data
 	}
 }
