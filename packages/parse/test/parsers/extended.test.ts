@@ -85,14 +85,11 @@ describe('more', () => {
 	it('should return highlight', async () => {
 		const processor = setupProcessorTestParser()
 
-		const file = await processor.process(`hello, ==markdown==`)
+		let file = await processor.process(`hello, ==markdown==`)
 		expect(file.value).toEqual('<p>hello, <mark>markdown</mark></p>')
 
-		// file = await processor.process(`hello, ===markdown===`)
-		// expect(file.value).toEqual('<p>hello, ===markdown===</p>')
-
-		// file = await processor.process(`hello, ==\nmarkdown==`)
-		// expect(file.value).toEqual('<p>hello, <mark>\nmarkdown</mark></p>')
+		file = await processor.process(`==a ==b== c==`)
+		expect(file.value).toEqual('<p><mark>a <mark>b</mark> c</mark></p>')
 	})
 
 	it('should return highlight with other syntax', async () => {
@@ -129,6 +126,15 @@ describe('more', () => {
 
 		file = await processor.process('h~2o')
 		expect(file.value).toEqual('<p>h~2o</p>')
+
+		file = await processor.process('~2~')
+		expect(file.value).toEqual('<p><sub>2</sub></p>')
+
+		file = await processor.process('==~2~==')
+		expect(file.value).toEqual('<p><mark><sub>2</sub></mark></p>')
+
+		file = await processor.process('~a ~b~ c~')
+		expect(file.value).toEqual('<p><sub>a <sub>b</sub> c</sub></p>')
 	})
 
 	it('should return superscript', async () => {
@@ -145,5 +151,14 @@ describe('more', () => {
 
 		file = await processor.process('h^2o')
 		expect(file.value).toEqual('<p>h^2o</p>')
+
+		file = await processor.process('^2^')
+		expect(file.value).toEqual('<p><sup>2</sup></p>')
+
+		file = await processor.process('==^2^==')
+		expect(file.value).toEqual('<p><mark><sup>2</sup></mark></p>')
+
+		file = await processor.process('^a ^b^ c^')
+		expect(file.value).toEqual('<p><sup>a <sup>b</sup> c</sup></p>')
 	})
 })

@@ -1,5 +1,6 @@
 import type { CompileContext, Extension as FromMarkdownExtension } from 'mdast-util-from-markdown'
-import { codes, types } from 'micromark-util-symbol'
+import { classifyCharacter } from 'micromark-util-classify-character'
+import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Effects, Event, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
 import { handleResolveAll } from './helper.js'
@@ -27,7 +28,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 	function start(code: Code) {
 		// Prevent highlight if the previous character is `=` and it is not escaped (to allow for literal `=` characters)
-		if (previous === codes.equalsTo && events[events.length - 1][1].type !== types.characterEscape) {
+		if (previous === codes.equalsTo && events.at(-1)?.[1].type !== types.characterEscape) {
 			return nok(code)
 		}
 
@@ -43,28 +44,45 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 			return more
 		}
 		if (size < 2) return nok(code)
+		const token = effects.exit('highlightSequenceTemp')
 
-		effects.exit('highlightSequenceTemp')
+		// classifyCharacter return: undefined (character) | 1 (whitespace of eof) | 2 (punctuation)
+		const before = classifyCharacter(previous)
+		const after = classifyCharacter(code)
+
+		// support commonmark spec
+		token._open = !after || (after === constants.characterGroupPunctuation && Boolean(before))
+		token._close = !before || (before === constants.characterGroupPunctuation && Boolean(after))
+
 		return ok(code)
 	}
 }
 
 function resolveAllHighlight(events: Event[], context: TokenizeContext) {
-	for (let open = 0; open < events.length; open++) {
-		// find open
-		// <enter>highlightSequenceTemp<exit>(open) ..some text... <enter>highlightSequenceTemp<exit>(close)
-		if (events[open][0] === 'exit' && events[open][1].type === 'highlightSequenceTemp') {
-			// walk next
-			for (let close = open + 1; close < events.length; close++) {
-				// find close
-				if (events[close][0] === 'enter' && events[close][1].type === 'highlightSequenceTemp') {
+	let close = -1
+	while (++close < events.length) {
+		// find close
+		// <enter>highlightSequenceTemp<exit>(open) ..some text... (close)<enter>highlightSequenceTemp<exit>
+		if (
+			events[close][0] === 'enter' &&
+			events[close][1].type === 'highlightSequenceTemp' &&
+			events[close][1]._close
+		) {
+			// fide open
+			for (let open = close - 1; open > 0; open--) {
+				// find open
+				if (
+					events[open][0] === 'exit' &&
+					events[open][1].type === 'highlightSequenceTemp' &&
+					events[open][1]._open
+				) {
 					events[open][1].type = 'highlightSequence'
 					events[close][1].type = 'highlightSequence'
 
 					const highlightToken: Token = {
 						type: 'highlight',
-						start: Object.assign({}, events[open][1].start),
-						end: Object.assign({}, events[close][1].end)
+						start: { ...events[open][1].start },
+						end: { ...events[close][1].end }
 					}
 
 					const insideSpan = context.parser.constructs.insideSpan.null
@@ -82,9 +100,14 @@ function resolveAllHighlight(events: Event[], context: TokenizeContext) {
 						['exit', highlightToken, context]
 					]
 
+					// <enter>(open), <exit>(open),something,(close)<enter>, (close)<exit>
+					// <exit>(open) - (close)<enter> = 2; <exit>(open), something
+					// close - open + <enter>(open) + (close)<enter> + (close)<exit>
 					events.splice(open - 1, close - open + 3, ...nextEvents)
 
-					open += nextEvents.length - 2
+					// jump to current
+					// 2 is offset of old event: <enter>(open), <exit>(open)
+					close = open + nextEvents.length - 2
 					break
 				}
 			}
@@ -92,9 +115,9 @@ function resolveAllHighlight(events: Event[], context: TokenizeContext) {
 	}
 
 	// reset type
-	for (let index = 0; index < events.length; index++) {
-		if (events[index][1].type === 'highlightSequenceTemp') {
-			events[index][1].type = 'data'
+	for (const event of events) {
+		if (event[1].type === 'highlightSequenceTemp') {
+			event[1].type = 'data'
 		}
 	}
 
