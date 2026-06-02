@@ -1,7 +1,7 @@
 import type { Code, Effects, TokenizeContext } from 'micromark-util-types'
 import { describe, expect, it } from 'vitest'
 
-import { blankLinePartialTokenizer } from '../../src/parsers/line-space'
+import { blankLinePartialTokenizer } from '../../src/parsers/line'
 
 describe('blank line', () => {
 	it('should return nok when blank line is null', () => {

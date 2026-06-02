@@ -12,7 +12,7 @@ import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
 
-import { getAttributes, mapNode, maxValue } from './helper.js'
+import { asString, getAttributes, mapNode, maxValue } from './helper.js'
 import { Attribute } from './types.js'
 
 export interface CodeblockOptions {
@@ -45,7 +45,7 @@ const escapeSpecialCharacters = (str: string) => {
 }
 
 function createContainer(lang: string, attrs: Attribute, options?: CodeblockOptions) {
-	attrs.class = [`language-${lang}`, attrs.class].filter(Boolean).join(' ')
+	attrs.class = [`language-${lang}`, asString(attrs.class)].filter(Boolean).join(' ')
 
 	const copyEventName = options?.copyEventName ? `onclick="{${options?.copyEventName}}"` : ''
 	const copyButton: ElementContent[] = options?.disableCopy

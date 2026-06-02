@@ -19,10 +19,10 @@ export function slidemdParser(this: Processor) {
 	)
 }
 
-export function ignoreRender() {
-	const ignore = () => undefined
+export function disableRender() {
+	const disable = () => undefined
 
 	return {
-		attribute: ignore
+		attribute: disable
 	}
 }

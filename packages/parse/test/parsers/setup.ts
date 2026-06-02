@@ -5,17 +5,17 @@ import markdown from 'remark-parse'
 import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 
-import { ignoreRender, slidemdParser } from '../../src/parsers'
+import { disableRender, slidemdParser } from '../../src/parsers'
 
-export const setupProcessorTestParser = () => {
-	const mdastTransform = unified()
-		.use(markdown)
-		.use(remarkGemoji)
-		.use(remarkGfm, { singleTilde: false })
-		.use(slidemdParser)
+export const setupProcessor = () => {
+	const p = unified()
+	p.data().micromarkExtensions = undefined
+	p.data().micromarkExtensions = undefined
+
+	const mdastTransform = p.use(markdown).use(remarkGemoji).use(remarkGfm, { singleTilde: false }).use(slidemdParser)
 
 	const hastTransform = mdastTransform.use(remark2Rehype, {
-		handlers: ignoreRender(),
+		handlers: disableRender(),
 		allowDangerousHtml: true
 		// allowDangerousCharacters: true
 	})

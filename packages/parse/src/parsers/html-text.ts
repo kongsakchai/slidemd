@@ -8,7 +8,7 @@ import {
 import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
-import { spacePartialTokenizer } from './line-space'
+import { spacePartialTokenizer } from './space.js'
 
 const QOUTE_LIST = new Set<Code>([codes.quotationMark, codes.apostrophe, codes.graveAccent])
 
@@ -31,7 +31,7 @@ export const htmlText: Extension = {
 
 function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	const markers: Code[] = []
-	const latestMarker = () => (markers.length == 0 ? null : markers[markers.length - 1])
+	const latestMarker = () => (markers.length == 0 ? null : (markers.at(-1) ?? null))
 
 	let tagType = 0
 	let cdataIndex = 0
@@ -104,7 +104,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	// Type 4 - cdata block
 	function openCData(code: Code) {
 		const prefix = constants.cdataOpeningString
-		if (code === prefix.charCodeAt(cdataIndex++)) {
+		if (code === prefix.codePointAt(cdataIndex++)) {
 			effects.consume(code)
 			return cdataIndex === prefix.length ? more : openCData
 		}

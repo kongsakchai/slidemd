@@ -9,7 +9,7 @@ import { htmlBlockNames, htmlRawNames } from 'micromark-util-html-tag-name'
 import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
-import { blankLinePartialTokenizer, nonLazyPartialTokenizer } from './line-space.js'
+import { blankLinePartialTokenizer, nonLazyPartialTokenizer } from './line.js'
 
 // Tag Type
 // Type 1: <script> <pre> <style>
@@ -115,7 +115,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	// Type 4 - cdata block
 	function openCData(code: Code) {
 		const prefix = constants.cdataOpeningString
-		if (code === prefix.charCodeAt(cdataIndex++)) {
+		if (code === prefix.codePointAt(cdataIndex++)) {
 			effects.consume(code)
 			return cdataIndex === prefix.length ? more : openCData
 		}
@@ -158,7 +158,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 	function endTagName(code: Code) {
 		const isSlash = code === codes.slash
-		const name = String.fromCharCode(...tagNameBuffer).toLowerCase()
+		const name = String.fromCodePoint(...tagNameBuffer).toLowerCase()
 
 		if (!isClosingTag && !isSlash && RAW_TAGS.has(name)) {
 			tagType = constants.htmlRaw

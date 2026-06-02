@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
-import { setupProcessorTestParser } from './setup'
+import { setupProcessor } from './setup'
 
 describe('table', () => {
 	it('should return table', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		const file = await processor.process('| Col 1 | Col 2 |\n| - | - |')
 		expect(file.value).toEqual('<table>\n<thead>\n<tr>\n<th>Col 1</th>\n<th>Col 2</th>\n</tr>\n</thead>\n</table>')
 	})
 
 	it('should return table with align', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		const file = await processor.process('| Col 1 | Col 2 |\n| -: | :-: |')
 		expect(file.value).toEqual(
@@ -24,7 +24,7 @@ describe('fenced code blocks', () => {
 	it('should return without lang', async () => {
 		const code = '```\nconsole.log("hello, markdown")\n````'
 
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		const file = await processor.process(code)
 		expect(file.value).toEqual('<pre><code>console.log("hello, markdown")\n</code></pre>')
@@ -33,7 +33,7 @@ describe('fenced code blocks', () => {
 	it('should return with lang', async () => {
 		const code = '```js\nconsole.log("hello, markdown")\n````'
 
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		const file = await processor.process(code)
 		expect(file.value).toEqual('<pre><code class="language-js">console.log("hello, markdown")\n</code></pre>')
@@ -42,14 +42,14 @@ describe('fenced code blocks', () => {
 
 describe('task list', () => {
 	it('should return paragraph when wrong format', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		const file = await processor.process('-[] first items\n- [] second items')
 		expect(file.value).toEqual('<p>-[] first items</p>\n<ul>\n<li>[] second items</li>\n</ul>')
 	})
 
 	it('should return task list', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		const file = await processor.process('- [ ] first items\n- [x] second items')
 		expect(file.value).toEqual(
@@ -60,7 +60,7 @@ describe('task list', () => {
 
 describe('more', () => {
 	it('should return footnote', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		const file = await processor.process('Hello, markdown[^1]\n\n[^1]: Hello, markdown.')
 		expect(file.value).include(
@@ -69,21 +69,21 @@ describe('more', () => {
 	})
 
 	it('should return strikethrough', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		const file = await processor.process('~~strikethrough text~~ normal text')
 		expect(file.value).toEqual('<p><del>strikethrough text</del> normal text</p>')
 	})
 
 	it('should return emoji', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		const file = await processor.process(':tada: :rocket: :seedling:')
 		expect(file.value).toEqual('<p>🎉 🚀 🌱</p>')
 	})
 
 	it('should return highlight', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		let file = await processor.process(`hello, ==markdown==`)
 		expect(file.value).toEqual('<p>hello, <mark>markdown</mark></p>')
@@ -93,14 +93,14 @@ describe('more', () => {
 	})
 
 	it('should return highlight with other syntax', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		const file = await processor.process(`hello, ==*markdown*==`)
 		expect(file.value).toEqual('<p>hello, <mark><em>markdown</em></mark></p>')
 	})
 
 	it('should return normal text when escape highligh', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		let file = await processor.process(`=\\==markdown===`)
 		expect(file.value).toEqual('<p>===markdown===</p>')
@@ -113,7 +113,7 @@ describe('more', () => {
 	})
 
 	it('should return subscript', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		let file = await processor.process('h~2~o')
 		expect(file.value).toEqual('<p>h<sub>2</sub>o</p>')
@@ -138,7 +138,7 @@ describe('more', () => {
 	})
 
 	it('should return superscript', async () => {
-		const processor = setupProcessorTestParser()
+		const processor = setupProcessor()
 
 		let file = await processor.process('h^2^o')
 		expect(file.value).toEqual('<p>h<sup>2</sup>o</p>')

@@ -2,7 +2,7 @@ import { asciiAlpha, markdownLineEnding, markdownLineEndingOrSpace } from 'micro
 import { codes, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
-import { nonLazyPartialTokenizer } from './line-space.js'
+import { nonLazyPartialTokenizer } from './line.js'
 
 const NUMBER_SIGN_BLOCK = new Set(['if', 'each', 'key', 'await', 'snippet'])
 const COLON_BLOCK = new Set(['else', 'then', 'catch', 'final'])
@@ -74,7 +74,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function endBlockName(code: Code) {
-		const name = String.fromCharCode(...tagNameBuffer).toLowerCase()
+		const name = String.fromCodePoint(...tagNameBuffer).toLowerCase()
 
 		if (tagSet?.has(name)) {
 			return isInterrupt() ? ok(code) : more(code)

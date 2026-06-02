@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { setupProcessorTestParser } from './setup'
+import { setupProcessor } from './setup'
 
 describe('html flow', () => {
 	describe('normal html', () => {
@@ -74,7 +74,7 @@ describe('html flow', () => {
 
 		for (const t of testcase) {
 			it(t.title, async () => {
-				const processor = setupProcessorTestParser()
+				const processor = setupProcessor()
 				const file = await processor.process(t.value)
 				expect(file.value).toEqual(t.expected)
 			})
@@ -122,7 +122,7 @@ describe('html flow', () => {
 
 		for (const t of testcase) {
 			it(t.title, async () => {
-				const processor = setupProcessorTestParser()
+				const processor = setupProcessor()
 				const file = await processor.process(t.value)
 				expect(file.value).toEqual(t.expected)
 			})
@@ -155,7 +155,7 @@ describe('html flow', () => {
 
 		for (const t of testcase) {
 			it(t.title, async () => {
-				const processor = setupProcessorTestParser()
+				const processor = setupProcessor()
 				const file = await processor.process(t.value)
 				expect(file.value).toEqual(t.expected)
 			})
@@ -193,7 +193,7 @@ describe('html flow', () => {
 
 		for (const t of testcase) {
 			it(t.title, async () => {
-				const processor = setupProcessorTestParser()
+				const processor = setupProcessor()
 				const file = await processor.process(t.value)
 				expect(file.value).toEqual(t.expected)
 			})
@@ -263,7 +263,7 @@ describe('html text', () => {
 
 		for (const t of testcase) {
 			it(t.title, async () => {
-				const processor = setupProcessorTestParser()
+				const processor = setupProcessor()
 				const file = await processor.process(t.value)
 				expect(file.value).toEqual(t.expected)
 			})
@@ -291,7 +291,7 @@ describe('html text', () => {
 
 		for (const t of testcase) {
 			it(t.title, async () => {
-				const processor = setupProcessorTestParser()
+				const processor = setupProcessor()
 				const file = await processor.process(t.value)
 				expect(file.value).toEqual(t.expected)
 			})
@@ -314,7 +314,7 @@ describe('html text', () => {
 
 		for (const t of testcase) {
 			it(t.title, async () => {
-				const processor = setupProcessorTestParser()
+				const processor = setupProcessor()
 				const file = await processor.process(t.value)
 				expect(file.value).toEqual(t.expected)
 			})

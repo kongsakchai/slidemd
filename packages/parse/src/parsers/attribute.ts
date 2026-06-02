@@ -1,4 +1,5 @@
 import type { CompileContext, Extension as FromMarkdownExtension } from 'mdast-util-from-markdown'
+import { markdownLineEnding } from 'micromark-util-character'
 import { codes } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
@@ -16,8 +17,6 @@ export const attribute: Extension = {
 }
 
 function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
-	let isClose = false
-
 	return start
 
 	function start(code: Code) {
@@ -36,24 +35,25 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function more(code: Code) {
-		if (isClose) {
-			if (code === codes.eof || code === codes.lineFeed) return ok(code)
-			return nok(code)
-		}
-
-		if (code === codes.eof || code === codes.lineFeed) {
+		if (code === codes.eof || markdownLineEnding(code)) {
 			return nok(code)
 		}
 
 		if (code === codes.rightCurlyBrace) {
 			effects.consume(code)
-			effects.exit('attribute')
-			isClose = true
-			return more
+			return end
 		}
 
 		effects.consume(code)
 		return more
+	}
+
+	function end(code: Code) {
+		if (code === codes.eof || markdownLineEnding(code)) {
+			effects.exit('attribute')
+			return ok(code)
+		}
+		return nok(code)
 	}
 }
 
