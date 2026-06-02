@@ -8,6 +8,8 @@ import {
 import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
+import { spacePartialTokenizer } from './line-space'
+
 const QOUTE_LIST = new Set<Code>([codes.quotationMark, codes.apostrophe, codes.graveAccent])
 
 const isQoute = (code: Code) => QOUTE_LIST.has(code)
@@ -213,7 +215,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 			effects.enter(types.lineEnding)
 			effects.consume(code)
 			effects.exit(types.lineEnding)
-			return startNextLine
+			return checkNextLine
 		}
 
 		effects.consume(code)
@@ -277,27 +279,11 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		return more(code)
 	}
 
+	function checkNextLine(code: Code) {
+		return effects.attempt(spacePartialTokenizer, startNextLine, startNextLine)(code)
+	}
+
 	function startNextLine(code: Code) {
-		if (markdownSpace(code)) {
-			effects.enter(types.linePrefix)
-			return consumeSpace(code)
-		}
-
-		effects.enter(types.htmlTextData)
-		return more(code)
-	}
-
-	function consumeSpace(code: Code) {
-		if (!markdownSpace(code)) {
-			effects.exit(types.linePrefix)
-			return endNextLine(code)
-		}
-
-		effects.consume(code)
-		return consumeSpace
-	}
-
-	function endNextLine(code: Code) {
 		effects.enter(types.htmlTextData)
 		return more(code)
 	}

@@ -13,6 +13,11 @@ declare module 'micromark-util-types' {
 		superscriptSequence: 'superscriptSequence'
 		superscript: 'superscript'
 		attribute: 'attribute'
+		container: 'container'
+		containerName: 'containerName'
+		containerSequence: 'containerSequence'
+		containerAttribute: 'containerAttribute'
+		containerContent: 'containerContent'
 	}
 }
 

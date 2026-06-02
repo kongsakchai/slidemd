@@ -9,7 +9,7 @@ import { htmlBlockNames, htmlRawNames } from 'micromark-util-html-tag-name'
 import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
-import { blankLineTokenize, nonLazyTokenize } from './next-line'
+import { blankLinePartialTokenizer, nonLazyPartialTokenizer } from './line-space.js'
 
 // Tag Type
 // Type 1: <script> <pre> <style>
@@ -316,21 +316,14 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	// blank line: done
 	// non blank line: check non lazy
 	function checkBlankLine(code: Code) {
-		return effects.check({ partial: true, tokenize: blankLineTokenize }, done, checkNonLazy)(code)
+		return effects.check(blankLinePartialTokenizer, done, checkNonLazy)(code)
 	}
 
 	// check non lazy line
 	// non lazy: continua
 	// lazy: done
 	function checkNonLazy(code: Code) {
-		return effects.check({ partial: true, tokenize: nonLazyTokenize }, startNextLine, done)(code)
-	}
-
-	function startNextLine(code: Code) {
-		effects.enter(types.lineEnding)
-		effects.consume(code)
-		effects.exit(types.lineEnding)
-		return checkNextLine
+		return effects.attempt(nonLazyPartialTokenizer, checkNextLine, done)(code)
 	}
 
 	function checkNextLine(code: Code) {

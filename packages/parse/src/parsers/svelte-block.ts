@@ -2,7 +2,7 @@ import { asciiAlpha, markdownLineEnding, markdownLineEndingOrSpace } from 'micro
 import { codes, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
-import { blankLineTokenize, nonLazyTokenize } from './next-line'
+import { nonLazyPartialTokenizer } from './line-space.js'
 
 const NUMBER_SIGN_BLOCK = new Set(['if', 'each', 'key', 'await', 'snippet'])
 const COLON_BLOCK = new Set(['else', 'then', 'catch', 'final'])
@@ -91,7 +91,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 		if (markdownLineEnding(code)) {
 			effects.exit(types.htmlFlowData)
-			return checkBlankLine(code)
+			return checkNonLazy(code)
 		}
 
 		effects.consume(code)
@@ -113,25 +113,11 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		return ok(code)
 	}
 
-	// check blank line for normal tag
-	// blank line: done
-	// non blank line: check non lazy
-	function checkBlankLine(code: Code) {
-		return effects.check({ partial: true, tokenize: blankLineTokenize }, done, checkNonLazy)(code)
-	}
-
 	// check non lazy line
 	// non lazy: continua
 	// lazy: done
 	function checkNonLazy(code: Code) {
-		return effects.check({ partial: true, tokenize: nonLazyTokenize }, startNextLine, done)(code)
-	}
-
-	function startNextLine(code: Code) {
-		effects.enter(types.lineEnding)
-		effects.consume(code)
-		effects.exit(types.lineEnding)
-		return checkNextLine
+		return effects.attempt(nonLazyPartialTokenizer, checkNextLine, done)(code)
 	}
 
 	function checkNextLine(code: Code) {

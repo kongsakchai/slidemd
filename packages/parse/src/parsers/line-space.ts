@@ -1,8 +1,8 @@
 import { markdownLineEnding, markdownSpace } from 'micromark-util-character'
 import { codes, types } from 'micromark-util-symbol'
-import type { Code, Effects, State, TokenizeContext } from 'micromark-util-types'
+import type { Code, Construct, Effects, State, TokenizeContext } from 'micromark-util-types'
 
-export function blankLineTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+function blankLineTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	return start
 
 	function start(code: Code) {
@@ -41,7 +41,9 @@ export function blankLineTokenize(this: TokenizeContext, effects: Effects, ok: S
 	}
 }
 
-export function nonLazyTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+export const blankLinePartialTokenizer: Construct = { partial: true, tokenize: blankLineTokenize }
+
+function nonLazyTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	const isLazy = () => this.parser.lazy[this.now().line]
 
 	return start
@@ -62,3 +64,30 @@ export function nonLazyTokenize(this: TokenizeContext, effects: Effects, ok: Sta
 		return isLazy() ? nok(code) : ok(code)
 	}
 }
+
+export const nonLazyPartialTokenizer: Construct = { partial: true, tokenize: nonLazyTokenize }
+
+function spaceTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+	return start
+
+	function start(code: Code) {
+		if (!markdownSpace(code)) {
+			return nok(code)
+		}
+
+		effects.enter(types.linePrefix)
+		return consumeSpace(code)
+	}
+
+	function consumeSpace(code: Code) {
+		if (!markdownSpace(code)) {
+			effects.exit(types.linePrefix)
+			return ok(code)
+		}
+
+		effects.consume(code)
+		return consumeSpace
+	}
+}
+
+export const spacePartialTokenizer: Construct = { partial: true, tokenize: spaceTokenize }
