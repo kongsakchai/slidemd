@@ -1,8 +1,10 @@
+import type { CompileContext, Extension as FromMarkdownExtension } from 'mdast-util-from-markdown'
 import { asciiAlpha, asciiAlphanumeric, markdownLineEnding } from 'micromark-util-character'
 import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
-import { nonLazyPartialTokenizer, spacePartialTokenizer } from './line-space'
+import { nonLazyPartialTokenizer } from './line.js'
+import { spacePartialTokenizer } from './space.js'
 
 // Attribute extension for micromark; converts token sequences of `@{}` into attribute tokens
 const tokenizer: Construct = {
@@ -11,8 +13,8 @@ const tokenizer: Construct = {
 	concrete: true
 }
 
-export const attribute: Extension = {
-	document: {
+export const container: Extension = {
+	flow: {
 		[codes.colon]: tokenizer
 	}
 }
@@ -25,6 +27,10 @@ const closeContainerPartialTokenizer: Construct = {
 function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	let size = 0
 	let previous: Token | undefined = undefined
+
+	const setNonLazy = (token: Token) => {
+		this.parser.lazy[token.start.line] = false
+	}
 
 	return start
 
@@ -63,7 +69,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	function containerName(code: Code) {
 		if (code === codes.eof || markdownLineEnding(code)) {
 			effects.exit('containerName')
-			effects.attempt(spacePartialTokenizer, startAttribute, endLabel)(code)
+			return effects.attempt(spacePartialTokenizer, startAttribute, endLabel)(code)
 		}
 
 		// Continue container name
@@ -160,12 +166,14 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 	function checkNextLineDocument(code: Code) {
 		effects.consume(code)
-		effects.exit(types.chunkDocument)
+		const token = effects.exit(types.chunkDocument)
+		setNonLazy(token)
 		return checkNextLineContent
 	}
 
 	function endDocument(code: Code) {
-		effects.exit(types.chunkDocument)
+		const token = effects.exit(types.chunkDocument)
+		setNonLazy(token)
 		return afterContent(code)
 	}
 
@@ -201,5 +209,49 @@ function closeContainerTokenize(effects: Effects, ok: State, nok: State): State 
 
 		effects.exit('containerSequence')
 		return ok(code)
+	}
+}
+
+// --- HTML
+export const containerFromMarkdown: FromMarkdownExtension = {
+	enter: {
+		container: enterContainer
+	},
+	exit: {
+		container: exitContainer,
+		containerName: exitContainerName,
+		containerAttribute: exitContainerAttribute
+	}
+}
+
+function enterContainer(this: CompileContext, token: Token) {
+	this.enter(
+		{
+			type: 'container',
+			children: [],
+			data: {
+				attrs: '',
+				hName: ''
+			}
+		},
+		token
+	)
+}
+
+function exitContainer(this: CompileContext, token: Token) {
+	this.exit(token)
+}
+
+function exitContainerName(this: CompileContext, token: Token) {
+	const node = this.stack.at(-1)
+	if (node?.type === 'container') {
+		node.data.hName = this.sliceSerialize(token)
+	}
+}
+
+function exitContainerAttribute(this: CompileContext, token: Token) {
+	const node = this.stack.at(-1)
+	if (node?.type === 'container') {
+		node.data.attrs = this.sliceSerialize(token)
 	}
 }

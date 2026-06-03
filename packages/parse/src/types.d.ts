@@ -25,21 +25,21 @@ declare module 'mdast' {
 	interface RootContentMap {
 		highlight: {
 			type: 'highlight'
-			children: import('mdast').PhrasingContent[]
+			children: import('mdast').RootContentMap[]
 			data: {
 				hName: 'mark'
 			}
 		}
 		sub: {
 			type: 'sub'
-			children: import('mdast').PhrasingContent[]
+			children: import('mdast').RootContentMap[]
 			data: {
 				hName: 'sub'
 			}
 		}
 		sup: {
 			type: 'sup'
-			children: import('mdast').PhrasingContent[]
+			children: import('mdast').RootContentMap[]
 			data: {
 				hName: 'sup'
 			}
@@ -47,6 +47,14 @@ declare module 'mdast' {
 		attribute: {
 			type: 'attribute'
 			value: string
+		}
+		container: {
+			type: 'container'
+			children: import('mdast').RootContentMap[]
+			data: {
+				attrs: string
+				hName: string
+			}
 		}
 	}
 }

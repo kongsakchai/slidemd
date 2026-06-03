@@ -31,7 +31,7 @@ export const htmlText: Extension = {
 
 function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	const markers: Code[] = []
-	const latestMarker = () => (markers.length == 0 ? null : (markers.at(-1) ?? null))
+	const latestMarker = () => (markers.length == 0 ? null : markers.at(-1)!)
 
 	let tagType = 0
 	let cdataIndex = 0
