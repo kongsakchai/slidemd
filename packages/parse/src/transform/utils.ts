@@ -1,7 +1,8 @@
 import { Node } from 'unist'
 import { BuildVisitor, type Test, visit } from 'unist-util-visit'
 
-import { Attribute } from './types'
+import { Attribute } from '../types'
+import { asString } from '../utils'
 
 // attribute extractor, used for parsing attributes in string
 // it's start of string or whitespace
@@ -87,24 +88,4 @@ export const getAttributes = (str?: string | null) => {
 	if (!attrs.step) delete attrs.step
 
 	return attrs
-}
-
-export function asString(v: unknown, defaultVal: string): string
-export function asString(v: unknown, defaultVal?: undefined): string | undefined
-export function asString(v: unknown, defaultVal?: string): string | undefined {
-	return typeof v === 'string' ? v : defaultVal
-}
-
-export function asNumber(v: unknown, defaultVal: number): number
-export function asNumber(v: unknown, defaultVal?: undefined): number | undefined
-export function asNumber(v: unknown, defaultVal?: number): number | undefined {
-	return typeof v === 'number' ? v : defaultVal
-}
-
-export const maxValue = (a: unknown, b: unknown) => {
-	if (!a && !b) return undefined
-	if (!a) return asNumber(b)
-	if (!b) return asNumber(a)
-
-	return Math.max(asNumber(a, 0), asNumber(b, 0))
 }

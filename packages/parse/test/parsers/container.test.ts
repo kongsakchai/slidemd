@@ -24,5 +24,12 @@ describe('container block', () => {
 			const file = await processor.process(':::div\n# Hello\n:::')
 			expect(String(file)).toEqual('<div><h1>Hello</h1></div>')
 		})
+
+		it('should return container with multiple content', async () => {
+			const processor = setupProcessor()
+
+			const file = await processor.process(':::div\n# Header1\n ## Header2\n:::')
+			expect(String(file)).toEqual('<div><h1>Header1</h1><h2>Header2</h2></div>')
+		})
 	})
 })

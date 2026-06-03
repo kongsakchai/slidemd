@@ -6,9 +6,6 @@ import { CodeblockOptions, codeblockTransformer } from './codeblock.js'
 import { directiveTransformer } from './directive.js'
 import { extractScriptTransformer } from './extract-script.js'
 
-export * from './helper.js'
-export * from './types.js'
-
 export interface TransformOptions {
 	codeblock?: CodeblockOptions
 }

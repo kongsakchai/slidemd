@@ -5,26 +5,14 @@ import markdown from 'remark-parse'
 import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 
-import { disableRender, slidemdParser } from './parsers/index.js'
-import { asNumber, asString } from './transform/helper.js'
-import { Directive, TransformOptions, applyTransformers } from './transform/index.js'
+import { slidemdParser } from './parsers/index.js'
+import { TransformOptions, applyTransformers } from './transform/index.js'
+import { Directive } from './transform/types.js'
+import { asNumber, asString } from './utils.js'
 
 export interface Options {
 	transform?: TransformOptions
 }
-
-export interface File {
-	value: string
-	data: {
-		style: string
-		script: string
-		step: number
-		global: Directive
-		local: Directive
-	}
-}
-
-export type { Directive }
 
 export function setupProcessor(options?: Options) {
 	const mdastTransform = unified()
@@ -36,13 +24,23 @@ export function setupProcessor(options?: Options) {
 	applyTransformers(mdastTransform, options?.transform)
 
 	const hastTransform = mdastTransform.use(remark2Rehype, {
-		handles: disableRender(),
 		allowDangerousHtml: true
 	})
 
 	return hastTransform.use(stringify, {
 		allowDangerousHtml: true
 	})
+}
+
+export interface File {
+	value: string
+	data: {
+		style: string
+		script: string
+		step: number
+		global: Directive
+		local: Directive
+	}
 }
 
 export function createParser(options?: Options) {

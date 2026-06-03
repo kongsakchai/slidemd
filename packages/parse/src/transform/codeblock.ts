@@ -12,8 +12,9 @@ import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
 
-import { asString, getAttributes, mapNode, maxValue } from './helper.js'
+import { asNumber, asString } from '../utils.js'
 import { Attribute } from './types.js'
+import { getAttributes, mapNode } from './utils.js'
 
 export interface CodeblockOptions {
 	disableCopy?: boolean
@@ -122,7 +123,7 @@ export function codeblockTransformer(options?: CodeblockOptions): Transformer {
 			const code = node.value
 			const attrs = getAttributes(node.meta)
 
-			vfile.data.step = maxValue(vfile.data.step, attrs.step)
+			vfile.data.step = Math.max(asNumber(vfile.data.step, 0), asNumber(attrs.step, 0))
 
 			const container = lang === 'mermaid' ? createMermaidContainer(attrs) : createContainer(lang, attrs, options)
 			parent.children.splice(index, 1, container as RootContent)

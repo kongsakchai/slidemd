@@ -2,12 +2,13 @@ import { Processor } from 'unified'
 
 import { attribute, attributeFromMarkdown } from './attribute.js'
 import { container, containerFromMarkdown } from './container.js'
-import { addFromMarkdownExtensions, addMicromarkExtensions } from './helper.js'
 import { highlight, highlightFromMarkdown } from './highlight.js'
 import { htmlFlow } from './html-flow.js'
 import { htmlText } from './html-text.js'
-import { subscript, subscriptFromMarkdown, superscript, superscriptFromMarkdown } from './subsuper.js'
+import { subscript, subscriptFromMarkdown } from './subscript.js'
+import { superscript, superscriptFromMarkdown } from './superscript.js'
 import { svelteBlock } from './svelte-block.js'
+import { addFromMarkdownExtensions, addMicromarkExtensions } from './uitls.js'
 
 export function slidemdParser(this: Processor) {
 	addMicromarkExtensions(
@@ -29,12 +30,4 @@ export function slidemdParser(this: Processor) {
 		attributeFromMarkdown,
 		containerFromMarkdown
 	)
-}
-
-export function disableRender() {
-	const disable = () => undefined
-
-	return {
-		attribute: disable
-	}
 }

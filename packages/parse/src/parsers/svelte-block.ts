@@ -18,7 +18,7 @@ const PREFIX_MAPPING: { [key: number]: Set<string> } = {
 
 // --- Tokenizer
 
-const tokenizer: Construct = {
+const svelteBlockTokenizer: Construct = {
 	name: 'logic-block',
 	tokenize: tokenize,
 	concrete: true
@@ -26,7 +26,7 @@ const tokenizer: Construct = {
 
 export const svelteBlock: Extension = {
 	flow: {
-		[codes.leftCurlyBrace]: tokenizer
+		[codes.leftCurlyBrace]: svelteBlockTokenizer
 	}
 }
 

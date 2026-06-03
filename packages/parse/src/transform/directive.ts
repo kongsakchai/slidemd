@@ -3,7 +3,7 @@ import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
 import { parse } from 'yaml'
 
-import { Directive } from './types'
+import { Directive } from '../types'
 
 export function directiveTransformer(): Transformer {
 	return (tree, vfile) => {

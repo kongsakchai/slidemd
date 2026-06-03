@@ -4,7 +4,7 @@ import { codes } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
 // Attribute extension for micromark; converts token sequences of `@{}` into attribute tokens
-const tokenizer: Construct = {
+export const attributeTokenizer: Construct = {
 	name: 'html',
 	tokenize: tokenize,
 	concrete: true
@@ -12,7 +12,7 @@ const tokenizer: Construct = {
 
 export const attribute: Extension = {
 	text: {
-		[codes.atSign]: tokenizer
+		[codes.atSign]: attributeTokenizer
 	}
 }
 
@@ -68,7 +68,8 @@ function enterToken(this: CompileContext, token: Token) {
 	this.enter(
 		{
 			type: 'attribute',
-			value: this.sliceSerialize(token).slice(2, -1)
+			value: '',
+			data: this.sliceSerialize(token).slice(2, -1)
 		},
 		token
 	)

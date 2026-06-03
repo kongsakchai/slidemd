@@ -2,7 +2,8 @@ import { Data, Root } from 'mdast'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
 
-import { getAttributes, maxValue } from './helper.js'
+import { asNumber } from '../utils.js'
+import { getAttributes } from './utils.js'
 
 export function attributeTransformer(): Transformer {
 	return (tree, vfile) => {
@@ -10,7 +11,7 @@ export function attributeTransformer(): Transformer {
 			if (typeof index !== 'number' || !parent) return
 			if (index != parent.children.length - 1) return
 
-			const attrs = getAttributes(node.value)
+			const attrs = getAttributes(node.data)
 			parent.data = { ...parent.data }
 			parent.data.hProperties = {
 				...parent.data.hProperties,
@@ -18,7 +19,7 @@ export function attributeTransformer(): Transformer {
 			}
 			parent.children.pop()
 
-			vfile.data.step = maxValue(vfile.data.step, attrs.step)
+			vfile.data.step = Math.max(asNumber(vfile.data.step, 0), asNumber(attrs.step, 0))
 		})
 	}
 }

@@ -11,7 +11,7 @@ describe('transform attribute', () => {
 			children: [
 				{
 					type: 'attribute',
-					value: '#id-1 .class-1 .class-2 data=10 step-1=bg'
+					data: '#id-1 .class-1 .class-2 data=10 step-1=bg'
 				}
 			],
 			data: {
@@ -40,7 +40,7 @@ describe('transform attribute', () => {
 			children: [
 				{
 					type: 'attribute',
-					value: 'step-2=bg'
+					data: 'step-2=bg'
 				}
 			],
 			data: {

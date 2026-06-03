@@ -5,46 +5,44 @@ import type { Code, Effects, Event, Extension, State, Token, TokenizeContext } f
 
 import { handleResolveAll } from './uitls.js'
 
-// Highlight extension for micromark; converts token sequences of `==` into highlight tokens
-export const highlightTokenizer = {
-	name: 'highlight',
-	tokenize: tokenize, // tokenizer for `==` sequences
-	resolveAll: resolveAllHighlight // resolve all `==` sequences to highlight tokens
+// Subscript extension for micromark; converts token sequences of `^` into superscript tokens
+const superscriptTokenizer = {
+	name: 'superscript',
+	tokenize: superscriptTokenize,
+	resolveAll: resolveAllSuperscript
 }
 
-export const highlight: Extension = {
-	text: { [codes.equalsTo]: highlightTokenizer }, // trigger tokenizer when `=` is found in inline text
-	insideSpan: { null: [highlightTokenizer] }, // allow tokenizer inside spans (e.g., emphasis, strong)
-	attentionMarkers: { null: [codes.equalsTo] } // allow `=` as an attention marker (e.g., for emphasis)
+export const superscript: Extension = {
+	text: { [codes.caret]: superscriptTokenizer }, // trigger tokenizer when `^` is found in inline text
+	insideSpan: { null: [superscriptTokenizer] }, // allow tokenizer inside spans (e.g., emphasis, strong)
+	attentionMarkers: { null: [codes.caret] } // allow `^` as an attention marker (e.g., for emphasis)
 }
 
-function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+function superscriptTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	const previous = this.previous
 	const events = this.events
-
 	let size = 0
-
 	return start
 
 	function start(code: Code) {
-		// Prevent highlight if the previous character is `=` and it is not escaped (to allow for literal `=` characters)
-		if (previous === codes.equalsTo && events.at(-1)?.[1].type !== types.characterEscape) {
+		// Prevent superscript if the previous character is `^` and it is not escaped (to allow for literal `^` characters)
+		if (previous === codes.caret && events.at(-1)?.[1].type !== types.characterEscape) {
 			return nok(code)
 		}
 
-		effects.enter('highlightSequenceTemp')
+		effects.enter('superscriptSequenceTemp')
 		return more(code)
 	}
 
 	function more(code: Code) {
-		if (code === codes.equalsTo) {
-			if (size > 1) return nok(code)
-			size++
+		if (code === codes.caret) {
+			if (size >= 1) return nok(code)
+
 			effects.consume(code)
+			size++
 			return more
 		}
-		if (size < 2) return nok(code)
-		const token = effects.exit('highlightSequenceTemp')
+		const token = effects.exit('superscriptSequenceTemp')
 
 		// classifyCharacter return: undefined (character) | 1 (whitespace of eof) | 2 (punctuation)
 		const before = classifyCharacter(previous)
@@ -58,29 +56,29 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 }
 
-function resolveAllHighlight(events: Event[], context: TokenizeContext) {
+function resolveAllSuperscript(events: Event[], context: TokenizeContext) {
 	let close = -1
 	while (++close < events.length) {
-		// find close
-		// <enter>highlightSequenceTemp<exit>(open) ..some text... (close)<enter>highlightSequenceTemp<exit>
+		// find open
+		// <enter>superscriptSequenceTemp<exit>(open) ..some text... <enter>superscriptSequenceTemp<exit>(close)
 		if (
 			events[close][0] === 'enter' &&
-			events[close][1].type === 'highlightSequenceTemp' &&
+			events[close][1].type === 'superscriptSequenceTemp' &&
 			events[close][1]._close
 		) {
 			// fide open
 			for (let open = close - 1; open > 0; open--) {
-				// find open
+				// find close
 				if (
 					events[open][0] === 'exit' &&
-					events[open][1].type === 'highlightSequenceTemp' &&
+					events[open][1].type === 'superscriptSequenceTemp' &&
 					events[open][1]._open
 				) {
-					events[open][1].type = 'highlightSequence'
-					events[close][1].type = 'highlightSequence'
+					events[open][1].type = 'superscriptSequence'
+					events[close][1].type = 'superscriptSequence'
 
 					const highlightToken: Token = {
-						type: 'highlight',
+						type: 'superscript',
 						start: { ...events[open][1].start },
 						end: { ...events[close][1].end }
 					}
@@ -116,7 +114,7 @@ function resolveAllHighlight(events: Event[], context: TokenizeContext) {
 
 	// reset type
 	for (const event of events) {
-		if (event[1].type === 'highlightSequenceTemp') {
+		if (event[1].type === 'superscriptSequenceTemp') {
 			event[1].type = 'data'
 		}
 	}
@@ -124,26 +122,26 @@ function resolveAllHighlight(events: Event[], context: TokenizeContext) {
 	return events
 }
 
-// FromMarkdown extension to convert highlight tokens into MDAST nodes
-export const highlightFromMarkdown: FromMarkdownExtension = {
-	canContainEols: ['highlight'],
-	enter: { highlight: enterToken },
-	exit: { highlight: exitToken }
+// FromMarkdown extension to convert superscript tokens into MDAST nodes
+export const superscriptFromMarkdown: FromMarkdownExtension = {
+	canContainEols: ['superscript'],
+	enter: { superscript: enterSuperscriptToken },
+	exit: { superscript: exitSuperscriptToken }
 }
 
-function enterToken(this: CompileContext, token: Token) {
+function enterSuperscriptToken(this: CompileContext, token: Token) {
 	this.enter(
 		{
-			type: 'highlight',
+			type: 'sup',
 			children: [],
 			data: {
-				hName: 'mark'
+				hName: 'sup'
 			}
 		},
 		token
 	)
 }
 
-function exitToken(this: CompileContext, token: Token) {
+function exitSuperscriptToken(this: CompileContext, token: Token) {
 	this.exit(token)
 }

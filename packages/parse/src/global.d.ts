@@ -46,7 +46,8 @@ declare module 'mdast' {
 		}
 		attribute: {
 			type: 'attribute'
-			value: string
+			value: ''
+			data: string
 		}
 		container: {
 			type: 'container'

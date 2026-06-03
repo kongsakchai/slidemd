@@ -16,14 +16,14 @@ const isQoute = (code: Code) => QOUTE_LIST.has(code)
 
 // --- Tokenizer
 
-export const tokenizer: Construct = {
+export const htmlTextTokenizer: Construct = {
 	name: 'html-text',
 	tokenize: tokenize
 }
 
 export const htmlText: Extension = {
 	text: {
-		[codes.lessThan]: tokenizer
+		[codes.lessThan]: htmlTextTokenizer
 	}
 }
 

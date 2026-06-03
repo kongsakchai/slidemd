@@ -2,6 +2,8 @@ import { markdownLineEnding, markdownSpace } from 'micromark-util-character'
 import { codes, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, State, TokenizeContext } from 'micromark-util-types'
 
+export const blankLinePartialTokenizer: Construct = { partial: true, tokenize: blankLineTokenize }
+
 function blankLineTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	return start
 
@@ -41,7 +43,7 @@ function blankLineTokenize(this: TokenizeContext, effects: Effects, ok: State, n
 	}
 }
 
-export const blankLinePartialTokenizer: Construct = { partial: true, tokenize: blankLineTokenize }
+export const nonLazyPartialTokenizer: Construct = { partial: true, tokenize: nonLazyTokenize }
 
 function nonLazyTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	const isLazy = () => this.parser.lazy[this.now().line]
@@ -64,5 +66,3 @@ function nonLazyTokenize(this: TokenizeContext, effects: Effects, ok: State, nok
 		return isLazy() ? nok(code) : ok(code)
 	}
 }
-
-export const nonLazyPartialTokenizer: Construct = { partial: true, tokenize: nonLazyTokenize }

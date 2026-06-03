@@ -2,8 +2,8 @@ import type { Event, TokenizeContext } from 'micromark-util-types'
 import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
 
-import { addFromMarkdownExtensions, addMicromarkExtensions, handleResolveAll } from '../../src/parsers/helper'
 import { highlight, highlightFromMarkdown } from '../../src/parsers/highlight'
+import { addFromMarkdownExtensions, addMicromarkExtensions, handleResolveAll } from '../../src/parsers/uitls'
 
 describe('helper parsers', () => {
 	it("should new micromarkExtensions when it's empty", () => {

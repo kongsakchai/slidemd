@@ -2,6 +2,8 @@ import { markdownSpace } from 'micromark-util-character'
 import { types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, State, TokenizeContext } from 'micromark-util-types'
 
+export const spacePartialTokenizer: Construct = { partial: true, tokenize: spaceTokenize }
+
 function spaceTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	return start
 
@@ -24,5 +26,3 @@ function spaceTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: 
 		return consumeSpace
 	}
 }
-
-export const spacePartialTokenizer: Construct = { partial: true, tokenize: spaceTokenize }

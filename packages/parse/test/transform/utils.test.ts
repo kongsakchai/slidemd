@@ -2,18 +2,15 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-	asNumber,
-	asString,
 	extractAttributes,
 	extractClassNames,
 	extractIDs,
 	extractMaxStep,
 	getAttributes,
-	mapNode,
-	maxValue
-} from '../../src/transform/helper'
+	mapNode
+} from '../../src/transform/utils'
 
-describe('transform helper', () => {
+describe('transform utils', () => {
 	it('should attribute extractor work correctly', () => {
 		const str = 'key1=value1 key2="value with spaces" key3=\'another value\' key4 key5=value5'
 		const attrs = extractAttributes(str)
@@ -85,51 +82,6 @@ describe('transform helper', () => {
 		expect(resp).toEqual({
 			data: '10'
 		})
-	})
-
-	it('should return string when value is string', () => {
-		const val: string | undefined = 'test'
-		const resp = asString(val)
-		expect(resp).toEqual('test')
-	})
-
-	it('should return default value when value is not string', () => {
-		const val: string | undefined = undefined
-		const resp = asString(val, 'test')
-		expect(resp).toEqual('test')
-	})
-
-	it('should return number when value is number', () => {
-		const val: number | undefined = 10
-		const resp = asNumber(val)
-		expect(resp).toEqual(10)
-	})
-
-	it('should return default value when value is not number', () => {
-		const val: string | undefined = undefined
-		const resp = asNumber(val, 0)
-		expect(resp).toEqual(0)
-	})
-
-	it('should return a when b is empty', () => {
-		const a = 10
-		const b = undefined
-		const resp = maxValue(a, b)
-		expect(resp).toEqual(10)
-	})
-
-	it('should return b when a is empty', () => {
-		const a = undefined
-		const b = 10
-		const resp = maxValue(a, b)
-		expect(resp).toEqual(10)
-	})
-
-	it('should return undefined when a and b is empty', () => {
-		const a = undefined
-		const b = undefined
-		const resp = maxValue(a, b)
-		expect(resp).toBeUndefined()
 	})
 
 	it('should return 10 when max step is 10', () => {

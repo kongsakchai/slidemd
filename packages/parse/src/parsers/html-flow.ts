@@ -25,7 +25,7 @@ const BASIC_TAGS = new Set(htmlBlockNames)
 
 // --- Tokenizer
 
-const tokenizer: Construct = {
+export const htmlFlowTokenizer: Construct = {
 	concrete: true,
 	name: 'html',
 	tokenize: tokenize
@@ -33,7 +33,7 @@ const tokenizer: Construct = {
 
 export const htmlFlow: Extension = {
 	flow: {
-		[codes.lessThan]: tokenizer
+		[codes.lessThan]: htmlFlowTokenizer
 	}
 }
 
