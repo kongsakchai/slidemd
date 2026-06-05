@@ -1,8 +1,9 @@
 import type { CompileContext, Extension as FromMarkdownExtension } from 'mdast-util-from-markdown'
-import { asciiAlpha, asciiAlphanumeric, markdownLineEnding, markdownLineEndingOrSpace } from 'micromark-util-character'
+import { asciiAlpha, markdownLineEnding, markdownLineEndingOrSpace } from 'micromark-util-character'
 import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
+import { factoryAttribute } from './factory-attribute.js'
 import { nonLazyPartialTokenizer } from './line.js'
 import { spacePartialTokenizer } from './space.js'
 
@@ -19,9 +20,12 @@ export const container: Extension = {
 	}
 }
 
-const closeContainerPartialTokenizer: Construct = {
-	tokenize: closeContainerTokenize,
-	partial: true
+const closeContainerPartialTokenizer: Construct = { tokenize: closeContainerTokenize, partial: true }
+
+const attributePartialTokenizer: Construct = { partial: true, tokenize: attributeTokenize }
+
+function attributeTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+	return factoryAttribute(effects, ok, nok, codes.eof)
 }
 
 function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
@@ -40,7 +44,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 	function openContainer(code: Code) {
 		if (code === codes.colon) {
-			if (size > 3) return nok(code)
+			if (size >= 3) return nok(code)
 			size++
 			effects.consume(code)
 			return openContainer
@@ -48,13 +52,18 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 		if (size < 3) return nok(code)
 
-		return startName(code)
+		return openName(code)
+	}
+
+	function done(code: Code) {
+		effects.exit('container')
+		return ok(code)
 	}
 
 	// --- Name
 
-	function startName(code: Code) {
-		if (code === codes.eof || !asciiAlpha(code)) {
+	function openName(code: Code) {
+		if (code === codes.eof || markdownLineEndingOrSpace(code) || !asciiAlpha(code)) {
 			return nok(code)
 		}
 
@@ -65,73 +74,52 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function containerName(code: Code) {
-		if (code === codes.eof || markdownLineEndingOrSpace(code)) {
+		if (code === codes.eof) {
 			effects.exit('containerName')
-			return effects.attempt(spacePartialTokenizer, startAttribute, closeOpenContainer)(code)
+			return done(code)
 		}
 
-		// Continue container name
-		if (code != null && (code === codes.dash || asciiAlphanumeric(code))) {
-			effects.consume(code)
-			return containerName
+		if (markdownLineEndingOrSpace(code)) {
+			return effects.attempt(spacePartialTokenizer, containerAttribute, beforeContent)(code)
 		}
 
-		return nok(code)
+		effects.consume(code)
+		return containerName
 	}
 
 	// --- Attribute
 
-	function startAttribute(code: Code) {
-		effects.enter('containerAttribute')
-		return attribute(code)
+	function containerAttribute(code: Code) {
+		return effects.attempt(attributePartialTokenizer, beforeContent, beforeContent)(code)
 	}
 
-	function attribute(code: Code) {
-		if (code === codes.eof || markdownLineEnding(code)) {
-			effects.exit('containerAttribute')
-			return closeOpenContainer(code)
-		}
-
-		effects.consume(code)
-		return attribute
-	}
-
-	function closeOpenContainer(code: Code) {
+	function beforeContent(code: Code) {
 		if (code === codes.eof) {
 			return done(code)
 		}
 
 		if (markdownLineEnding(code)) {
-			return effects.attempt(nonLazyPartialTokenizer, closeOpenContainer, done)(code)
+			return effects.attempt(nonLazyPartialTokenizer, beforeContent, done)(code)
 		}
 
-		return startContent(code)
+		return effects.attempt(closeContainerPartialTokenizer, done, openContent)(code)
 	}
 
 	// --- Content
 
-	function startContent(code: Code) {
+	function openContent(code: Code) {
 		effects.enter('containerContent')
-		return checkCloseContainer(code)
-	}
-
-	function checkCloseContainer(code: Code) {
-		return effects.attempt(closeContainerPartialTokenizer, closeContent, startDocument)(code)
+		return openDocument(code)
 	}
 
 	function closeContent(code: Code) {
 		effects.exit('containerContent')
-		return done(code)
-	}
-
-	function done(code: Code) {
-		effects.exit('container')
-		return ok(code)
+		return effects.attempt(closeContainerPartialTokenizer, done, openContent)(code)
 	}
 
 	// --- Document
 
-	function startDocument(code: Code) {
+	function openDocument(code: Code) {
 		const token = effects.enter(types.chunkDocument, {
 			contentType: constants.contentTypeDocument,
 			previous: previous
@@ -148,21 +136,22 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		}
 
 		if (markdownLineEnding(code)) {
-			return effects.check(nonLazyPartialTokenizer, checkNextLineDocument, endDocument)(code)
+			return effects.check(nonLazyPartialTokenizer, nextLineDocument, closeDocument)(code)
 		}
 
 		effects.consume(code)
 		return document
 	}
 
-	function checkNextLineDocument(code: Code) {
+	function nextLineDocument(code: Code) {
 		effects.consume(code)
 		const token = effects.exit(types.chunkDocument)
 		setNonLazy(token)
-		return checkCloseContainer
+
+		return effects.check(closeContainerPartialTokenizer, closeContent, openDocument)
 	}
 
-	function endDocument(code: Code) {
+	function closeDocument(code: Code) {
 		const token = effects.exit(types.chunkDocument)
 		setNonLazy(token)
 		return closeContent(code)

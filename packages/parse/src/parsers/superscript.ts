@@ -3,7 +3,7 @@ import { classifyCharacter } from 'micromark-util-classify-character'
 import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Effects, Event, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
-import { handleResolveAll } from './uitls.js'
+import { handleResolveAll } from './utils.js'
 
 // Subscript extension for micromark; converts token sequences of `^` into superscript tokens
 const superscriptTokenizer = {

@@ -3,24 +3,33 @@ import { markdownLineEnding } from 'micromark-util-character'
 import { codes } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
+import { factoryAttribute } from './factory-attribute.js'
+
 // Attribute extension for micromark; converts token sequences of `@{}` into attribute tokens
-export const attributeTokenizer: Construct = {
+export const attributeBlockTokenizer: Construct = {
 	name: 'html',
 	tokenize: tokenize,
 	concrete: true
 }
 
-export const attribute: Extension = {
+export const attributeBlock: Extension = {
 	text: {
-		[codes.atSign]: attributeTokenizer
+		[codes.atSign]: attributeBlockTokenizer
 	}
+}
+
+const attributePartialTokenizer: Construct = { partial: true, tokenize: attributeTokenize }
+
+function attributeTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+	return factoryAttribute(effects, ok, nok, codes.rightCurlyBrace)
 }
 
 function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	return start
 
 	function start(code: Code) {
-		effects.enter('attribute')
+		effects.enter('attributeBlock')
+		effects.enter('attributeBlockSequence')
 		effects.consume(code)
 		return open
 	}
@@ -28,6 +37,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	function open(code: Code) {
 		if (code === codes.leftCurlyBrace) {
 			effects.consume(code)
+			effects.exit('attributeBlockSequence')
 			return more
 		}
 
@@ -35,22 +45,23 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function more(code: Code) {
-		if (code === codes.eof || markdownLineEnding(code)) {
-			return nok(code)
-		}
-
-		if (code === codes.rightCurlyBrace) {
-			effects.consume(code)
-			return end
-		}
-
-		effects.consume(code)
-		return more
+		return effects.attempt(attributePartialTokenizer, beforeDone, beforeDone)(code)
 	}
 
-	function end(code: Code) {
+	function beforeDone(code: Code) {
+		if (code === codes.rightCurlyBrace) {
+			effects.enter('attributeBlockSequence')
+			effects.consume(code)
+			effects.exit('attributeBlockSequence')
+			return done
+		}
+
+		return nok(code)
+	}
+
+	function done(code: Code) {
 		if (code === codes.eof || markdownLineEnding(code)) {
-			effects.exit('attribute')
+			effects.exit('attributeBlock')
 			return ok(code)
 		}
 		return nok(code)
@@ -58,23 +69,26 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 }
 
 // FromMarkdown extension to convert attribute tokens into MDAST nodes
-export const attributeFromMarkdown: FromMarkdownExtension = {
-	canContainEols: ['attribute'],
-	enter: { attribute: enterToken },
-	exit: { attribute: exitToken }
+export const attributeBlockFromMarkdown: FromMarkdownExtension = {
+	enter: { attributeBlock: enterToken },
+	exit: { attributeBlock: exitToken }
 }
 
 function enterToken(this: CompileContext, token: Token) {
 	this.enter(
 		{
-			type: 'attribute',
+			type: 'attributeBlock',
 			value: '',
-			data: this.sliceSerialize(token).slice(2, -1)
+			attr: {}
 		},
 		token
 	)
 }
 
 function exitToken(this: CompileContext, token: Token) {
+	const node = this.stack.at(-1)
+	if (node?.type === 'attributeBlock') {
+		node.attr = this.data.attr
+	}
 	this.exit(token)
 }

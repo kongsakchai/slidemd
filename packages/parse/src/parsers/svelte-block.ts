@@ -121,6 +121,10 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function checkNextLine(code: Code) {
+		if (code === codes.eof || markdownLineEnding(code)) {
+			return checkNonLazy(code)
+		}
+
 		effects.enter(types.htmlFlowData)
 		return more(code)
 	}

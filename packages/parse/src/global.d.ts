@@ -1,23 +1,40 @@
 import 'mdast'
-import 'mdast-util-to-hast'
+import 'mdast-util-from-markdown'
+import 'micromark-util-types'
+
+import { Attribute } from './types'
 
 declare module 'micromark-util-types' {
 	interface TokenTypeMap {
 		highlightSequenceTemp: 'highlightSequenceTemp'
 		highlightSequence: 'highlightSequence'
 		highlight: 'highlight'
+
 		subscriptSequenceTemp: 'subscriptSequenceTemp'
 		subscriptSequence: 'subscriptSequence'
 		subscript: 'subscript'
+
 		superscriptSequenceTemp: 'superscriptSequenceTemp'
 		superscriptSequence: 'superscriptSequence'
 		superscript: 'superscript'
-		attribute: 'attribute'
+
 		container: 'container'
 		containerName: 'containerName'
 		containerSequence: 'containerSequence'
-		containerAttribute: 'containerAttribute'
 		containerContent: 'containerContent'
+
+		attributeBlock: 'attributeBlock'
+		attributeBlockSequence: 'attributeBlockSequence'
+
+		attribute: 'attribute'
+		attributeSequence: 'attributeSequence'
+		attributeKey: 'attributeKey'
+		attributeValue: 'attributeValue'
+		attributeClass: 'attributeClass'
+		attributeID: 'attributeID'
+		attributeEqual: 'attributeEqual'
+
+		temp: 'temp'
 	}
 }
 
@@ -44,10 +61,10 @@ declare module 'mdast' {
 				hName: 'sup'
 			}
 		}
-		attribute: {
-			type: 'attribute'
+		attributeBlock: {
+			type: 'attributeBlock'
 			value: ''
-			data: string
+			attr: Attribute
 		}
 		container: {
 			type: 'container'
@@ -57,5 +74,13 @@ declare module 'mdast' {
 				hName: string
 			}
 		}
+	}
+}
+
+declare module 'mdast-util-from-markdown' {
+	interface CompileData {
+		attr: Attribute
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		store: Record<string, any>
 	}
 }
