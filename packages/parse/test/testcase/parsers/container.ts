@@ -5,7 +5,7 @@ import { Testcase, runTest } from '../../helper'
 type Parse = (str: string) => Promise<string>
 
 export function containerTestcase(parse: Parse) {
-	describe('container', () => {
+	describe('success', () => {
 		const testcase: Testcase[] = [
 			{
 				title: 'should return div without content',
@@ -25,11 +25,81 @@ export function containerTestcase(parse: Parse) {
 			{
 				title: 'should return container with content after blank line',
 				value: ':::div\n# Header1\n ## Header2\n:::',
-				expected: '<div><h1>Header</h1></div>'
+				expected: '<div><h1>Header1</h1><h2>Header2</h2></div>'
+			},
+			{
+				title: 'should return container with attribute',
+				value: ':::main .bg-red-500 .text-white disable #test data-click="hello markdown"\n:::',
+				expected: '<main class="bg-red-500 text-white" disable id="test" data-click="hello markdown"></main>'
+			},
+			{
+				title: 'should return container when only name',
+				value: ':::main',
+				expected: '<main></main>'
+			},
+			{
+				title: 'should return container when only name and newline',
+				value: ':::main\n\n',
+				expected: '<main></main>'
+			},
+			{
+				title: 'should return container without closing',
+				value: ':::main\nhello, markdown',
+				expected: '<main><p>hello, markdown</p></main>'
+			},
+			{
+				title: 'should return container without closing #2',
+				value: ':::main\nhello, markdown\n',
+				expected: '<main><p>hello, markdown</p></main>'
+			},
+			{
+				title: 'should return container bun closing invalid',
+				value: ':::main\nhello, markdown\n::::',
+				expected: '<main><p>hello, markdown\n::::</p></main>'
+			},
+			{
+				title: 'should return container bun closing invalid #2',
+				value: ':::main\nhello, markdown\n::',
+				expected: '<main><p>hello, markdown\n::</p></main>'
+			},
+			{
+				title: 'should return container and sub container',
+				value: ':::main \n:::div\nin div\n:::\nin main\n:::',
+				expected: '<main><div><p>in div</p></div><p>in main</p></main>'
+			},
+			{
+				title: 'should return container and one character in name',
+				value: ':::m',
+				expected: '<m></m>'
 			}
 		]
 
-		runTest(testcase, 3, async (t) => {
+		runTest(testcase, 'all', async (t) => {
+			const file = await parse(t.value)
+			expect(file).toBe(t.expected)
+		})
+	})
+
+	describe('invalid', () => {
+		const testcase: Testcase[] = [
+			{
+				title: 'should return normal text when prefix invalid',
+				value: '::div\n:::',
+				expected: '<p>::div\n:::</p>'
+			},
+			{
+				title: 'should return normal text when prefix invalid',
+				value: '::::div\n:::',
+				expected: '<p>::::div\n:::</p>'
+			},
+			{
+				title: 'should return normal text when missing name',
+				value: '::: data=10\n:::',
+				expected: '<p>::: data=10\n:::</p>'
+			}
+		]
+
+		runTest(testcase, 'all', async (t) => {
 			const file = await parse(t.value)
 			expect(file).toBe(t.expected)
 		})

@@ -72,10 +72,10 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 			case codes.slash:
 				isClosingTag = true
 				effects.consume(code) // consume `\`
-				return startTagName
+				return openTagName
 		}
 
-		return startTagName(code)
+		return openTagName(code)
 	}
 
 	// Type 2 / 4 / 6 - check after `<!`
@@ -124,7 +124,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	// tag name
-	function startTagName(code: Code) {
+	function openTagName(code: Code) {
 		if (code === null || !asciiAlpha(code)) {
 			return nok(code)
 		}
@@ -143,7 +143,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 			code === codes.eof ||
 			markdownLineEndingOrSpace(code)
 		) {
-			return endTagName(code)
+			return closeTagName(code)
 		}
 
 		// Continue tag name
@@ -156,7 +156,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		return nok(code)
 	}
 
-	function endTagName(code: Code) {
+	function closeTagName(code: Code) {
 		const isSlash = code === codes.slash
 		const name = String.fromCodePoint(...tagNameBuffer).toLowerCase()
 
@@ -252,7 +252,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		if (code === codes.slash) {
 			isClosingTag = true
 			effects.consume(code)
-			return startTagName
+			return openTagName
 		}
 
 		return more(code)

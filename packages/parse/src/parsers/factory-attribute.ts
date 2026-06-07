@@ -3,6 +3,7 @@ import { markdownLineEnding, markdownLineEndingOrSpace } from 'micromark-util-ch
 import { codes } from 'micromark-util-symbol'
 import type { Code, Effects, State, Token } from 'micromark-util-types'
 
+import { asString } from '../utils.js'
 import { spacePartialTokenizer } from './space.js'
 
 export const isQoute = (code: Code) =>
@@ -27,7 +28,11 @@ export function factoryAttribute(effects: Effects, ok: State, nok: State, closeC
 	}
 
 	function openSequence(code: Code) {
-		effects.enter('attentionSequence')
+		if (code === codes.eof || markdownLineEnding(code) || isClosed(code)) {
+			return done(code)
+		}
+
+		effects.enter('attributeSequence')
 
 		if (code === codes.dot) {
 			effects.enter('attributeClass')
@@ -47,7 +52,7 @@ export function factoryAttribute(effects: Effects, ok: State, nok: State, closeC
 	}
 
 	function closeSequence(code: Code) {
-		effects.exit('attentionSequence')
+		effects.exit('attributeSequence')
 
 		if (code === codes.eof || markdownLineEnding(code) || isClosed(code)) {
 			return done(code)
@@ -165,10 +170,10 @@ export function factoryAttribute(effects: Effects, ok: State, nok: State, closeC
 export const attributeFromMarkdown: FromMarkdownExtension = {
 	enter: {
 		attribute: enterAttribute,
-		attentionSequence: enterAttributeSequence
+		attributeSequence: enterAttributeSequence
 	},
 	exit: {
-		attentionSequence: exitAttributeSequence,
+		attributeSequence: exitAttributeSequence,
 		attributeKey: exitAttributeKey,
 		attributeValue: exitAttributeValue,
 		attributeClass: exitAttributeClass,
@@ -183,13 +188,13 @@ function enterAttribute(this: CompileContext) {
 function enterAttributeSequence(this: CompileContext) {
 	this.data.store = {
 		key: '',
-		value: undefined
+		value: ''
 	}
 }
 
 function exitAttributeKey(this: CompileContext, token: Token) {
 	const key = this.sliceSerialize(token)
-	if (/[a-zA-Z][\w-@:]+/.test(key)) {
+	if (/^[a-zA-Z][\w-@:]+$/.test(key)) {
 		this.data.store.key = key
 	}
 }
@@ -197,29 +202,29 @@ function exitAttributeKey(this: CompileContext, token: Token) {
 function exitAttributeValue(this: CompileContext, token: Token) {
 	const value = this.sliceSerialize(token)
 	if (value.at(0) === value.at(-1)) {
-		this.data.store.value = value.replace(/^["']|['"]$/, '')
+		this.data.store.value = value.replaceAll(/^["']|['"]$/g, '')
 	} else {
-		this.data.store.value = value.replace(/^["']$/, '')
+		this.data.store.value = value.replaceAll(/^["']$/g, '')
 	}
 }
 
 function exitAttributeClass(this: CompileContext, token: Token) {
 	this.data.store.key = 'class'
-	this.data.store.value = this.sliceSerialize(token).slice(1) || null
+	this.data.store.value = this.sliceSerialize(token).slice(1)
 }
 
 function exitAttributeID(this: CompileContext, token: Token) {
 	this.data.store.key = 'id'
-	this.data.store.value = this.sliceSerialize(token).slice(1) || null
+	this.data.store.value = this.sliceSerialize(token).slice(1)
 }
 
 function exitAttributeSequence(this: CompileContext) {
 	const attr = this.data.attr
 	const key = this.data.store.key
-	const value = this.data.store.value || null
+	const value = this.data.store.value || ''
 
-	if ((key === 'class' || key === 'id') && typeof value === 'string') {
-		attr.class = typeof attr.class === 'string' ? [attr.class.trim(), value].join(' ') : value
+	if ((key === 'class' || key === 'id') && typeof value === 'string' && value !== '') {
+		attr[key] = [asString(attr[key], ''), value].join(' ').trim()
 	} else if (key) {
 		attr[key] = value
 	}

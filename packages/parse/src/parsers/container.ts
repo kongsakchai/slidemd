@@ -9,9 +9,8 @@ import { spacePartialTokenizer } from './space.js'
 
 // Attribute extension for micromark; converts token sequences of `@{}` into attribute tokens
 export const containerTokenizer: Construct = {
-	name: 'html',
-	tokenize: tokenize,
-	concrete: true
+	name: 'container',
+	tokenize: tokenize
 }
 
 export const container: Extension = {
@@ -19,6 +18,8 @@ export const container: Extension = {
 		[codes.colon]: containerTokenizer
 	}
 }
+
+const openContainerPartialTokenizer: Construct = { tokenize: openContainerTokenize, partial: true }
 
 const closeContainerPartialTokenizer: Construct = { tokenize: closeContainerTokenize, partial: true }
 
@@ -29,8 +30,8 @@ function attributeTokenize(this: TokenizeContext, effects: Effects, ok: State, n
 }
 
 function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
-	let size = 0
 	let previous: Token | undefined = undefined
+	let subContainer = 0
 
 	const setNonLazy = (token: Token) => (this.parser.lazy[token.start.line] = false)
 
@@ -39,20 +40,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	function start(code: Code) {
 		effects.enter('container')
 		effects.enter('containerSequence')
-		return openContainer(code)
-	}
-
-	function openContainer(code: Code) {
-		if (code === codes.colon) {
-			if (size >= 3) return nok(code)
-			size++
-			effects.consume(code)
-			return openContainer
-		}
-
-		if (size < 3) return nok(code)
-
-		return openName(code)
+		return effects.attempt(openContainerPartialTokenizer, openName, nok)(code)
 	}
 
 	function done(code: Code) {
@@ -63,10 +51,6 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	// --- Name
 
 	function openName(code: Code) {
-		if (code === codes.eof || markdownLineEndingOrSpace(code) || !asciiAlpha(code)) {
-			return nok(code)
-		}
-
 		effects.exit('containerSequence')
 		effects.enter('containerName')
 		effects.consume(code)
@@ -80,6 +64,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		}
 
 		if (markdownLineEndingOrSpace(code)) {
+			effects.exit('containerName')
 			return effects.attempt(spacePartialTokenizer, containerAttribute, beforeContent)(code)
 		}
 
@@ -102,6 +87,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 			return effects.attempt(nonLazyPartialTokenizer, beforeContent, done)(code)
 		}
 
+		// check close before content
 		return effects.attempt(closeContainerPartialTokenizer, done, openContent)(code)
 	}
 
@@ -109,17 +95,32 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 	function openContent(code: Code) {
 		effects.enter('containerContent')
-		return openDocument(code)
+		return effects.check(openContainerPartialTokenizer, addSubContainer(openDocument), openDocument)(code)
 	}
 
 	function closeContent(code: Code) {
 		effects.exit('containerContent')
+		if (code === codes.eof) {
+			return done(code)
+		}
+
 		return effects.attempt(closeContainerPartialTokenizer, done, openContent)(code)
+	}
+
+	// --- Sub container
+
+	function addSubContainer(next: State) {
+		return (code: Code) => {
+			subContainer++
+			return next(code)
+		}
 	}
 
 	// --- Document
 
 	function openDocument(code: Code) {
+		if (code === codes.eof) return closeContent(code)
+
 		const token = effects.enter(types.chunkDocument, {
 			contentType: constants.contentTypeDocument,
 			previous: previous
@@ -130,10 +131,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function document(code: Code) {
-		if (code === codes.eof) {
-			effects.exit(types.chunkDocument)
-			return closeContent(code)
-		}
+		if (code === codes.eof) return closeDocument(code)
 
 		if (markdownLineEnding(code)) {
 			return effects.check(nonLazyPartialTokenizer, nextLineDocument, closeDocument)(code)
@@ -143,22 +141,42 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		return document
 	}
 
-	function nextLineDocument(code: Code) {
-		effects.consume(code)
-		const token = effects.exit(types.chunkDocument)
-		setNonLazy(token)
-
-		return effects.check(closeContainerPartialTokenizer, closeContent, openDocument)
-	}
-
 	function closeDocument(code: Code) {
 		const token = effects.exit(types.chunkDocument)
 		setNonLazy(token)
 		return closeContent(code)
 	}
+
+	function nextLineDocument(code: Code) {
+		effects.consume(code)
+		const token = effects.exit(types.chunkDocument)
+		setNonLazy(token)
+		return effects.check(closeContainerPartialTokenizer, beforeCloseContent, checkSubContainer)
+	}
+
+	function beforeCloseContent(code: Code) {
+		if (subContainer-- > 0) return openDocument(code)
+		return closeContent(code)
+	}
+
+	function checkSubContainer(code: Code) {
+		return effects.check(openContainerPartialTokenizer, addSubContainer(openDocument), openDocument)(code)
+	}
 }
 
-function closeContainerTokenize(effects: Effects, ok: State, nok: State): State {
+function openContainerTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+	return factoryContainerSequence(effects, ok, nok, (code: Code) => {
+		return asciiAlpha(code)
+	})
+}
+
+function closeContainerTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
+	return factoryContainerSequence(effects, ok, nok, (code: Code) => {
+		return code === codes.eof || markdownLineEnding(code)
+	})
+}
+
+function factoryContainerSequence(effects: Effects, ok: State, nok: State, endWith: (code: Code) => boolean): State {
 	let size = 0
 
 	return start
@@ -174,13 +192,14 @@ function closeContainerTokenize(effects: Effects, ok: State, nok: State): State 
 
 	function more(code: Code) {
 		if (code === codes.colon) {
-			if (size > 3) return nok(code)
+			if (size >= 3) return nok(code)
 			size++
 			effects.consume(code)
 			return more
 		}
 
 		if (size < 3) return nok(code)
+		if (!endWith(code)) return nok(code)
 
 		effects.exit('containerSequence')
 		return ok(code)
@@ -194,8 +213,7 @@ export const containerFromMarkdown: FromMarkdownExtension = {
 	},
 	exit: {
 		container: exitContainer,
-		containerName: exitContainerName,
-		containerAttribute: exitContainerAttribute
+		containerName: exitContainerName
 	}
 }
 
@@ -205,8 +223,8 @@ function enterContainer(this: CompileContext, token: Token) {
 			type: 'container',
 			children: [],
 			data: {
-				attrs: '',
-				hName: ''
+				hName: '',
+				hProperties: {}
 			}
 		},
 		token
@@ -214,6 +232,10 @@ function enterContainer(this: CompileContext, token: Token) {
 }
 
 function exitContainer(this: CompileContext, token: Token) {
+	const node = this.stack.at(-1)
+	if (node?.type === 'container') {
+		node.data.hProperties = this.data.attr
+	}
 	this.exit(token)
 }
 
@@ -221,12 +243,5 @@ function exitContainerName(this: CompileContext, token: Token) {
 	const node = this.stack.at(-1)
 	if (node?.type === 'container') {
 		node.data.hName = this.sliceSerialize(token)
-	}
-}
-
-function exitContainerAttribute(this: CompileContext, token: Token) {
-	const node = this.stack.at(-1)
-	if (node?.type === 'container') {
-		node.data.attrs = this.sliceSerialize(token)
 	}
 }

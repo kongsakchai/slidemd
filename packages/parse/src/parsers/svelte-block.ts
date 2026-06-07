@@ -48,7 +48,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function open(code: Code) {
-		if (code === null || markdownLineEnding(code)) {
+		if (code === codes.eof || markdownLineEndingOrSpace(code)) {
 			return nok(code)
 		}
 
@@ -60,20 +60,20 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function blockName(code: Code) {
-		if (code != null && asciiAlpha(code)) {
+		if (code !== codes.eof && asciiAlpha(code)) {
 			tagNameBuffer.push(code)
 			effects.consume(code)
 			return blockName
 		}
 
 		if (markdownLineEndingOrSpace(code) || code === codes.rightCurlyBrace) {
-			return endBlockName(code)
+			return closeBlockName(code)
 		}
 
 		return nok(code)
 	}
 
-	function endBlockName(code: Code) {
+	function closeBlockName(code: Code) {
 		const name = String.fromCodePoint(...tagNameBuffer).toLowerCase()
 
 		if (tagSet?.has(name)) {
@@ -84,9 +84,13 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function more(code: Code) {
+		if (code === codes.eof) {
+			return nok(code)
+		}
+
 		if (code === codes.rightCurlyBrace) {
 			effects.consume(code)
-			return beforeEnd
+			return beforeClose
 		}
 
 		if (markdownLineEnding(code)) {
@@ -98,14 +102,14 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		return more
 	}
 
-	function beforeEnd(code: Code) {
+	function beforeClose(code: Code) {
 		if (code === codes.eof || markdownLineEnding(code)) {
 			effects.exit(types.htmlFlowData)
 			return done(code)
 		}
 
 		effects.consume(code)
-		return beforeEnd
+		return beforeClose
 	}
 
 	function done(code: Code) {

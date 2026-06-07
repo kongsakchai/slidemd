@@ -70,8 +70,8 @@ declare module 'mdast' {
 			type: 'container'
 			children: import('mdast').RootContentMap[]
 			data: {
-				attrs: string
 				hName: string
+				hProperties: Attribute
 			}
 		}
 	}
