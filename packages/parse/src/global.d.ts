@@ -80,7 +80,7 @@ declare module 'mdast' {
 declare module 'mdast-util-from-markdown' {
 	interface CompileData {
 		attr: Attribute
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		store: Record<string, any>
+		attributeKey?: string
+		attributeValue?: string
 	}
 }

@@ -1,120 +1,57 @@
-import {
-	transformerNotationDiff,
-	transformerNotationErrorLevel,
-	transformerNotationFocus,
-	transformerNotationHighlight
-} from '@shikijs/transformers'
-
-import type { Element, ElementContent } from 'hast'
+import type { ElementContent } from 'hast'
 import type { Data, Parent, Root, RootContent } from 'mdast'
-import { SpecialLanguage, createHighlighter } from 'shiki'
-import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import type { Transformer } from 'unified'
-import { visit } from 'unist-util-visit'
 
-import { asNumber, asString } from '../utils.js'
-import { Attribute } from './types.js'
+import { Attribute } from '../types.js'
+import { asNumber } from '../utils.js'
 import { getAttributes, mapNode } from './utils.js'
 
+export type CodeHighlighter = (lang: string, code: string) => Promise<ElementContent>
+export type CodeContainer = (lang: string, attr: Attribute) => Parent
+
 export interface CodeblockOptions {
-	disableCopy?: boolean
-	copyEventName?: string
+	highlight?: CodeHighlighter
+	createContainer?: CodeContainer
 }
-
-const themes = {
-	light: 'github-light',
-	dark: 'github-dark'
-}
-
-const transformers = [
-	transformerNotationDiff(),
-	transformerNotationHighlight(),
-	transformerNotationFocus(),
-	transformerNotationErrorLevel()
-]
-
-const jsEngine = createJavaScriptRegexEngine()
-
-const highlighter = await createHighlighter({
-	langs: ['go', 'javascript', 'typescript', 'yaml', 'html', 'css', 'svelte', 'markdown', 'plaintext'],
-	themes: ['github-light', 'github-dark'],
-	engine: jsEngine
-})
 
 const escapeSpecialCharacters = (str: string) => {
-	return str.replace(/[&<>{}]/g, (char) => `{'${char}'}`)
+	const a = str.replaceAll(/[&<>{}]/g, (char) => `{'${char}'}`)
+	console.log({ a, str })
+	return a
 }
 
-function createContainer(lang: string, attrs: Attribute, options?: CodeblockOptions) {
-	attrs.class = [`language-${lang}`, asString(attrs.class)].filter(Boolean).join(' ')
-
-	const copyEventName = options?.copyEventName ? `onclick="{${options?.copyEventName}}"` : ''
-	const copyButton: ElementContent[] = options?.disableCopy
-		? []
-		: [{ type: 'raw', value: `<button id="code-copy-btn" class="copy" ${copyEventName}></button>` }]
-
+function createDefaultContainer(lang: string, attrs: Attribute) {
 	const container: Parent = {
 		type: 'container',
 		data: {
 			hName: 'div',
 			hProperties: attrs as Data['hProperties'],
-			hChildren: [...copyButton, { type: 'raw', value: `<span class="lang">${lang}</span>` }]
+			hChildren: [
+				{
+					type: 'raw',
+					value: `<span class="lang">${lang}</span>`
+				}
+			]
 		},
 		children: []
 	}
 	return container
 }
 
-function createMermaidContainer(attrs: Attribute) {
-	const container: Parent = {
-		type: 'container',
-		data: {
-			hName: 'div',
-			hProperties: attrs as Data['hProperties'],
-			hChildren: []
-		},
-		children: []
-	}
-	return container
-}
-
-async function highlightCode(code: string, lang: string) {
-	try {
-		if (!highlighter.getLoadedLanguages().includes(lang)) {
-			await highlighter.loadLanguage(lang as SpecialLanguage)
-		}
-	} catch {
-		console.warn(`\x1b[43m\x1b[30m WARN \x1b[0m\x1b[33m Failed to load language: ${lang}`)
-		lang = 'plaintext'
-	}
-
-	const hast = highlighter.codeToHast(code, {
-		lang: lang,
-		defaultColor: false,
-		themes,
-		transformers
-	})
-
-	visit(hast, 'text', (node) => {
-		node.value = escapeSpecialCharacters(node.value)
-	})
-
-	return hast.children.pop()
-}
-
-async function mermaidBlock(code: string) {
-	const container: Element = {
+async function defaultHighlight(lang: string, code: string) {
+	const container: ElementContent = {
 		type: 'element',
 		tagName: 'pre',
-		properties: {
-			class: 'mermaid'
-		},
+		properties: { lang },
 		children: [{ type: 'text', value: escapeSpecialCharacters(code) }]
 	}
 	return container
 }
 
 export function codeblockTransformer(options?: CodeblockOptions): Transformer {
+	const createContainer = options?.createContainer ?? createDefaultContainer
+	const highlight = options?.highlight ?? defaultHighlight
+
 	return async (tree, vfile) => {
 		const codeblocks = mapNode(tree as Root, 'code', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
@@ -125,7 +62,7 @@ export function codeblockTransformer(options?: CodeblockOptions): Transformer {
 
 			vfile.data.step = Math.max(asNumber(vfile.data.step, 0), asNumber(attrs.step, 0))
 
-			const container = lang === 'mermaid' ? createMermaidContainer(attrs) : createContainer(lang, attrs, options)
+			const container = createContainer(lang, attrs)
 			parent.children.splice(index, 1, container as RootContent)
 
 			return {
@@ -138,9 +75,8 @@ export function codeblockTransformer(options?: CodeblockOptions): Transformer {
 		await Promise.all(
 			codeblocks.map(async (block) => {
 				if (!block) return
-				const isMermaid = block.lang === 'mermaid'
-				const html = isMermaid ? await mermaidBlock(block.code) : await highlightCode(block.code, block.lang)
-				block.container.data?.hChildren?.push(html as ElementContent)
+				const html = await highlight(block.lang, block.code)
+				block.container.data?.hChildren?.push(html)
 			})
 		)
 	}

@@ -1,8 +1,6 @@
 import { describe, expect } from 'vitest'
 
-import { Testcase, runTest } from '../../helper'
-
-type Parse = (str: string) => Promise<string>
+import { Parse, Testcase, runTest } from './helper'
 
 export function basicSyntaxTestcase(parse: Parse) {
 	describe('header', () => {

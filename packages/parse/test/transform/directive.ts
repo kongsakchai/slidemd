@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { VFile } from 'vfile'
-import { describe, expect, it } from 'vitest'
+import { expect, it } from 'vitest'
 
 import { directiveTransformer } from '../../src/transform/directive'
 
-describe('transform directive', () => {
+export function directiveTransformerTestcase() {
 	it('should return data from directive', () => {
 		const tree = {
 			type: 'root',
@@ -178,4 +178,4 @@ background-color: "#e5e5f7"
 			}
 		})
 	})
-})
+}

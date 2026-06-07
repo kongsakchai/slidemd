@@ -186,44 +186,42 @@ function enterAttribute(this: CompileContext) {
 }
 
 function enterAttributeSequence(this: CompileContext) {
-	this.data.store = {
-		key: '',
-		value: ''
-	}
+	this.data.attributeKey = undefined
+	this.data.attributeValue = undefined
 }
 
 function exitAttributeKey(this: CompileContext, token: Token) {
 	const key = this.sliceSerialize(token)
 	if (/^[a-zA-Z][\w-@:]+$/.test(key)) {
-		this.data.store.key = key
+		this.data.attributeKey = key
 	}
 }
 
 function exitAttributeValue(this: CompileContext, token: Token) {
 	const value = this.sliceSerialize(token)
 	if (value.at(0) === value.at(-1)) {
-		this.data.store.value = value.replaceAll(/^["']|['"]$/g, '')
+		this.data.attributeValue = value.replaceAll(/^["']|['"]$/g, '')
 	} else {
-		this.data.store.value = value.replaceAll(/^["']$/g, '')
+		this.data.attributeValue = value.replaceAll(/^["']$/g, '')
 	}
 }
 
 function exitAttributeClass(this: CompileContext, token: Token) {
-	this.data.store.key = 'class'
-	this.data.store.value = this.sliceSerialize(token).slice(1)
+	this.data.attributeKey = 'class'
+	this.data.attributeValue = this.sliceSerialize(token).slice(1)
 }
 
 function exitAttributeID(this: CompileContext, token: Token) {
-	this.data.store.key = 'id'
-	this.data.store.value = this.sliceSerialize(token).slice(1)
+	this.data.attributeKey = 'id'
+	this.data.attributeValue = this.sliceSerialize(token).slice(1)
 }
 
 function exitAttributeSequence(this: CompileContext) {
 	const attr = this.data.attr
-	const key = this.data.store.key
-	const value = this.data.store.value || ''
+	const key = this.data.attributeKey
+	const value = this.data.attributeValue || ''
 
-	if ((key === 'class' || key === 'id') && typeof value === 'string' && value !== '') {
+	if ((key === 'class' || key === 'id') && value) {
 		attr[key] = [asString(attr[key], ''), value].join(' ').trim()
 	} else if (key) {
 		attr[key] = value

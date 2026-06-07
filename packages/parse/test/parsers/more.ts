@@ -5,11 +5,12 @@ import markdown from 'remark-parse'
 import { unified } from 'unified'
 import { describe, expect, test } from 'vitest'
 
-import { attributeBlockFromMarkdown } from '../../../src/parsers/attribute-block'
-import { containerFromMarkdown } from '../../../src/parsers/container'
-import { highlight, highlightFromMarkdown } from '../../../src/parsers/highlight'
-import { blankLinePartialTokenizer } from '../../../src/parsers/line'
-import { addFromMarkdownExtensions, addMicromarkExtensions, handleResolveAll } from '../../../src/parsers/utils'
+import { attributeBlockFromMarkdown } from '../../src/parsers/attribute-block'
+import { containerFromMarkdown } from '../../src/parsers/container'
+import { highlight, highlightFromMarkdown } from '../../src/parsers/highlight'
+import { blankLinePartialTokenizer } from '../../src/parsers/line'
+import { addFromMarkdownExtensions, addMicromarkExtensions, handleResolveAll } from '../../src/parsers/utils'
+import { runTest } from './helper'
 
 export function moreTestcase() {
 	describe('utils', () => {
@@ -97,6 +98,29 @@ export function moreTestcase() {
 					type: 'attributeBlock',
 					start: { _bufferIndex: 0, _index: 0, offset: 1, line: 1, column: 1 },
 					end: { _bufferIndex: 0, _index: 0, offset: 1, line: 1, column: 1 }
+				}
+			)
+		})
+	})
+
+	describe('helper', () => {
+		describe('should run only second testcase when index is 1', () => {
+			runTest(
+				[
+					{
+						title: 'should not test me when index is 1',
+						value: '',
+						expected: ''
+					},
+					{
+						title: 'should test only me when index is 1',
+						value: '',
+						expected: ''
+					}
+				],
+				1,
+				async (t) => {
+					expect(t.value).toBe(t.expected)
 				}
 			)
 		})

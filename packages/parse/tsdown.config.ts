@@ -6,6 +6,12 @@ export default defineConfig({
 	...baseConfig,
 	entry: ['./src/index.ts'],
 	deps: {
-		neverBundle: ['micromark-util-symbol', 'micromark-util-resolve-all']
+		neverBundle: [
+			'micromark-util-character',
+			'micromark-util-classify-character',
+			'micromark-util-html-tag-name',
+			'micromark-util-resolve-all',
+			'micromark-util-symbol'
+		]
 	}
 })

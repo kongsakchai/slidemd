@@ -7,8 +7,10 @@ import { unified } from 'unified'
 
 import { slidemdParser } from './parsers/index.js'
 import { TransformOptions, applyTransformers } from './transform/index.js'
-import { Directive } from './transform/types.js'
+import type { Directive } from './types.js'
 import { asNumber, asString } from './utils.js'
+
+export { Directive }
 
 export interface Options {
 	transform?: TransformOptions
@@ -47,8 +49,8 @@ export function createParser(options?: Options) {
 	const parser = setupProcessor(options)
 
 	return {
-		parse: async (value: string, shared: Directive): Promise<File> => {
-			const file = await parser.process({ value: value, data: shared })
+		parse: async (value: string, global?: Directive): Promise<File> => {
+			const file = await parser.process({ value: value, data: { global: global } })
 			return {
 				value: file.toString(),
 				data: {

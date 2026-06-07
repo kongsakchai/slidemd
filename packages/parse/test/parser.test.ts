@@ -4,17 +4,16 @@ import remarkGfm from 'remark-gfm'
 import markdown from 'remark-parse'
 import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
-import { describe, expect } from 'vitest'
+import { describe } from 'vitest'
 
 import { slidemdParser } from '../src/parsers/index'
-import { runTest } from './helper'
-import { attributeTestcase } from './testcase/parsers/attribute'
-import { basicSyntaxTestcase } from './testcase/parsers/basic-syntax'
-import { containerTestcase } from './testcase/parsers/container'
-import { extendedSyntaxTestcase } from './testcase/parsers/extended-syntax'
-import { htmlTestcase } from './testcase/parsers/html'
-import { moreTestcase } from './testcase/parsers/more'
-import { svelteTestcase } from './testcase/parsers/svelte'
+import { attributeTestcase } from './parsers/attribute'
+import { basicSyntaxTestcase } from './parsers/basic-syntax'
+import { containerTestcase } from './parsers/container'
+import { extendedSyntaxTestcase } from './parsers/extended-syntax'
+import { htmlTestcase } from './parsers/html'
+import { moreTestcase } from './parsers/more'
+import { svelteTestcase } from './parsers/svelte'
 
 const mdastTransform = unified()
 	.use(markdown)
@@ -62,27 +61,4 @@ describe('attribute block syntax', () => {
 
 describe('more', () => {
 	moreTestcase()
-})
-
-describe('helper', () => {
-	describe('should run only second testcase when index is 1', () => {
-		runTest(
-			[
-				{
-					title: 'should not test me when index is 1',
-					value: '',
-					expected: ''
-				},
-				{
-					title: 'should test only me when index is 1',
-					value: '',
-					expected: ''
-				}
-			],
-			1,
-			async (t) => {
-				expect(t.value).toBe(t.expected)
-			}
-		)
-	})
 })

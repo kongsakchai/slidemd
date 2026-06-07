@@ -1,22 +1,22 @@
 import { Node } from 'unist'
 import { BuildVisitor, type Test, visit } from 'unist-util-visit'
 
-import { Attribute } from '../types'
-import { asString } from '../utils'
+import { Attribute } from '../types.js'
+import { asString } from '../utils.js'
 
 // attribute extractor, used for parsing attributes in string
 // it's start of string or whitespace
 // followed by key, which can be word characters, hyphen, colon or at sign and must start with a letter
 // optionally followed by = and value, which can be in double quotes, single quotes or unquoted
 // it's end of string or whitespace
-const ATTR_REGEX = /(?<=^|\s)([a-zA-Z][\w-@:]+)(?:="([\s\S]*?)"|='([\s\S]*?)'|=([^\s]+?))?(?=\s|$)/g
+const ATTR_REGEX = /(?<=^|\s)([a-zA-Z][\w-@:]+)(?:="(.*?)"|='(.*?)'|=({.*?})|=([^\s]+?))?(?=\s|$)/g
 
 export const extractAttributes = (str?: string | null): Attribute => {
 	if (!str) return {}
 	const attrs: Attribute = {}
 	for (const match of str.matchAll(ATTR_REGEX)) {
 		const key = match[1]
-		const value = match[2] || match[3] || match[4] || true
+		const value = match[2] || match[3] || match[4] || match[5] || ''
 		attrs[key] = value
 	}
 	return attrs
@@ -44,31 +44,15 @@ export const extractIDs = (str?: string | null) => {
 	return Array.from(str.matchAll(ID_REGEX), (m) => m[1])
 }
 
-// step extractor, used for parsing step key in string
-// it's start of string of whitespace
-// followed by key, which can be number characters, and must start with a `step-`
-// it's end of string, equals or whitespace
-const STEP_REGEX = /(?<=^|\s)step-(\d+)(?==|\s|$)/g
-
-export const extractMaxStep = (str?: string | null) => {
-	if (!str) return 0
+export const extractMaxStep = (attr: Attribute) => {
 	let step = 0
-	for (const match of str.matchAll(STEP_REGEX)) {
-		step = Math.max(Number.parseInt(match[1]), step)
+	for (const key in attr) {
+		const match = /^step-(\d+)$/.exec(key)
+		if (match) {
+			step = Math.max(step, Number.parseInt(match[1]))
+		}
 	}
 	return step
-}
-
-export const mapNode = <Tree extends Node, Check extends Test, T>(
-	tree: Tree,
-	test: Check,
-	visitor: (...args: Parameters<BuildVisitor<Tree, Check>>) => T
-) => {
-	const results: T[] = []
-	visit(tree, test, (node, index, parent) => {
-		results.push(visitor(node, index, parent))
-	})
-	return results
 }
 
 export const getAttributes = (str?: string | null) => {
@@ -84,8 +68,20 @@ export const getAttributes = (str?: string | null) => {
 	attrs.class = className.filter(Boolean).join(' ')
 	if (!attrs.class) delete attrs.class
 
-	attrs.step = extractMaxStep(str)
+	attrs.step = extractMaxStep(attrs)
 	if (!attrs.step) delete attrs.step
 
 	return attrs
+}
+
+export const mapNode = <Tree extends Node, Check extends Test, T>(
+	tree: Tree,
+	test: Check,
+	visitor: (...args: Parameters<BuildVisitor<Tree, Check>>) => T
+) => {
+	const results: T[] = []
+	visit(tree, test, (node, index, parent) => {
+		results.push(visitor(node, index, parent))
+	})
+	return results
 }

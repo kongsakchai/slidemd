@@ -21,14 +21,7 @@ export function extractFrontmatter(markdown: string) {
 }
 
 export function slidemd(options?: Options): PreprocessorGroup {
-	const parser = createParser({
-		transform: {
-			codeblock: {
-				copyEventName: 'copyCode'
-			}
-		}
-	})
-
+	const parser = createParser()
 	const transformer = createTransformer()
 
 	const parse = async (markdown: string) => {
@@ -43,7 +36,7 @@ export function slidemd(options?: Options): PreprocessorGroup {
 		let global: Directive = { ...metadata }
 
 		for (const [i, page] of pages.entries()) {
-			const file = await parser.parse(page, { global })
+			const file = await parser.parse(page, global)
 
 			const directive = { ...file.data.global, ...file.data.local }
 			slides.push({
