@@ -25,7 +25,7 @@ export interface Store {
 }
 
 // Component
-export type SlideMDComponent = import('svelte').Component<SlideProps>
+export type SlideComponent = import('svelte').Component<SlideProps>
 
 export interface SlideProps {
 	page: number
@@ -34,11 +34,11 @@ export interface SlideProps {
 
 export interface SlideData {
 	title: string
-	pages: SlidePageData[]
-	[key: string]: Directive[string] | SlidePageData[]
+	pages: Page[]
+	[key: string]: Directive[string] | Page[]
 }
 
-export interface SlidePageData {
+export interface Page {
 	page: number
 	step: number
 	note?: string

@@ -1,8 +1,8 @@
 declare module '*.md' {
-	import type { SlideData, SlideMDComponent } from '@slidemd/slidemd/types'
+	import type { SlideComponent, SlideData } from '@slidemd/slidemd/types'
 
 	export const slide: SlideData
 
-	const Component: SlideMDComponent
+	const Component: SlideComponent
 	export default Component
 }

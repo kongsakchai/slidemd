@@ -77,7 +77,7 @@ export function containerTestcase(parse: Parse) {
 			}
 		]
 
-		runTest(testcase, 13, async (t) => {
+		runTest(testcase, 'all', async (t) => {
 			const file = await parse(t.value)
 			expect(file).toBe(t.expected)
 		})

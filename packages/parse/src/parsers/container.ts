@@ -10,14 +10,7 @@ import { spacePartialTokenizer } from './space.js'
 // Attribute extension for micromark; converts token sequences of `@{}` into attribute tokens
 export const containerTokenizer: Construct = {
 	name: 'container',
-	tokenize: tokenize,
-	resolveAll: (e) => {
-		console.log(
-			'ssss',
-			e.map((p) => [p[0], p[1].type])
-		)
-		return e
-	}
+	tokenize: tokenize
 }
 
 export const container: Extension = {
@@ -212,6 +205,7 @@ export const containerFromMarkdown: FromMarkdownExtension = {
 }
 
 function enterContainer(this: CompileContext, token: Token) {
+	this.data.attr = {}
 	this.enter(
 		{
 			type: 'container',

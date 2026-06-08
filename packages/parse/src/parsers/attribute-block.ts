@@ -75,6 +75,7 @@ export const attributeBlockFromMarkdown: FromMarkdownExtension = {
 }
 
 function enterToken(this: CompileContext, token: Token) {
+	this.data.attr = {}
 	this.enter(
 		{
 			type: 'attributeBlock',

@@ -7,3 +7,12 @@ export interface Attribute {
 export interface Directive {
 	[key: string]: Attribute[string] | Attribute | Attribute[]
 }
+
+export interface Output {
+	value: string
+	style: string
+	script: string
+	step: number
+	global: Directive
+	local: Directive
+}

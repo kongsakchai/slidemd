@@ -182,7 +182,6 @@ export const attributeFromMarkdown: FromMarkdownExtension = {
 }
 
 function enterAttribute(this: CompileContext) {
-	console.log('enter attribute', this.data.attr)
 	this.data.attr = {}
 }
 

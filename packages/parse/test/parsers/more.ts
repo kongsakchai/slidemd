@@ -57,6 +57,7 @@ export function moreTestcase() {
 			exitContainer?.call(
 				{
 					stack: [{ type: 'html', value: '' }],
+					data: {},
 					exit: (token: Token) => {
 						expect(token.type).toBe('attributeBlock')
 					}
@@ -74,7 +75,8 @@ export function moreTestcase() {
 
 			exitContainer?.call(
 				{
-					stack: [{ type: 'html', value: '' }]
+					stack: [{ type: 'html', value: '' }],
+					data: {}
 				} as any,
 				{
 					type: 'attributeBlock',
@@ -92,7 +94,8 @@ export function moreTestcase() {
 					stack: [{ type: 'html', value: '' }],
 					exit: (token: Token) => {
 						expect(token.type).toBe('attributeBlock')
-					}
+					},
+					data: {}
 				} as any,
 				{
 					type: 'attributeBlock',
