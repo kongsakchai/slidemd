@@ -11,20 +11,11 @@ export function createTransformer() {
 	const layout: Transformer[] = [splitLayoutTransformer]
 	const afterLayout: Transformer[] = [backgroundTransformer, paginationTransformer]
 
-	const pushBefore = (transformer: Transformer) => beforeLayout.push(transformer)
-	const pushLayout = (transformer: Transformer) => layout.push(transformer)
-	const pushAfter = (transformer: Transformer) => afterLayout.push(transformer)
-
 	const process = (content: string, store: Store, directive: Directive) => {
 		return [...beforeLayout, ...layout, ...afterLayout].reduce((previous, transformer) => {
 			return transformer(previous, store, directive)
 		}, content)
 	}
 
-	return {
-		pushBefore,
-		pushLayout,
-		pushAfter,
-		process
-	}
+	return { process }
 }

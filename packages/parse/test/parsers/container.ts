@@ -69,10 +69,15 @@ export function containerTestcase(parse: Parse) {
 				title: 'should return container and one character in name',
 				value: ':::m',
 				expected: '<m></m>'
+			},
+			{
+				title: 'should return multiple container',
+				value: ':::div .bg-red-500\n:::\n:::div\n:::',
+				expected: '<div class="bg-red-500"></div>\n<div></div>'
 			}
 		]
 
-		runTest(testcase, 'all', async (t) => {
+		runTest(testcase, 13, async (t) => {
 			const file = await parse(t.value)
 			expect(file).toBe(t.expected)
 		})

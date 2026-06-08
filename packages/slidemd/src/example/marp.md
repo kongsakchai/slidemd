@@ -9,7 +9,7 @@ tags:
 
 <!-- split-cols: 2 -->
 
-<div>
+:::div class=" bg-red-300"
 
 ## Ref
 
@@ -23,9 +23,9 @@ foo = 1
 bar = 1 // ts-error
 ```
 
-</div>
+:::
 
-<div>
+:::div
 
 ## Reactive
 
@@ -39,4 +39,4 @@ foo.prop = 1
 bar.prop = 1
 ```
 
-</div>
+:::

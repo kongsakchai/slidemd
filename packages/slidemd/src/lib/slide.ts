@@ -1,10 +1,9 @@
-import { type Directive, createParser } from '@slidemd/parse'
+import { type Directive, asNumber, asString, createParser } from '@slidemd/parse'
 
 import yaml from 'js-yaml'
 import MagicString from 'magic-string'
 import type { PreprocessorGroup } from 'svelte/compiler'
 
-import { asNumber, asString } from './helper'
 import { createTransformer } from './transform'
 import type { Content, Options, SlideData, Store } from './types'
 

@@ -10,8 +10,6 @@ import { TransformOptions, applyTransformers } from './transform/index.js'
 import type { Directive } from './types.js'
 import { asNumber, asString } from './utils.js'
 
-export { Directive }
-
 export interface Options {
 	transform?: TransformOptions
 }
@@ -50,7 +48,7 @@ export function createParser(options?: Options) {
 
 	return {
 		parse: async (value: string, global?: Directive): Promise<File> => {
-			const file = await parser.process({ value: value, data: { global: global } })
+			const file = await parser.process({ value: value, data: { global: global, local: {} } })
 			return {
 				value: file.toString(),
 				data: {
@@ -64,3 +62,7 @@ export function createParser(options?: Options) {
 		}
 	}
 }
+
+export type { Directive }
+
+export { asNumber, asString }
