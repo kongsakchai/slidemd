@@ -1,18 +1,20 @@
-export type AttributeValue = string | number | boolean | null | undefined | (string | number | boolean)[]
+export type Attribute = Record<string, unknown>
 
-export interface Attribute {
-	[key: string]: AttributeValue
-}
+export type Directive = Record<string, unknown>
 
-export interface Directive {
-	[key: string]: Attribute[string] | Attribute | Attribute[]
-}
-
-export interface Output {
-	value: string
-	style: string
-	script: string
-	step: number
+export interface SlideInfo {
+	index: number
+	content: string
 	global: Directive
 	local: Directive
+
+	title?: string
+	note?: string
+	step?: number
+}
+
+export interface SlideParsed {
+	slides: SlideInfo[]
+	style?: string
+	script?: string
 }

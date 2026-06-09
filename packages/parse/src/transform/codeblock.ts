@@ -14,9 +14,8 @@ export interface CodeblockOptions {
 	createContainer?: CodeContainer
 }
 
-const escapeSpecialCharacters = (str: string) => {
-	const a = str.replaceAll(/[&<>{}]/g, (char) => `{'${char}'}`)
-	console.log({ a, str })
+export const escapeSpecialCharacters = (str: string) => {
+	const a = str.replaceAll(/[&<>{}:]/g, (char) => `{'${char}'}`)
 	return a
 }
 

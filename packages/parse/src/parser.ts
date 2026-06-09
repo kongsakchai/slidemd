@@ -7,8 +7,8 @@ import { unified } from 'unified'
 
 import { slidemdParser } from './parsers/index.js'
 import { TransformOptions, applyTransformers } from './transform/index.js'
-import type { Directive, Output } from './types.js'
-import { asNumber, asString } from './utils.js'
+import type { Directive, SlideParsed } from './types.js'
+import { asNumber, asString, parseYAML } from './utils.js'
 
 export interface Options {
 	transform?: TransformOptions
@@ -35,17 +35,44 @@ export function setupProcessor(options?: Options) {
 export function createParser(options?: Options) {
 	const parser = setupProcessor(options)
 
-	return {
-		parse: async (value: string, global?: Directive): Promise<Output> => {
-			const file = await parser.process({ value: value, data: { global: global, local: {} } })
-			return {
-				value: file.toString(),
-				script: asString(file.data.script, ''),
-				style: asString(file.data.style, ''),
-				step: asNumber(file.data.step, 0),
+	async function parse(markdown: string, data?: Directive): Promise<SlideParsed> {
+		const pages = markdown.split(/\r?\n---\r?\n/)
+		const slideData: SlideParsed = { slides: [] }
+
+		let global = { ...data }
+		for (const [index, page] of pages.entries()) {
+			const file = await parser.process({ value: page, data: { global: global, local: {} } })
+			const slide = {
+				index: index,
+				content: file.toString(),
 				global: file.data.global as Directive,
-				local: file.data.local as Directive
+				local: file.data.local as Directive,
+				title: asString(file.data.title),
+				note: asString(file.data.note),
+				step: asNumber(file.data.step)
 			}
+
+			slideData.slides.push(slide)
+			slideData.script = slideData.script ?? asString(file.data.script)
+			slideData.style = slideData.style ?? asString(file.data.style)
+
+			global = { ...slide.global }
 		}
+
+		return slideData
 	}
+
+	return { parse }
+}
+
+const FRONT_MATTER = /^---\r?\n([\s\S]*?)---/
+
+export function extractFrontmatter(markdown: string) {
+	const match = FRONT_MATTER.exec(markdown)
+	if (!match) return { body: markdown, metadata: {} }
+
+	const metadata = parseYAML(match[1])
+	const body = markdown.slice(match[0].length)
+
+	return { metadata, body }
 }
