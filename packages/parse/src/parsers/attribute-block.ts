@@ -7,7 +7,7 @@ import { factoryAttribute } from './factory-attribute.js'
 
 // Attribute extension for micromark; converts token sequences of `@{}` into attribute tokens
 export const attributeBlockTokenizer: Construct = {
-	name: 'html',
+	name: 'attributeBlock',
 	tokenize: tokenize,
 	concrete: true
 }

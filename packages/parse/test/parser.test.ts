@@ -12,6 +12,7 @@ import { basicSyntaxTestcase } from './parsers/basic-syntax'
 import { containerTestcase } from './parsers/container'
 import { extendedSyntaxTestcase } from './parsers/extended-syntax'
 import { htmlTestcase } from './parsers/html'
+import { imageTestcase } from './parsers/image'
 import { moreTestcase } from './parsers/more'
 import { svelteTestcase } from './parsers/svelte'
 
@@ -61,4 +62,8 @@ describe('attribute block syntax', () => {
 
 describe('more', () => {
 	moreTestcase()
+})
+
+describe('image', () => {
+	imageTestcase(parse)
 })

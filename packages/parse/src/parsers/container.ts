@@ -76,13 +76,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 		if (markdownLineEndingOrSpace(code)) {
 			effects.exit('containerName')
-			return effects.attempt(
-				spacePartialTokenizer,
-				(code: Code) => {
-					return effects.attempt(attributePartialTokenizer, beforeContent, beforeContent)(code)
-				},
-				beforeContent
-			)(code)
+			return effects.attempt(spacePartialTokenizer, attribute, beforeContent)(code)
 		}
 
 		effects.consume(code)
@@ -90,6 +84,12 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	// --- Attribute
+
+	function attribute(code: Code) {
+		return effects.attempt(attributePartialTokenizer, beforeContent, beforeContent)(code)
+	}
+
+	// --- Content
 
 	function beforeContent(code: Code) {
 		if (code === codes.eof) {
@@ -103,8 +103,6 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 		// check close before content
 		return effects.attempt(closeContainerPartialTokenizer, done, openContent)(code)
 	}
-
-	// --- Content
 
 	function openContent(code: Code) {
 		effects.enter('containerContent')

@@ -1,3 +1,4 @@
+import { Properties } from 'hast'
 import { Root } from 'mdast'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
@@ -15,7 +16,7 @@ export function attributeBlockTransformer(): Transformer {
 			parent.data.hProperties = { ...parent.data.hProperties }
 			for (const key in node.attr) {
 				if (typeof node.attr[key] !== 'object') {
-					parent.data.hProperties[key] = node.attr[key]
+					parent.data.hProperties[key] = node.attr[key] as Properties[string]
 				}
 			}
 

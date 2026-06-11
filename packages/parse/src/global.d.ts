@@ -34,7 +34,7 @@ declare module 'micromark-util-types' {
 		attributeID: 'attributeID'
 		attributeEqual: 'attributeEqual'
 
-		temp: 'temp'
+		attributeImage: 'attributeImage'
 	}
 }
 

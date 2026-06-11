@@ -1,6 +1,7 @@
 import { Processor } from 'unified'
 
 import { attributeBlock, attributeBlockFromMarkdown } from './attribute-block.js'
+import { attributeImage, attributeImageFromMarkdown } from './attribute-imange.js'
 import { container, containerFromMarkdown } from './container.js'
 import { attributeFromMarkdown } from './factory-attribute.js'
 import { highlight, highlightFromMarkdown } from './highlight.js'
@@ -21,7 +22,8 @@ export function slidemdParser(this: Processor) {
 		htmlText,
 		svelteBlock,
 		attributeBlock,
-		container
+		container,
+		attributeImage
 	)
 	addFromMarkdownExtensions(
 		this,
@@ -30,6 +32,7 @@ export function slidemdParser(this: Processor) {
 		subscriptFromMarkdown,
 		superscriptFromMarkdown,
 		attributeBlockFromMarkdown,
-		containerFromMarkdown
+		containerFromMarkdown,
+		attributeImageFromMarkdown
 	)
 }
