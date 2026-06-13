@@ -8,7 +8,7 @@ import {
 import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
-import { spacePartialTokenizer } from './space.js'
+import { partialSpaceTokenizer } from './space.js'
 
 const QOUTE_LIST = new Set<Code>([codes.quotationMark, codes.apostrophe, codes.graveAccent])
 
@@ -280,7 +280,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function checkNextLine(code: Code) {
-		return effects.attempt(spacePartialTokenizer, startNextLine, startNextLine)(code)
+		return effects.attempt(partialSpaceTokenizer, startNextLine, startNextLine)(code)
 	}
 
 	function startNextLine(code: Code) {

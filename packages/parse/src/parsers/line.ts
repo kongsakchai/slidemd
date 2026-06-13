@@ -2,7 +2,7 @@ import { markdownLineEnding, markdownSpace } from 'micromark-util-character'
 import { codes, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, State, TokenizeContext } from 'micromark-util-types'
 
-export const blankLinePartialTokenizer: Construct = { partial: true, tokenize: blankLineTokenize }
+export const partialBlankLineTokenizer: Construct = { partial: true, tokenize: blankLineTokenize }
 
 function blankLineTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	return start

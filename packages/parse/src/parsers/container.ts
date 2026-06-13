@@ -3,9 +3,9 @@ import { asciiAlpha, markdownLineEnding, markdownLineEndingOrSpace } from 'micro
 import { codes, constants, types } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
-import { factoryAttribute } from './factory-attribute.js'
+import { attribute } from './attribute.js'
 import { nonLazyPartialTokenizer } from './line.js'
-import { spacePartialTokenizer } from './space.js'
+import { partialSpaceTokenizer } from './space.js'
 
 // Attribute extension for micromark; converts token sequences of `@{}` into attribute tokens
 export const containerTokenizer: Construct = {
@@ -38,7 +38,7 @@ const closeContainerPartialTokenizer: Construct = {
 const attributePartialTokenizer: Construct = {
 	partial: true,
 	tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
-		return factoryAttribute(effects, ok, nok, codes.eof)
+		return attribute(effects, ok, nok, codes.eof)
 	}
 }
 
@@ -76,7 +76,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 		if (markdownLineEndingOrSpace(code)) {
 			effects.exit('containerName')
-			return effects.attempt(spacePartialTokenizer, attribute, beforeContent)(code)
+			return effects.attempt(partialSpaceTokenizer, attribute, beforeContent)(code)
 		}
 
 		effects.consume(code)

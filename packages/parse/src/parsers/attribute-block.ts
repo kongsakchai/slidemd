@@ -3,7 +3,7 @@ import { markdownLineEnding } from 'micromark-util-character'
 import { codes } from 'micromark-util-symbol'
 import type { Code, Construct, Effects, Extension, State, Token, TokenizeContext } from 'micromark-util-types'
 
-import { factoryAttribute } from './factory-attribute.js'
+import { attribute } from './attribute.js'
 
 // Attribute extension for micromark; converts token sequences of `@{}` into attribute tokens
 export const attributeBlockTokenizer: Construct = {
@@ -21,7 +21,7 @@ export const attributeBlock: Extension = {
 const attributePartialTokenizer: Construct = { partial: true, tokenize: attributeTokenize }
 
 function attributeTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
-	return factoryAttribute(effects, ok, nok, codes.rightCurlyBrace)
+	return attribute(effects, ok, nok, codes.rightCurlyBrace)
 }
 
 function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {

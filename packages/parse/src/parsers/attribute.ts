@@ -4,31 +4,31 @@ import { codes } from 'micromark-util-symbol'
 import type { Code, Effects, State, Token } from 'micromark-util-types'
 
 import { asString } from '../utils.js'
-import { spacePartialTokenizer } from './space.js'
+import { partialSpaceTokenizer } from './space.js'
 
 export const isQoute = (code: Code) =>
 	code === codes.quotationMark || code === codes.apostrophe || code === codes.graveAccent
 
-export function factoryAttribute(effects: Effects, ok: State, nok: State, closeCode: Code): State {
+export function attribute(effects: Effects, ok: State, nok: State, closeCode: Code): State {
 	let markers: Code[] = []
 
 	const latestMarker = () => markers.at(-1) || null
-	const isClosed = (code: Code) => code === closeCode
-	const isSequenceClosed = (code: Code) => code === codes.eof || markdownLineEndingOrSpace(code) || isClosed(code)
+	const isClosedOrEndLine = (code: Code) => code === codes.eof || markdownLineEnding(code) || code === closeCode
+	const isClosedOrEndLineOrSpace = (code: Code) => code === codes.eof || markdownLineEndingOrSpace(code) || code === closeCode
 
 	return start
 
 	function start(code: Code) {
-		if (code === codes.eof || markdownLineEnding(code)) {
+		if (isClosedOrEndLine(code)) {
 			return nok(code)
 		}
 
 		effects.enter('attribute')
-		return effects.attempt(spacePartialTokenizer, openSequence, openSequence)(code)
+		return effects.attempt(partialSpaceTokenizer, openSequence, openSequence)(code)
 	}
 
 	function openSequence(code: Code) {
-		if (code === codes.eof || markdownLineEnding(code) || isClosed(code)) {
+		if (isClosedOrEndLine(code)) {
 			return done(code)
 		}
 
@@ -54,11 +54,11 @@ export function factoryAttribute(effects: Effects, ok: State, nok: State, closeC
 	function closeSequence(code: Code) {
 		effects.exit('attributeSequence')
 
-		if (code === codes.eof || markdownLineEnding(code) || isClosed(code)) {
+		if (isClosedOrEndLine(code)) {
 			return done(code)
 		}
 
-		return effects.attempt(spacePartialTokenizer, openSequence, openSequence)(code)
+		return effects.attempt(partialSpaceTokenizer, openSequence, openSequence)(code)
 	}
 
 	function done(code: Code) {
@@ -69,7 +69,7 @@ export function factoryAttribute(effects: Effects, ok: State, nok: State, closeC
 	// --- Key
 
 	function attributeKey(code: Code) {
-		if (isSequenceClosed(code)) {
+		if (isClosedOrEndLineOrSpace(code)) {
 			effects.exit('attributeKey')
 			return closeSequence(code)
 		}
@@ -93,7 +93,7 @@ export function factoryAttribute(effects: Effects, ok: State, nok: State, closeC
 	}
 
 	function openValue(code: Code) {
-		if (isSequenceClosed(code)) {
+		if (isClosedOrEndLineOrSpace(code)) {
 			return closeSequence(code)
 		}
 
@@ -110,7 +110,7 @@ export function factoryAttribute(effects: Effects, ok: State, nok: State, closeC
 	}
 
 	function attriubteValueWithoutScope(code: Code) {
-		if (isSequenceClosed(code)) {
+		if (isClosedOrEndLineOrSpace(code)) {
 			return closeValue(code)
 		}
 
@@ -144,7 +144,7 @@ export function factoryAttribute(effects: Effects, ok: State, nok: State, closeC
 	// --- class
 
 	function attributeClass(code: Code) {
-		if (isSequenceClosed(code)) {
+		if (isClosedOrEndLineOrSpace(code)) {
 			effects.exit('attributeClass')
 			return closeSequence(code)
 		}
@@ -156,7 +156,7 @@ export function factoryAttribute(effects: Effects, ok: State, nok: State, closeC
 	// --- ID
 
 	function attirbuteID(code: Code) {
-		if (isSequenceClosed(code)) {
+		if (isClosedOrEndLineOrSpace(code)) {
 			effects.exit('attributeID')
 			return closeSequence(code)
 		}
