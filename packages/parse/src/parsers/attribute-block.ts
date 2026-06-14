@@ -18,7 +18,7 @@ export const attributeBlock: Extension = {
 	}
 }
 
-const attributePartialTokenizer: Construct = { partial: true, tokenize: attributeTokenize }
+const partialAttributeTokenizer: Construct = { partial: true, tokenize: attributeTokenize }
 
 function attributeTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 	return attribute(effects, ok, nok, codes.rightCurlyBrace)
@@ -45,7 +45,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function more(code: Code) {
-		return effects.attempt(attributePartialTokenizer, beforeDone, beforeDone)(code)
+		return effects.attempt(partialAttributeTokenizer, beforeDone, beforeDone)(code)
 	}
 
 	function beforeDone(code: Code) {

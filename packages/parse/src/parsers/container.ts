@@ -35,7 +35,7 @@ const closeContainerPartialTokenizer: Construct = {
 	}
 }
 
-const attributePartialTokenizer: Construct = {
+const partialAttributeTokenizer: Construct = {
 	partial: true,
 	tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
 		return attribute(effects, ok, nok, codes.eof)
@@ -86,7 +86,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	// --- Attribute
 
 	function attribute(code: Code) {
-		return effects.attempt(attributePartialTokenizer, beforeContent, beforeContent)(code)
+		return effects.attempt(partialAttributeTokenizer, beforeContent, beforeContent)(code)
 	}
 
 	// --- Content

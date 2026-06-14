@@ -5,7 +5,6 @@ import { codes, types } from 'micromark-util-symbol'
 import { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
 import { attribute } from './attribute'
-import { partialSpaceTokenizer } from './space'
 
 export const imageAttributeTokenizer: Construct = {
 	name: 'attributeImage',
@@ -14,7 +13,7 @@ export const imageAttributeTokenizer: Construct = {
 
 export const imageAttribute: Extension = {
 	text: {
-		null: imageAttributeTokenizer
+		[codes.verticalBar]: imageAttributeTokenizer
 	}
 }
 
@@ -25,83 +24,16 @@ const partialAttributeTokenizer: Construct = {
 	}
 }
 
-const partialSpaceAltTextTokenizer: Construct = {
-	partial: true,
-	tokenize: spaceAltTextTokenize
-}
-
 function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
-	const previous = this.previous
 	const events = this.events
 
 	return start
 
 	function start(code: Code) {
-		console.log('open alt text', String.fromCodePoint(previous), String.fromCodePoint(code))
-		if (previous !== codes.leftSquareBracket || code === codes.rightSquareBracket) {
+		if (events[0][1].type !== types.labelImage) {
 			return nok(code)
 		}
 
-		if (events.at(-1)?.[1].type !== types.labelImage) {
-			return nok(code)
-		}
-
-		return openAltText(code)
-	}
-
-	function openAltText(code: Code) {
-		if (code === codes.verticalBar) {
-			return openAttribute(code)
-		}
-
-		effects.enter(types.data)
-		return altText(code)
-	}
-
-	function altText(code: Code) {
-		if (code === codes.eof || markdownLineEnding(code)) {
-			return nok(code)
-		}
-
-		if (code === codes.rightSquareBracket || code === codes.verticalBar) {
-			return closeAltText(code)
-		}
-
-		if (markdownSpace(code)) {
-			return effects.check(partialSpaceAltTextTokenizer, spaceAltText, closeAltText)(code)
-		}
-
-		effects.consume(code)
-		return altText
-	}
-
-	function spaceAltText(code: Code) {
-		if (markdownSpace(code)) {
-			effects.consume(code)
-			return spaceAltText
-		}
-
-		return altText(code)
-	}
-
-	function closeAltText(code: Code) {
-		effects.exit(types.data)
-		return effects.attempt(partialSpaceTokenizer, afterAltText, afterAltText)(code)
-	}
-
-	function afterAltText(code: Code) {
-		if (code === codes.rightSquareBracket) {
-			return ok(code)
-		}
-
-		if (code === codes.verticalBar) {
-			return openAttribute(code)
-		}
-
-		return nok(code)
-	}
-
-	function openAttribute(code: Code) {
 		effects.enter('attributeImage')
 		effects.consume(code)
 		return effects.attempt(partialAttributeTokenizer, closeAttribute, closeAttribute)

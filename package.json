@@ -16,6 +16,8 @@
 		"format": "prettier --write .",
 		"test": "npm run test:parse && npm run test:slidemd",
 		"test:parse": "npm run test -w @slidemd/parse",
+		"test:unit:parse": "npm run test:unit -w @slidemd/parse",
+		"test:unit:cover": "npm run test:cover -w @slidemd/parse",
 		"test:slidemd": "npm run test -w @slidemd/slidemd"
 	},
 	"keywords": [],
