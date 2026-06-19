@@ -12,7 +12,7 @@ import { superscript, superscriptFromMarkdown } from './superscript.js'
 import { svelteBlock } from './svelte-block.js'
 import { addFromMarkdownExtensions, addMicromarkExtensions } from './utils.js'
 
-export function slidemdParser(this: Processor) {
+export function slidemdExtension(this: Processor) {
 	addMicromarkExtensions(
 		this,
 		highlight,

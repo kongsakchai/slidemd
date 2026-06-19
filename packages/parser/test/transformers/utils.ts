@@ -8,7 +8,7 @@ import {
 	extractMaxStep,
 	getAttributes,
 	mapNode
-} from '../../src/transform/utils'
+} from '../../src/transformers/utils'
 
 export function utilsTestcase() {
 	describe('extractAttribute', () => {

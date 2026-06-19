@@ -2,7 +2,7 @@
 import { VFile } from 'vfile'
 import { expect, it } from 'vitest'
 
-import { directiveTransformer } from '../../src/transform/directive'
+import { directiveTransformer } from '../../src/transformers/directive'
 
 export function directiveTransformerTestcase() {
 	it('should return data from directive', () => {

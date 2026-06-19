@@ -6,21 +6,21 @@ import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 import { describe } from 'vitest'
 
-import { slidemdParser } from '../src/parsers/index'
-import { attributeTestcase } from './parsers/attribute'
-import { basicSyntaxTestcase } from './parsers/basic-syntax'
-import { containerTestcase } from './parsers/container'
-import { extendedSyntaxTestcase } from './parsers/extended-syntax'
-import { htmlTestcase } from './parsers/html'
-import { imageTestcase } from './parsers/image'
-import { moreTestcase } from './parsers/more'
-import { svelteTestcase } from './parsers/svelte'
+import { slidemdExtension } from '../src/extensions/index'
+import { attributeTestcase } from './extensions/attribute'
+import { basicSyntaxTestcase } from './extensions/basic-syntax'
+import { containerTestcase } from './extensions/container'
+import { extendedSyntaxTestcase } from './extensions/extended-syntax'
+import { htmlTestcase } from './extensions/html'
+import { imageTestcase } from './extensions/image'
+import { moreTestcase } from './extensions/more'
+import { svelteTestcase } from './extensions/svelte'
 
 const mdastTransform = unified()
 	.use(markdown)
 	.use(remarkGemoji)
 	.use(remarkGfm, { singleTilde: false })
-	.use(slidemdParser)
+	.use(slidemdExtension)
 
 const hastTransform = mdastTransform.use(remark2Rehype, {
 	allowDangerousHtml: true

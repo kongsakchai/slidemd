@@ -2,7 +2,7 @@
 import { VFile } from 'vfile'
 import { expect, it } from 'vitest'
 
-import { extractScriptTransformer } from '../../src/transform/extract-script'
+import { extractScriptTransformer } from '../../src/transformers/extract-script'
 
 export function extractScriptTransformerTestcase() {
 	it('should return script', () => {

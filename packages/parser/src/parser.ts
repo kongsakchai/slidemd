@@ -5,8 +5,8 @@ import markdown from 'remark-parse'
 import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 
-import { slidemdParser } from './parsers/index.js'
-import { TransformOptions, applyTransformers } from './transform/index.js'
+import { slidemdExtension } from './extensions/index.js'
+import { TransformOptions, applyTransformers } from './transformers/index.js'
 import type { Directive, SlideParsed } from './types.js'
 import { asNumber, asString, parseYAML } from './utils.js'
 
@@ -19,7 +19,7 @@ export function setupProcessor(options?: Options) {
 		.use(markdown)
 		.use(remarkGemoji)
 		.use(remarkGfm, { singleTilde: false })
-		.use(slidemdParser)
+		.use(slidemdExtension)
 
 	applyTransformers(mdastTransform, options?.transform)
 

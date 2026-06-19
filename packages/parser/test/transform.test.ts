@@ -1,10 +1,10 @@
 import { describe } from 'vitest'
 
-import { attributeTransformTestcase } from './transform/attribute-block'
-import { codeblockTransformTestcase } from './transform/codeblock'
-import { directiveTransformerTestcase } from './transform/directive'
-import { extractScriptTransformerTestcase } from './transform/extract-script'
-import { utilsTestcase } from './transform/utils'
+import { attributeTransformTestcase } from './transformers/attribute-block'
+import { codeblockTransformTestcase } from './transformers/codeblock'
+import { directiveTransformerTestcase } from './transformers/directive'
+import { extractScriptTransformerTestcase } from './transformers/extract-script'
+import { utilsTestcase } from './transformers/utils'
 
 describe('basic syntax', () => {
 	attributeTransformTestcase()

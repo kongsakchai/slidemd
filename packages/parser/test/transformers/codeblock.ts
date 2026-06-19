@@ -3,7 +3,7 @@ import type { Parent } from 'mdast'
 import { VFile } from 'vfile'
 import { expect, test } from 'vitest'
 
-import { codeblockTransformer } from '../../src/transform/codeblock'
+import { codeblockTransformer } from '../../src/transformers/codeblock'
 
 export function codeblockTransformTestcase() {
 	test('should highlight code blocks correctly', async () => {

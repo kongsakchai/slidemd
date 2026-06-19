@@ -1,5 +1,6 @@
 import { Properties } from 'hast'
 import type { CompileContext, Extension as FromMarkdownExtension } from 'mdast-util-from-markdown'
+import { markdownLineEnding } from 'micromark-util-character'
 import { codes, types } from 'micromark-util-symbol'
 import { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
@@ -40,7 +41,14 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 
 	function closeAttribute(code: Code) {
-		if (code !== codes.rightSquareBracket) return nok(code)
+		if (markdownLineEnding(code)) {
+			effects.exit('attributeImage')
+			effects.enter(types.lineEnding)
+			effects.consume(code)
+			effects.exit(types.lineEnding)
+			effects.enter('attributeImage')
+			return effects.attempt(partialAttributeTokenizer, closeAttribute, closeAttribute)
+		}
 		effects.exit('attributeImage')
 		return ok(code)
 	}
@@ -67,7 +75,7 @@ function exitToken(this: CompileContext) {
 		if (!node?.type || node.type !== 'image') continue
 
 		node.data = node.data || (node.data = { hProperties: {} })
-		node.data.hProperties = { ...this.data.attr } as Properties
+		node.data.hProperties = { ...node.data.hProperties, ...this.data.attr } as Properties
 
 		const fragment = this.stack.at(index + 1)
 		if (fragment?.type === 'fragment' && fragment.children.length > 0 && fragment.children[0].type === 'text') {

@@ -5,11 +5,11 @@ import markdown from 'remark-parse'
 import { unified } from 'unified'
 import { describe, expect, test } from 'vitest'
 
-import { attributeBlockFromMarkdown } from '../../src/parsers/attribute-block'
-import { containerFromMarkdown } from '../../src/parsers/container'
-import { highlight, highlightFromMarkdown } from '../../src/parsers/highlight'
-import { blankLinePartialTokenizer } from '../../src/parsers/line'
-import { addFromMarkdownExtensions, addMicromarkExtensions, handleResolveAll } from '../../src/parsers/utils'
+import { attributeBlockFromMarkdown } from '../../src/extensions/attribute-block'
+import { containerFromMarkdown } from '../../src/extensions/container'
+import { highlight, highlightFromMarkdown } from '../../src/extensions/highlight'
+import { partialBlankLineTokenizer } from '../../src/extensions/line'
+import { addFromMarkdownExtensions, addMicromarkExtensions, handleResolveAll } from '../../src/extensions/utils'
 import { runTest } from './helper'
 
 export function moreTestcase() {
@@ -42,7 +42,7 @@ export function moreTestcase() {
 			const processor = unified().use(markdown)
 			processor.data().micromarkExtensions = undefined
 			addMicromarkExtensions(processor as any, {
-				text: { [codes.equalsTo]: blankLinePartialTokenizer }
+				text: { [codes.equalsTo]: partialBlankLineTokenizer }
 			})
 
 			const ast = processor.parse('===')

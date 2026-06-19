@@ -24,6 +24,21 @@ export function imageTestcase(parse: Parse) {
 				title: 'should return image only attribute',
 				value: '![|class=bg-red-500](./source.png)',
 				expected: '<p><img src="./source.png" alt class="bg-red-500"></p>'
+			},
+			{
+				title: 'should return image only attribute',
+				value: '![|class=bg-red-500](./source.png)',
+				expected: '<p><img src="./source.png" alt class="bg-red-500"></p>'
+			},
+			{
+				title: 'should normal text when attribute outside image',
+				value: '![](./source.png) | class="bg-red-500"',
+				expected: '<p><img src="./source.png" alt> | class="bg-red-500"</p>'
+			},
+			{
+				title: 'should attribute with endline',
+				value: '![alt | class=bg-red-500\ntest](./source.png)"',
+				expected: '<p><img src="./source.png" alt="alt" class="bg-red-500" test>"</p>'
 			}
 		]
 
