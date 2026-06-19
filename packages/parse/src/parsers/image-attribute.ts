@@ -1,6 +1,5 @@
 import { Properties } from 'hast'
 import type { CompileContext, Extension as FromMarkdownExtension } from 'mdast-util-from-markdown'
-import { markdownLineEnding, markdownSpace } from 'micromark-util-character'
 import { codes, types } from 'micromark-util-symbol'
 import { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
@@ -8,7 +7,8 @@ import { attribute } from './attribute'
 
 export const imageAttributeTokenizer: Construct = {
 	name: 'attributeImage',
-	tokenize: tokenize
+	tokenize: tokenize,
+	concrete: true
 }
 
 export const imageAttribute: Extension = {
@@ -46,33 +46,6 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	}
 }
 
-function spaceAltTextTokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
-	return start
-
-	function start(code: Code) {
-		if (markdownSpace(code)) {
-			return nok(code)
-		}
-
-		effects.enter(types.linePrefix)
-		return more
-	}
-
-	function more(code: Code) {
-		if (markdownSpace(code)) {
-			effects.consume(code)
-			return more
-		}
-
-		effects.exit(types.linePrefix)
-		if (code === codes.rightSquareBracket || code === codes.verticalBar) {
-			return nok(code)
-		}
-
-		return ok(code)
-	}
-}
-
 // --- HTML
 export const attributeImageFromMarkdown: FromMarkdownExtension = {
 	enter: {
@@ -95,6 +68,12 @@ function exitToken(this: CompileContext) {
 
 		node.data = node.data || (node.data = { hProperties: {} })
 		node.data.hProperties = { ...this.data.attr } as Properties
+
+		const fragment = this.stack.at(index + 1)
+		if (fragment?.type === 'fragment' && fragment.children.length > 0 && fragment.children[0].type === 'text') {
+			fragment.children[0].value = fragment.children[0].value.trim()
+		}
+
 		break
 	}
 }
