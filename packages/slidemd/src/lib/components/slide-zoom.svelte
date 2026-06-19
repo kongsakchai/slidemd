@@ -90,7 +90,6 @@
 	id="zoom-contrainer"
 	role="presentation"
 	class="flex h-full w-full"
-	class:select-none={zoomActive}
 	style:scale={slideState.zoom}
 	style:translate="{translateX}px {translateY}px"
 	onpointerdown={onPointerdown}

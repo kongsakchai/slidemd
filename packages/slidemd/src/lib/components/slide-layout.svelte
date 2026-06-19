@@ -35,7 +35,7 @@
 >
 	<section
 		id="slide-container"
-		class="absolute top-1/2 left-1/2 flex overflow-hidden"
+		class="absolute top-1/2 left-1/2 flex overflow-hidden select-none"
 		class:rounded-xl={slideState.scale < 1}
 		style:font-size={slideState.fontSize + 'px'}
 		style:width="{width}px"

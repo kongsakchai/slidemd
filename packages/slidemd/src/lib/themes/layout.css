@@ -1,0 +1,23 @@
+[layout~='no-padding'] {
+	padding: 0rem;
+}
+
+[layout^='default'] {
+	padding: 1.5rem;
+}
+
+[layout^='center'] {
+	align-content: center;
+	justify-items: center;
+}
+
+[layout^='cover'] {
+	align-content: center;
+	font-size: 1.5em;
+}
+
+[layout^='cover-center'] {
+	align-content: center;
+	justify-items: center;
+	font-size: 1.5em;
+}

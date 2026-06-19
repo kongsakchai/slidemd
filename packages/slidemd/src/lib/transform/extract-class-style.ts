@@ -1,4 +1,4 @@
-import { type Directive, asString } from '@slidemd/parse'
+import { type Directive, asString } from '@slidemd/parser'
 import type { Store } from '@slidemd/slidemd/types'
 
 export function extractClassStyleTransformer(content: string, store: Store, directive: Directive) {

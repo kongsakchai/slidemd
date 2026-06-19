@@ -5,7 +5,7 @@
 
 	import { onMount } from 'svelte'
 
-	import Slide, { slide } from './example/marp.md'
+	import Slide, { slide } from './example/marp.svelte.md'
 
 	const slideWidth = 1280
 	const slideHeight = 720

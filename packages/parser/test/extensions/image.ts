@@ -3,7 +3,7 @@ import { describe, expect } from 'vitest'
 import { Parse, Testcase, runTest } from './helper'
 
 export function imageTestcase(parse: Parse) {
-	describe('attribute image', () => {
+	describe('image attribute', () => {
 		const testcase: Testcase[] = [
 			{
 				title: 'should return image with attribute',

@@ -1,6 +1,6 @@
 import { describe } from 'vitest'
 
-import { attributeTransformTestcase } from './transformers/attribute-block'
+import { attributeTransformTestcase } from './transformers/attribute'
 import { codeblockTransformTestcase } from './transformers/codeblock'
 import { directiveTransformerTestcase } from './transformers/directive'
 import { extractScriptTransformerTestcase } from './transformers/extract-script'

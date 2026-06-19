@@ -1,5 +1,4 @@
-import type { Directive } from '@slidemd/parse'
-import type { Store } from '@slidemd/slidemd/types'
+import type { Directive } from '@slidemd/parser'
 
 export function buildSplitValue(val: Directive[string]) {
 	if (typeof val === 'number') {
@@ -14,7 +13,7 @@ export function buildSplitValue(val: Directive[string]) {
 	return `--split-cols: ${val as string}`
 }
 
-export function splitLayoutTransformer(content: string, _: Store, directive: Directive) {
+export function splitLayoutTransformer(content: string, directive: Directive) {
 	if (!directive['split-cols'] && !directive['split-rows']) return content
 
 	const styles: string[] = []

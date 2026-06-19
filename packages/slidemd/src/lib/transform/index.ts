@@ -1,21 +1,14 @@
-import type { Directive } from '@slidemd/parse'
-import type { Store, Transformer } from '@slidemd/slidemd/types'
+import type { Directive } from '@slidemd/parser'
 
-import { backgroundTransformer } from './background'
-import { extractClassStyleTransformer } from './extract-class-style'
-import { paginationTransformer } from './paginate'
+import type { SharedPageData } from '../types'
+import { backgroundTransform } from './background'
+import { paginationTransform } from './paginate'
 import { splitLayoutTransformer } from './split'
 
-export function createTransformer() {
-	const beforeLayout: Transformer[] = [extractClassStyleTransformer]
-	const layout: Transformer[] = [splitLayoutTransformer]
-	const afterLayout: Transformer[] = [backgroundTransformer, paginationTransformer]
+export function transform(content: string, directive: Directive, shared: SharedPageData) {
+	const paginate = paginationTransform(directive, shared)
+	const background = backgroundTransform(directive)
+	const splited = splitLayoutTransformer(content, directive)
 
-	const process = (content: string, store: Store, directive: Directive) => {
-		return [...beforeLayout, ...layout, ...afterLayout].reduce((previous, transformer) => {
-			return transformer(previous, store, directive)
-		}, content)
-	}
-
-	return { process }
+	return [paginate, background, splited].filter(Boolean).join('\n')
 }

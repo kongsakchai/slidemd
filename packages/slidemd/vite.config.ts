@@ -11,7 +11,7 @@ export default defineConfig({
 	plugins: [
 		tailwindcss(),
 		svelte({
-			extensions: ['.svelte', '.md'],
+			extensions: ['.svelte', '.svelte.md'],
 			preprocess: [slidemd(), vitePreprocess()]
 		})
 	],

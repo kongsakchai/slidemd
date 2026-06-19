@@ -2,7 +2,7 @@
 import { VFile } from 'vfile'
 import { expect, test } from 'vitest'
 
-import { attributeBlockTransformer } from '../../src/transformers/attribute-block'
+import { attributeBlockTransformer } from '../../src/transformers/attribute'
 
 export function attributeTransformTestcase() {
 	test('should return parent have attriubte', () => {

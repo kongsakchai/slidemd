@@ -1,7 +1,7 @@
 import type { Root as MRoot } from 'mdast'
 import { Processor } from 'unified'
 
-import { attributeBlockTransformer } from './attribute-block.js'
+import { attributeBlockTransformer } from './attribute.js'
 import { CodeblockOptions, codeblockTransformer } from './codeblock.js'
 import { directiveTransformer } from './directive.js'
 import { extractScriptTransformer } from './extract-script.js'

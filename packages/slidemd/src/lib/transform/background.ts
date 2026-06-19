@@ -1,5 +1,4 @@
-import type { Directive } from '@slidemd/parse'
-import type { Store } from '@slidemd/slidemd/types'
+import type { Directive } from '@slidemd/parser'
 
 type BackgroundKey = 'bg' | 'bg-color' | 'bg-image' | 'bg-size' | 'bg-position' | 'bg-opacity'
 
@@ -20,7 +19,7 @@ export function buildBackgroundStyle(directive: Directive): string {
 		.join(';')
 }
 
-export function backgroundTransformer(content: string, _: Store, directive: Directive): string {
+export function backgroundTransform(directive: Directive): string {
 	const style = buildBackgroundStyle(directive)
-	return style ? `<div class='slide-background' style='${style}'></div>\n${content}` : content
+	return style ? `<div class='slide-background' style='${style}'></div>` : ''
 }

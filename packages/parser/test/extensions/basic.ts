@@ -2,6 +2,7 @@ import { describe, expect } from 'vitest'
 
 import { Parse, Testcase, runTest } from './helper'
 
+// reference from https://www.markdownguide.org/basic-syntax/
 export function basicSyntaxTestcase(parse: Parse) {
 	describe('header', () => {
 		const testcase: Testcase[] = [
