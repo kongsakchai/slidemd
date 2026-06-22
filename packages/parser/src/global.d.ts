@@ -74,6 +74,13 @@ declare module 'mdast' {
 				hProperties: Attribute
 			}
 		}
+		image: {
+			processed: boolean
+		}
+	}
+
+	interface ImageData {
+		processed?: boolean
 	}
 }
 

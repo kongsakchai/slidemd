@@ -1,4 +1,4 @@
-import { asString, createParser, extractFrontmatter } from '@slidemd/parser'
+import { asString, createSlideParser, extractFrontmatter } from '@slidemd/parser'
 
 import MagicString from 'magic-string'
 import type { PreprocessorGroup } from 'svelte/compiler'
@@ -7,7 +7,7 @@ import { transform } from './transform'
 import type { Options, SlideData } from './types'
 
 export function slidemd(options?: Options): PreprocessorGroup {
-	const parser = createParser()
+	const parser = createSlideParser()
 
 	const parse = async (markdown: string) => {
 		const { body, metadata } = extractFrontmatter(markdown)

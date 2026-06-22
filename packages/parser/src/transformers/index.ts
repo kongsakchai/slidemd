@@ -1,6 +1,7 @@
 import type { Root as MRoot } from 'mdast'
 import { Processor } from 'unified'
 
+import { advanceImageTransformer } from './advance-image.js'
 import { CodeblockOptions, codeblockTransformer } from './codeblock.js'
 import { directiveTransformer } from './directive.js'
 import { extractScriptTransformer } from './extract-script.js'
@@ -18,4 +19,5 @@ export function applyTransformers(
 	process.use(extractScriptTransformer)
 	process.use(directiveTransformer)
 	process.use(stepTransformer)
+	process.use(advanceImageTransformer)
 }

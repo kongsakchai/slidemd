@@ -136,13 +136,13 @@
 		z-index: -2;
 	}
 
-	section.slide > .slide-background {
+	section.slide .slide-background {
 		position: absolute;
 		inset: 0;
 		z-index: -1;
 	}
 
-	section.slide > .slide-page-number {
+	section.slide .slide-page-number {
 		@apply text-xs;
 		position: absolute;
 		bottom: 1rem;
@@ -224,7 +224,7 @@
 	/* Image */
 
 	img {
-		@apply rounded-md;
+		@apply rounded-md select-none;
 	}
 
 	/* List */
