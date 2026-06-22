@@ -31,7 +31,7 @@ export function codeblockTransformTestcase() {
 		})
 		expect(container.data?.hProperties).toEqual({
 			id: 'id1',
-			class: 'class1',
+			class: 'language-javascript class1',
 			key: 'value'
 		})
 	})
@@ -44,7 +44,7 @@ export function codeblockTransformTestcase() {
 					type: 'code',
 					value: 'console.log("Hello World")',
 					lang: '',
-					meta: 'key=value .class1 #id1'
+					meta: 'key=value #id1'
 				}
 			]
 		}
@@ -61,7 +61,7 @@ export function codeblockTransformTestcase() {
 		})
 		expect(container.data?.hProperties).toEqual({
 			id: 'id1',
-			class: 'class1',
+			class: 'language-plaintext',
 			key: 'value'
 		})
 	})
@@ -97,7 +97,7 @@ export function codeblockTransformTestcase() {
 
 		const vfile = new VFile()
 		const transformer = codeblockTransformer({
-			createContainer: (lang: string) => {
+			container: (lang: string) => {
 				return {
 					type: 'container',
 					data: {

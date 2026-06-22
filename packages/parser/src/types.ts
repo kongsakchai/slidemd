@@ -1,4 +1,4 @@
-export type Attribute = Record<string, unknown>
+export type Attribute = Record<string, string | number | boolean | (string | number)[] | null | undefined>
 
 export type Directive = Record<string, unknown>
 

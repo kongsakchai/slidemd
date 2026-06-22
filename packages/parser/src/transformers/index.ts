@@ -1,10 +1,10 @@
 import type { Root as MRoot } from 'mdast'
 import { Processor } from 'unified'
 
-import { attributeBlockTransformer } from './attribute.js'
 import { CodeblockOptions, codeblockTransformer } from './codeblock.js'
 import { directiveTransformer } from './directive.js'
 import { extractScriptTransformer } from './extract-script.js'
+import { stepTransformer } from './step.js'
 
 export interface TransformOptions {
 	codeblock?: CodeblockOptions
@@ -15,7 +15,7 @@ export function applyTransformers(
 	options?: TransformOptions
 ) {
 	process.use(codeblockTransformer, options?.codeblock)
-	process.use(attributeBlockTransformer)
 	process.use(extractScriptTransformer)
 	process.use(directiveTransformer)
+	process.use(stepTransformer)
 }

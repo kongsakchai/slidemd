@@ -1,87 +1,34 @@
-import { Node } from 'unist'
-import { BuildVisitor, type Test, visit } from 'unist-util-visit'
+const ATTR_REGEX = /([.#a-zA-Z][\w-@:]+)(?:=(["'])(.*?)\2|=({.*?})|=([^\s]*))?/g
 
-import { Attribute } from '../types.js'
-import { asString } from '../utils.js'
-
-// attribute extractor, used for parsing attributes in string
-// it's start of string or whitespace
-// followed by key, which can be word characters, hyphen, colon or at sign and must start with a letter
-// optionally followed by = and value, which can be in double quotes, single quotes or unquoted
-// it's end of string or whitespace
-const ATTR_REGEX = /(?<=^|\s)([a-zA-Z][\w-@:]+)(?:="(.*?)"|='(.*?)'|=({.*?})|=([^\s]+?))?(?=\s|$)/g
-
-export const extractAttributes = (str?: string | null): Attribute => {
+export const extractAttributes = (str?: string | null): Record<string, string> => {
 	if (!str) return {}
-	const attrs: Attribute = {}
+
+	const attrs: Record<string, string> = {}
+	const ids: string[] = []
+	const className: string[] = []
+
 	for (const match of str.matchAll(ATTR_REGEX)) {
 		const key = match[1]
-		const value = match[2] || match[3] || match[4] || match[5] || ''
-		attrs[key] = value
-	}
-	return attrs
-}
+		const value = match[3] || match[4] || match[5] || ''
 
-// class extractor, used for parsing class names in string
-// it's start of string or whitespace
-// followed by a dot and class name, which can be any characters except whitespace
-// it's end of string or whitespace
-const CLASS_REGEX = /(?<=^|\s)\.([^\s]+)(?=\s|$)/g
-
-export const extractClassNames = (str?: string | null) => {
-	if (!str) return []
-	return Array.from(str.matchAll(CLASS_REGEX), (m) => m[1])
-}
-
-// id extractor, used for parsing id name in string
-// it's start of string of whitespace
-// followed by a numberSign and id name, which can be any characters except whitespace
-// it's end of string or whitespace
-const ID_REGEX = /(?<=^|\s)#([^\s]+)(?=\s|$)/g
-
-export const extractIDs = (str?: string | null) => {
-	if (!str) return []
-	return Array.from(str.matchAll(ID_REGEX), (m) => m[1])
-}
-
-export const extractMaxStep = (attr: Attribute) => {
-	let step = 0
-	for (const key in attr) {
-		const match = /^step-(\d+)$/.exec(key)
-		if (match) {
-			step = Math.max(step, Number.parseInt(match[1]))
+		if (key === 'class') {
+			className.push(value)
+		} else if (key === 'id') {
+			ids.push(value)
+		} else if (key.startsWith('.')) {
+			className.push(key.slice(1) + value)
+		} else if (key.startsWith('#')) {
+			ids.push(key.slice(1) + value)
+		} else {
+			attrs[key] = value
 		}
 	}
-	return step
-}
-
-export const getAttributes = (str?: string | null) => {
-	const attrs = extractAttributes(str)
-
-	const ids = extractIDs(str)
-	ids.push(asString(attrs.id, ''))
-	attrs.id = ids.filter(Boolean).join(' ')
-	if (!attrs.id) delete attrs.id
-
-	const className = extractClassNames(str)
-	className.push(asString(attrs.class, ''))
-	attrs.class = className.filter(Boolean).join(' ')
-	if (!attrs.class) delete attrs.class
-
-	attrs.step = extractMaxStep(attrs)
-	if (!attrs.step) delete attrs.step
+	if (className.length > 0) {
+		attrs['class'] = className.join(' ').trim()
+	}
+	if (ids.length > 0) {
+		attrs['id'] = ids.join(' ').trim()
+	}
 
 	return attrs
-}
-
-export const mapNode = <Tree extends Node, Check extends Test, T>(
-	tree: Tree,
-	test: Check,
-	visitor: (...args: Parameters<BuildVisitor<Tree, Check>>) => T
-) => {
-	const results: T[] = []
-	visit(tree, test, (node, index, parent) => {
-		results.push(visitor(node, index, parent))
-	})
-	return results
 }

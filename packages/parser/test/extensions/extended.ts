@@ -1,6 +1,6 @@
 import { describe, expect } from 'vitest'
 
-import { Parse, Testcase, runTest } from './helper'
+import { Parse, Testcase, runTest } from '../helper'
 
 // reference from https://www.markdownguide.org/extended-syntax/
 export function extendedSyntaxTestcase(parse: Parse) {

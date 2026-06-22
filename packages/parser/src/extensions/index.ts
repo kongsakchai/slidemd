@@ -6,7 +6,7 @@ import { container, containerFromMarkdown } from './container.js'
 import { highlight, highlightFromMarkdown } from './highlight.js'
 import { htmlFlow } from './html-flow.js'
 import { htmlText } from './html-text.js'
-import { attributeImageFromMarkdown, imageAttribute } from './image-attribute.js'
+import { imageAttribute, imageAttributeFromMarkdown } from './image-attribute.js'
 import { subscript, subscriptFromMarkdown } from './subscript.js'
 import { superscript, superscriptFromMarkdown } from './superscript.js'
 import { svelteBlock } from './svelte-block.js'
@@ -33,6 +33,6 @@ export function slidemdExtension(this: Processor) {
 		superscriptFromMarkdown,
 		attributeBlockFromMarkdown,
 		containerFromMarkdown,
-		attributeImageFromMarkdown
+		imageAttributeFromMarkdown
 	)
 }

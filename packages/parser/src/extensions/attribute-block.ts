@@ -1,3 +1,4 @@
+import { Properties } from 'hast'
 import type { CompileContext, Extension as FromMarkdownExtension } from 'mdast-util-from-markdown'
 import { markdownLineEnding } from 'micromark-util-character'
 import { codes } from 'micromark-util-symbol'
@@ -90,6 +91,13 @@ function exitToken(this: CompileContext, token: Token) {
 	const node = this.stack.at(-1)
 	if (node?.type === 'attributeBlock') {
 		node.attr = this.data.attr
+
+		const parent = this.stack.at(-2) as { data: { hProperties: Properties } } | undefined
+
+		if (parent) {
+			parent.data = parent.data || (parent.data = { hProperties: {} })
+			parent.data.hProperties = { ...parent.data.hProperties, ...this.data.attr }
+		}
 	}
 	this.exit(token)
 }

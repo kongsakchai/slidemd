@@ -1,6 +1,6 @@
 import { describe, expect } from 'vitest'
 
-import { Parse, Testcase, runTest } from './helper'
+import { Parse, Testcase, runTest } from '../helper'
 
 export function imageTestcase(parse: Parse) {
 	describe('image attribute', () => {

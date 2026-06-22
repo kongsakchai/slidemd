@@ -10,7 +10,7 @@ import { containerFromMarkdown } from '../../src/extensions/container'
 import { highlight, highlightFromMarkdown } from '../../src/extensions/highlight'
 import { partialBlankLineTokenizer } from '../../src/extensions/line'
 import { addFromMarkdownExtensions, addMicromarkExtensions, handleResolveAll } from '../../src/extensions/utils'
-import { runTest } from './helper'
+import { runTest } from '../helper'
 
 export function moreTestcase() {
 	describe('utils', () => {
@@ -92,6 +92,25 @@ export function moreTestcase() {
 			exitContainer?.call(
 				{
 					stack: [{ type: 'html', value: '' }],
+					exit: (token: Token) => {
+						expect(token.type).toBe('attributeBlock')
+					},
+					data: {}
+				} as any,
+				{
+					type: 'attributeBlock',
+					start: { _bufferIndex: 0, _index: 0, offset: 1, line: 1, column: 1 },
+					end: { _bufferIndex: 0, _index: 0, offset: 1, line: 1, column: 1 }
+				}
+			)
+		})
+
+		test("should don't assign name when don't have parent", () => {
+			const exitContainer = attributeBlockFromMarkdown.exit?.['attributeBlock']
+
+			exitContainer?.call(
+				{
+					stack: [{ type: 'attributeBlock', value: '' }],
 					exit: (token: Token) => {
 						expect(token.type).toBe('attributeBlock')
 					},

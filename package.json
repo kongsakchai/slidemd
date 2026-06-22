@@ -17,7 +17,7 @@
 		"test": "npm run test:parse && npm run test:slidemd",
 		"test:parser": "npm run test -w @slidemd/parser",
 		"test:unit:parser": "npm run test:unit -w @slidemd/parser",
-		"test:cover:parse": "npm run test:cover -w @slidemd/parser",
+		"test:cover:parser": "npm run test:cover -w @slidemd/parser",
 		"test:slidemd": "npm run test -w @slidemd/slidemd"
 	},
 	"keywords": [],
