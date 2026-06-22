@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { VFile } from 'vfile'
-import { expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { extractScriptTransformer } from '../../src/transformers/extract-script'
 
-export function extractScriptTransformerTestcase() {
+describe('extract script', () => {
 	it('should return script', () => {
 		const tree = {
 			type: 'root',
@@ -46,4 +46,4 @@ export function extractScriptTransformerTestcase() {
 		expect(vfile.data.script).toEqual(undefined)
 		expect(vfile.data.style).toEqual(undefined)
 	})
-}
+})

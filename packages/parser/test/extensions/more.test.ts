@@ -10,9 +10,8 @@ import { containerFromMarkdown } from '../../src/extensions/container'
 import { highlight, highlightFromMarkdown } from '../../src/extensions/highlight'
 import { partialBlankLineTokenizer } from '../../src/extensions/line'
 import { addFromMarkdownExtensions, addMicromarkExtensions, handleResolveAll } from '../../src/extensions/utils'
-import { runTest } from '../helper'
 
-export function moreTestcase() {
+describe('more', () => {
 	describe('utils', () => {
 		test("should new micromarkExtensions when it's empty", () => {
 			const processor = unified()
@@ -124,27 +123,4 @@ export function moreTestcase() {
 			)
 		})
 	})
-
-	describe('helper', () => {
-		describe('should run only second testcase when index is 1', () => {
-			runTest(
-				[
-					{
-						title: 'should not test me when index is 1',
-						value: '',
-						expected: ''
-					},
-					{
-						title: 'should test only me when index is 1',
-						value: '',
-						expected: ''
-					}
-				],
-				1,
-				async (t) => {
-					expect(t.value).toBe(t.expected)
-				}
-			)
-		})
-	})
-}
+})

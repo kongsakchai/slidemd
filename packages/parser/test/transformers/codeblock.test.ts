@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Parent } from 'mdast'
 import { VFile } from 'vfile'
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { codeblockTransformer } from '../../src/transformers/codeblock'
 
-export function codeblockTransformTestcase() {
+describe('codeblock syntax', () => {
 	test('should highlight code blocks correctly', async () => {
 		const tree = {
 			type: 'root',
@@ -131,4 +131,4 @@ export function codeblockTransformTestcase() {
 		})
 		expect(container.data?.hProperties).toBeUndefined()
 	})
-}
+})

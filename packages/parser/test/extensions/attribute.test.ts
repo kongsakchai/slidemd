@@ -1,8 +1,9 @@
 import { describe, expect } from 'vitest'
 
-import { Parse, Testcase, runTest } from '../helper'
+import { Testcase, runTest } from '../helper'
+import { parse } from './init-parser'
 
-export function attributeTestcase(parse: Parse) {
+describe('attribute syntax', () => {
 	describe('success', () => {
 		const testcase: Testcase[] = [
 			{
@@ -62,4 +63,4 @@ export function attributeTestcase(parse: Parse) {
 			expect(val).toBe(t.expected)
 		})
 	})
-}
+})

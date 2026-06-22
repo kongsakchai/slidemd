@@ -1,4 +1,4 @@
-import { parse } from 'yaml'
+import YAML from 'yaml'
 
 import { Directive } from './types'
 
@@ -16,7 +16,7 @@ export function asNumber(v: unknown, defaultVal?: number): number | undefined {
 
 export function parseYAML(value: string) {
 	try {
-		return parse(value) as Directive
+		return YAML.parse(value) as Directive
 	} catch {
 		console.warn(`\x1b[43m\x1b[30m WARN \x1b[0m\x1b[33m directive syntax invalid:\x1b[0m\n${value}`)
 		return {} as Directive

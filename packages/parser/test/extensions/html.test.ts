@@ -1,8 +1,9 @@
 import { describe, expect } from 'vitest'
 
-import { Parse, Testcase, runTest } from '../helper'
+import { Testcase, runTest } from '../helper'
+import { parse } from './init-parser'
 
-export function htmlTestcase(parse: Parse) {
+describe('html syntax', () => {
 	describe('html flow', () => {
 		describe('normal html', () => {
 			const testcase: Testcase[] = [
@@ -301,4 +302,4 @@ export function htmlTestcase(parse: Parse) {
 			})
 		})
 	})
-}
+})

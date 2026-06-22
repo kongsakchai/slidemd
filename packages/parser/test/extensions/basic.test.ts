@@ -1,9 +1,10 @@
 import { describe, expect } from 'vitest'
 
-import { Parse, Testcase, runTest } from '../helper'
+import { Testcase, runTest } from '../helper'
+import { parse } from './init-parser'
 
 // reference from https://www.markdownguide.org/basic-syntax/
-export function basicSyntaxTestcase(parse: Parse) {
+describe('basoc syntax', () => {
 	describe('header', () => {
 		const testcase: Testcase[] = [
 			{
@@ -206,4 +207,4 @@ export function basicSyntaxTestcase(parse: Parse) {
 			expect(val).toBe(t.expected)
 		})
 	})
-}
+})

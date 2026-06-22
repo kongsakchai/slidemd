@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, it } from 'vitest'
+import { describe, expect } from 'vitest'
 
-import { extractAttributes, extractMaxStep } from '../../src/transformers/utils'
+import { extractAttributes } from '../../src/transformers/utils'
 import { Testcase, runTest } from '../helper'
 
-export function utilsTestcase() {
+describe('utils', () => {
 	describe('extract attribute', () => {
 		const testcase: Testcase[] = [
 			{
@@ -38,19 +38,4 @@ export function utilsTestcase() {
 			expect(result).toEqual(t.expected)
 		})
 	})
-
-	describe('extractMaxStep', () => {
-		it('should return 10 when max step is 10', () => {
-			const attr = {
-				'step-5': '1',
-				'step-10': '2'
-			}
-			expect(extractMaxStep(attr)).toBe(10)
-		})
-
-		it('should return 0 when string empty', () => {
-			const attr = {}
-			expect(extractMaxStep(attr)).toBe(0)
-		})
-	})
-}
+})

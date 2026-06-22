@@ -32,7 +32,7 @@ export function setupProcessor(options?: Options) {
 	})
 }
 
-export function createParser(options?: Options) {
+export function createSlideParser(options?: Options) {
 	const parser = setupProcessor(options)
 
 	async function parse(markdown: string, data?: Directive): Promise<SlideParsed> {
@@ -72,7 +72,7 @@ export function extractFrontmatter(markdown: string) {
 	if (!match) return { body: markdown, metadata: {} }
 
 	const metadata = parseYAML(match[1])
-	const body = markdown.slice(match[0].length)
+	const body = markdown.slice(match[0].length).trim()
 
 	return { metadata, body }
 }

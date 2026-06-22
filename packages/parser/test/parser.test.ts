@@ -1,69 +1,34 @@
-import stringify from 'rehype-stringify'
-import remarkGemoji from 'remark-gemoji'
-import remarkGfm from 'remark-gfm'
-import markdown from 'remark-parse'
-import remark2Rehype from 'remark-rehype'
-import { unified } from 'unified'
-import { describe } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { slidemdExtension } from '../src/extensions/index'
-import { attributeTestcase } from './extensions/attribute'
-import { basicSyntaxTestcase } from './extensions/basic'
-import { containerTestcase } from './extensions/container'
-import { extendedSyntaxTestcase } from './extensions/extended'
-import { htmlTestcase } from './extensions/html'
-import { imageTestcase } from './extensions/image'
-import { moreTestcase } from './extensions/more'
-import { svelteTestcase } from './extensions/svelte'
+import { createSlideParser, extractFrontmatter } from '../src'
 
-const mdastTransform = unified()
-	.use(markdown)
-	.use(remarkGemoji)
-	.use(remarkGfm, { singleTilde: false })
-	.use(slidemdExtension)
-
-const hastTransform = mdastTransform.use(remark2Rehype, {
-	allowDangerousHtml: true
+describe('parser', () => {
+	it('create parser', async () => {
+		const processor = createSlideParser()
+		const resp = await processor.parse('# Slidemd', {})
+		expect(resp.slides[0].content).toEqual('<h1>Slidemd</h1>')
+	})
 })
 
-const parser = hastTransform.use(stringify, {
-	allowDangerousHtml: true,
-	collapseEmptyAttributes: true
-})
+describe('extract frontmatter', () => {
+	it('should return body and frontmatter', async () => {
+		const result = extractFrontmatter(`---
+data: 10
+title: test frontmatter
+---
+# header`)
 
-const parse = async (str: string) => {
-	const file = await parser.process(str)
-	return file.value.toString()
-}
+		expect(result.body).toEqual('# header')
+		expect(result.metadata).toEqual({
+			data: 10,
+			title: 'test frontmatter'
+		})
+	})
 
-describe('basic syntax', () => {
-	basicSyntaxTestcase(parse)
-})
+	it('should return only body', async () => {
+		const result = extractFrontmatter(`# header`)
 
-describe('extended syntax', () => {
-	extendedSyntaxTestcase(parse)
-})
-
-describe('svelte syntax', () => {
-	svelteTestcase(parse)
-})
-
-describe('html syntax', () => {
-	htmlTestcase(parse)
-})
-
-describe('container syntax', () => {
-	containerTestcase(parse)
-})
-
-describe('attribute block syntax', () => {
-	attributeTestcase(parse)
-})
-
-describe('more', () => {
-	moreTestcase()
-})
-
-describe('image', () => {
-	imageTestcase(parse)
+		expect(result.body).toEqual('# header')
+		expect(result.metadata).toEqual({})
+	})
 })

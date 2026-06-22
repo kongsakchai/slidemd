@@ -1,7 +1,5 @@
 import { test } from 'vitest'
 
-export type Parse = (str: string) => Promise<string>
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Testcase = { title: string; value: string; expected: any }
 

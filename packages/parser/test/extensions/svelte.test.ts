@@ -1,8 +1,9 @@
 import { describe, expect } from 'vitest'
 
-import { Parse, Testcase, runTest } from '../helper'
+import { Testcase, runTest } from '../helper'
+import { parse } from './init-parser'
 
-export function svelteTestcase(parse: Parse) {
+describe('svelte syntax', () => {
 	describe('block', () => {
 		const testcase: Testcase[] = [
 			{
@@ -101,4 +102,4 @@ export function svelteTestcase(parse: Parse) {
 			expect(String(file)).toBe(t.expected)
 		})
 	})
-}
+})
