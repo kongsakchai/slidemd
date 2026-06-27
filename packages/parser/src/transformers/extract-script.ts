@@ -2,14 +2,14 @@ import type { Root } from 'mdast'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
 
-const rawTagExpression = /^<(script|style)(?:\s[\s\S]*)?>([\s\S]*)<\/\1>$/i
+const RAW_TAG_REGEX = /^<(script|style)(?:\s[\s\S]*)?>([\s\S]*)<\/\1>$/i
 
 export function extractScriptTransformer(): Transformer {
 	return async (tree, vfile) => {
 		visit(tree as Root, 'html', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
 
-			const match = rawTagExpression.exec(node.value)
+			const match = RAW_TAG_REGEX.exec(node.value)
 			if (!match) return
 
 			switch (match[1].toLowerCase()) {

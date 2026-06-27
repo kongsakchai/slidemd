@@ -5,7 +5,7 @@ import { visit } from 'unist-util-visit'
 import { Directive } from '../types'
 import { parseYAML } from '../utils'
 
-const DIRECTIVE_RE = /^<!--(global\s)?([\s\S]*)-->$/
+const DIRECTIVE_REGEX = /^<!--(global\s)?([\s\S]*)-->$/
 
 function mergeDirective(current: Directive | undefined, source: Directive): Directive {
 	return current ? { ...current, ...source } : { ...source }
@@ -18,7 +18,7 @@ export function directiveTransformer(): Transformer {
 		visit(tree as Root, 'html', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent || parent !== tree) return
 
-			const match = DIRECTIVE_RE.exec(node.value)
+			const match = DIRECTIVE_REGEX.exec(node.value)
 			if (!match) return
 
 			const directive = parseYAML(match[2].trim())

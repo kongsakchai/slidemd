@@ -76,7 +76,6 @@ export const attributeBlockFromMarkdown: FromMarkdownExtension = {
 }
 
 function enterToken(this: CompileContext, token: Token) {
-	this.data.attr = {}
 	this.enter(
 		{
 			type: 'attributeBlock',
@@ -93,7 +92,6 @@ function exitToken(this: CompileContext, token: Token) {
 		node.attr = this.data.attr
 
 		const parent = this.stack.at(-2) as { data: { hProperties: Properties } } | undefined
-
 		if (parent) {
 			parent.data = parent.data || (parent.data = { hProperties: {} })
 			parent.data.hProperties = { ...parent.data.hProperties, ...this.data.attr }

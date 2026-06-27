@@ -76,7 +76,7 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 		if (markdownLineEndingOrSpace(code)) {
 			effects.exit('containerName')
-			return effects.attempt(partialSpaceTokenizer, attribute, beforeContent)(code)
+			return effects.check(partialSpaceTokenizer, attribute, beforeContent)(code)
 		}
 
 		effects.consume(code)
@@ -86,7 +86,13 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 	// --- Attribute
 
 	function attribute(code: Code) {
-		return effects.attempt(partialAttributeTokenizer, beforeContent, beforeContent)(code)
+		effects.enter('containerAttribute')
+		return effects.attempt(partialAttributeTokenizer, afterAttribute, afterAttribute)(code)
+	}
+
+	function afterAttribute(code: Code) {
+		effects.exit('containerAttribute')
+		return beforeContent(code)
 	}
 
 	// --- Content
@@ -198,12 +204,12 @@ export const containerFromMarkdown: FromMarkdownExtension = {
 	},
 	exit: {
 		container: exitContainer,
-		containerName: exitContainerName
+		containerName: exitContainerName,
+		containerAttribute: exitContainerAttribute
 	}
 }
 
 function enterContainer(this: CompileContext, token: Token) {
-	this.data.attr = {}
 	this.enter(
 		{
 			type: 'container',
@@ -218,10 +224,6 @@ function enterContainer(this: CompileContext, token: Token) {
 }
 
 function exitContainer(this: CompileContext, token: Token) {
-	const node = this.stack.at(-1)
-	if (node?.type === 'container') {
-		node.data.hProperties = this.data.attr
-	}
 	this.exit(token)
 }
 
@@ -229,5 +231,13 @@ function exitContainerName(this: CompileContext, token: Token) {
 	const node = this.stack.at(-1)
 	if (node?.type === 'container') {
 		node.data.hName = this.sliceSerialize(token)
+	}
+}
+
+function exitContainerAttribute(this: CompileContext) {
+	const node = this.stack.at(-1)
+	if (node?.type === 'container') {
+		node.data.hProperties = this.data.attr
+		this.data.attr = {}
 	}
 }

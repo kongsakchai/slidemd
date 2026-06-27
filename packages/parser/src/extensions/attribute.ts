@@ -14,7 +14,8 @@ export function attribute(effects: Effects, ok: State, nok: State, closeCode: Co
 
 	const latestMarker = () => markers.at(-1) || null
 	const isClosedOrEndLine = (code: Code) => code === codes.eof || markdownLineEnding(code) || code === closeCode
-	const isClosedOrEndLineOrSpace = (code: Code) => code === codes.eof || markdownLineEndingOrSpace(code) || code === closeCode
+	const isClosedOrEndLineOrSpace = (code: Code) =>
+		code === codes.eof || markdownLineEndingOrSpace(code) || code === closeCode
 
 	return start
 

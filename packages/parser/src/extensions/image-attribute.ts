@@ -55,16 +55,9 @@ function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State
 
 // --- HTML
 export const imageAttributeFromMarkdown: FromMarkdownExtension = {
-	enter: {
-		attributeImage: enterToken
-	},
 	exit: {
 		attributeImage: exitToken
 	}
-}
-
-function enterToken(this: CompileContext) {
-	this.data.attr = {}
 }
 
 function exitToken(this: CompileContext) {
@@ -75,6 +68,7 @@ function exitToken(this: CompileContext) {
 
 		node.data = node.data || (node.data = { hProperties: {} })
 		node.data.hProperties = { ...node.data.hProperties, ...this.data.attr }
+		this.data.attr = {}
 
 		const fragment = this.stack.at(index + 1)
 		if (fragment?.type === 'fragment' && fragment.children.length > 0 && fragment.children[0].type === 'text') {

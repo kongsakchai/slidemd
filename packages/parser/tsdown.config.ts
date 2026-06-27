@@ -11,7 +11,10 @@ export default defineConfig({
 			'micromark-util-classify-character',
 			'micromark-util-html-tag-name',
 			'micromark-util-resolve-all',
-			'micromark-util-symbol'
+			'micromark-util-symbol',
+			'@types/unist',
+			'@types/mdast',
+			'@types/hast'
 		]
 	}
 })

@@ -21,6 +21,7 @@ declare module 'micromark-util-types' {
 		container: 'container'
 		containerName: 'containerName'
 		containerSequence: 'containerSequence'
+		containerAttribute: 'containerAttribute'
 		containerContent: 'containerContent'
 
 		attributeBlock: 'attributeBlock'
