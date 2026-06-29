@@ -3,6 +3,19 @@ export interface Options {
 	extension?: string
 }
 
+export interface PageInfo {
+	page: number
+	enablePageNumber: boolean
+	pageNumber: number
+	enableSplit: boolean
+	backgroundStyle: string
+	split: string
+	class: string
+	style: string
+	layout: string
+	content: string
+}
+
 // Component
 export type SlideComponent = import('svelte').Component<SlideProps>
 
@@ -11,6 +24,7 @@ export interface SlideProps {
 	step: number
 }
 
+// Slide
 export interface SlideData {
 	title: string
 	pages: PageData[]
@@ -20,8 +34,4 @@ export interface SlideData {
 export interface PageData {
 	step?: number
 	note?: string
-}
-
-export interface SharedPageData {
-	paginate: number
 }

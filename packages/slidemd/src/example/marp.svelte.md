@@ -8,9 +8,10 @@ tags:
 ---
 
 <!--
-split-cols: 2
+split: 2
+layout: no-padding
 -->
 
-![alt | bg](https://mockimage.tw/photo/720x640/eaeaea/ff8800)
+:::div .relative
 
 hhhhhh

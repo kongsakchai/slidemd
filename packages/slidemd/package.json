@@ -60,7 +60,6 @@
 		"vite": "^8.0.9"
 	},
 	"dependencies": {
-		"@slidemd/parser": "*",
-		"js-yaml": "^4.1.1"
+		"@slidemd/parser": "*"
 	}
 }
