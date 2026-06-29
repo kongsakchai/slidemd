@@ -15,6 +15,6 @@ export interface SlideInfo {
 
 export interface SlideParsed {
 	slides: SlideInfo[]
-	style?: string
-	script?: string
+	style: string[]
+	script: string[]
 }

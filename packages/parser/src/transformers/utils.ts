@@ -23,12 +23,8 @@ export const extractAttributes = (str?: string | null): Record<string, string> =
 			attrs[key] = value
 		}
 	}
-	if (className.length > 0) {
-		attrs['class'] = className.join(' ').trim()
-	}
-	if (ids.length > 0) {
-		attrs['id'] = ids.join(' ').trim()
-	}
+	if (className.length > 0) attrs['class'] = className.join(' ').trim()
+	if (ids.length > 0) attrs['id'] = ids.join(' ').trim()
 
 	return attrs
 }

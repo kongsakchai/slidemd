@@ -110,7 +110,7 @@ describe('advance image', () => {
 		}
 
 		const attribute2: Attribute = {
-			absolute: ''
+			class: 'absolute'
 		}
 
 		const tree = {
@@ -143,7 +143,6 @@ describe('advance image', () => {
 			class: 'slide-background'
 		})
 		expect(attribute2).toEqual({
-			absolute: '',
 			class: 'absolute'
 		})
 		expect(tree.children.length).toEqual(2)

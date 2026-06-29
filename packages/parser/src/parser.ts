@@ -37,7 +37,7 @@ export function createSlideParser(options?: Options) {
 
 	async function parse(markdown: string, data?: Directive): Promise<SlideParsed> {
 		const pages = markdown.split(/\r?\n---\r?\n/)
-		const slideData: SlideParsed = { slides: [] }
+		const slideData: SlideParsed = { slides: [], script: [], style: [] }
 
 		let global = { ...data }
 		for (const [index, page] of pages.entries()) {
@@ -53,8 +53,8 @@ export function createSlideParser(options?: Options) {
 			}
 
 			slideData.slides.push(slide)
-			slideData.script = slideData.script ?? asString(file.data.script)
-			slideData.style = slideData.style ?? asString(file.data.style)
+			if (file.data.script) slideData.script.push(asString(file.data.script, ''))
+			if (file.data.style) slideData.style.push(asString(file.data.style, ''))
 
 			global = { ...slide.global }
 		}

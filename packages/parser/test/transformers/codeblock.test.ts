@@ -97,7 +97,7 @@ describe('codeblock syntax', () => {
 
 		const vfile = new VFile()
 		const transformer = codeblockTransformer({
-			container: (lang: string) => {
+			container: async (lang: string) => {
 				return {
 					type: 'container',
 					data: {

@@ -1,5 +1,5 @@
 import { Properties } from 'hast'
-import { Root } from 'mdast'
+import { Image, Parent, Root } from 'mdast'
 import type { Transformer } from 'unified'
 import { EXIT, visit } from 'unist-util-visit'
 
@@ -9,35 +9,16 @@ export function advanceImageTransformer(): Transformer {
 	return (tree) => {
 		visit(tree as Root, 'image', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent || node.data?.processed) return
+			node.data ??= {}
+			node.data.processed = true
 
-			if (node.data?.hProperties) {
-				node.data.processed = true
-				processImageProperties(node.data.hProperties)
-			}
-
-			// check if absolute image
-			if (
-				(node.data?.hProperties?.bg !== null && node.data?.hProperties?.bg !== undefined) ||
-				(node.data?.hProperties?.absolute !== null && node.data?.hProperties?.absolute !== undefined)
-			) {
-				parent.children.splice(index, 1)
-				visit(tree as Root, parent, (parent, index, parentOfParent) => {
-					if (typeof index !== 'number' || !parentOfParent) return
-
-					if (parent.children.length === 0) {
-						parentOfParent.children.splice(index, 1, node)
-					} else {
-						parentOfParent.children.splice(index, 0, node)
-					}
-
-					return EXIT
-				})
-			}
+			applyImageStyles(node.data.hProperties)
+			hoistImageToParent(tree as Root, node, index, parent)
 		})
 	}
 }
 
-const DEFAULT_FILTER_VALUES: Record<string, string | number> = {
+const DEFAULT_FILTER_ATTRIBUTE: Record<string, string | number> = {
 	blur: '10px',
 	brightness: 1.5,
 	contrast: 2,
@@ -49,51 +30,65 @@ const DEFAULT_FILTER_VALUES: Record<string, string | number> = {
 	sepia: 1
 }
 
-function isFilterKey(key: string): key is keyof typeof DEFAULT_FILTER_VALUES {
-	return key in DEFAULT_FILTER_VALUES
+const STYLE_ATTRIBUTE: Record<string, string> = {
+	w: 'width',
+	h: 'height'
 }
 
-function buildFilterValue(key: string, value: unknown): string {
-	const resolved = value || DEFAULT_FILTER_VALUES[key]
-	return `${key}(${resolved})`
+const isStringOrNumber = (val: unknown) => typeof val === 'string' || typeof val === 'number'
+
+const ABSOLUTE_CLASS = /[^|\s]absolute[$|\s]/
+const ABSOLUTE_STYLE = /[^|\s]display:\s?absolute[$|\s]/
+
+const isFloating = (props?: Properties) => {
+	if (!props) return false
+
+	return props.bg || asString(props.class)?.search(ABSOLUTE_CLASS) || asString(props.class)?.search(ABSOLUTE_STYLE)
 }
 
-function processImageProperties(p: Properties): void {
-	const styles = parseStyles(p.style)
-	const classNames: string[] = [asString(p.class, '')]
-	const filters: string[] = []
+function applyImageStyles(props?: Properties) {
+	if (!props) return
 
-	if (p.w) {
-		styles.push(`width:${asString(p.w, '')}`)
-		delete p.w
-	}
-	if (p.h) {
-		styles.push(`height:${asString(p.h, '')}`)
-		delete p.h
-	}
-	if (p.absolute != null && p.absolute !== undefined) {
-		classNames.push('absolute')
-	}
-	if (p.bg != null && p.bg !== undefined) {
-		classNames.push('slide-background')
-	}
+	const styles = [props.styles].filter(Boolean)
+	const classNames = [props.class].filter(Boolean)
 
-	for (const key of Object.keys(p)) {
-		if (isFilterKey(key)) {
-			filters.push(buildFilterValue(key, p[key]))
-			delete p[key]
+	if (props.bg != null) classNames.push('slide-background')
+
+	for (const [key, cssKey] of Object.entries(STYLE_ATTRIBUTE)) {
+		if (isStringOrNumber(props[key])) {
+			styles.push(`${cssKey}:${props[key]}`)
+			delete props[key]
 		}
 	}
 
+	const filters: string[] = []
+	for (const [key, defaultVal] of Object.entries(DEFAULT_FILTER_ATTRIBUTE)) {
+		if (isStringOrNumber(props[key])) {
+			filters.push(`${key}(${props[key] || defaultVal})`)
+			delete props[key]
+		}
+	}
 	if (filters.length > 0) {
 		styles.push(`filter:${filters.join(' ')}`)
 	}
-
-	p.style = styles.join(';').trim() || undefined
-	p.class = classNames.filter(Boolean).join(' ') || undefined
+	if (styles.length > 0) props.style = styles.join(';') || undefined
+	if (classNames.length > 0) props.class = classNames.join(' ') || undefined
 }
 
-function parseStyles(s: unknown): string[] {
-	const str = asString(s, '').replace(/;$/, '')
-	return str ? [str] : []
+function hoistImageToParent(tree: Root, image: Image, index: number, parent: Parent) {
+	if (!isFloating(image.data?.hProperties)) return
+
+	parent.children.splice(index, 1)
+
+	visit(tree, parent, (parent, index, parentOfParent) => {
+		if (typeof index !== 'number' || !parentOfParent) return
+
+		if (parent.children.length === 0) {
+			parentOfParent.children.splice(index, 1, image)
+		} else {
+			parentOfParent.children.splice(index, 0, image)
+		}
+
+		return EXIT
+	})
 }

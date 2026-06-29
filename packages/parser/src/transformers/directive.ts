@@ -7,10 +7,6 @@ import { parseYAML } from '../utils'
 
 const DIRECTIVE_REGEX = /^<!--(global\s)?([\s\S]*)-->$/
 
-function mergeDirective(current: Directive | undefined, source: Directive): Directive {
-	return current ? { ...current, ...source } : { ...source }
-}
-
 export function directiveTransformer(): Transformer {
 	return (tree, vfile) => {
 		const data = { ...vfile.data } as { global: Directive | undefined; local: Directive | undefined }
@@ -25,9 +21,9 @@ export function directiveTransformer(): Transformer {
 			if (!directive || Object.keys(directive).length === 0) return
 
 			if (match[1]) {
-				data.global = mergeDirective(data.global, directive)
+				data.global = { ...data.global, ...directive }
 			} else {
-				data.local = mergeDirective(data.local, directive)
+				data.local = { ...data.local, ...directive }
 			}
 
 			parent.children.splice(index, 1)

@@ -9,127 +9,109 @@ const COLON_BLOCK = new Set(['else', 'then', 'catch', 'final'])
 const SLASH_BLOCK = new Set(['if', 'each', 'await', 'key', 'snippet'])
 const AT_SIGN_BLOCK = new Set(['render', 'html', 'const', 'debug'])
 
-const PREFIX_MAPPING: { [key: number]: Set<string> } = {
+const PREFIX_MAPPING: Record<number, Set<string>> = {
 	[codes.numberSign]: NUMBER_SIGN_BLOCK,
 	[codes.colon]: COLON_BLOCK,
 	[codes.slash]: SLASH_BLOCK,
 	[codes.atSign]: AT_SIGN_BLOCK
 }
 
-// --- Tokenizer
+// Tokenize
 
 const svelteBlockTokenizer: Construct = {
 	name: 'logic-block',
-	tokenize: tokenize,
-	concrete: true
-}
+	concrete: true,
+	tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State) {
+		let tagNameBuffer: number[] = []
+		let tagSet: Set<string> | null = null
 
-export const svelteBlock: Extension = {
-	flow: {
-		[codes.leftCurlyBrace]: svelteBlockTokenizer
-	}
-}
+		const isInterrupt = () => this.interrupt
 
-// --- Tokenize
+		// Entry
 
-function tokenize(this: TokenizeContext, effects: Effects, ok: State, nok: State): State {
-	let tagNameBuffer: number[] = []
-	let tagSet: Set<string> | null = null
-
-	const isInterrupt = () => this.interrupt
-
-	return start
-
-	function start(code: Code): State | undefined {
-		effects.enter(types.htmlFlow)
-		effects.enter(types.htmlFlowData)
-		effects.consume(code) // consume `{`
-		return open
-	}
-
-	function open(code: Code) {
-		if (code === codes.eof || markdownLineEndingOrSpace(code)) {
-			return nok(code)
+		function start(code: Code) {
+			effects.enter(types.htmlFlow)
+			effects.enter(types.htmlFlowData)
+			effects.consume(code) // `{`
+			return open
 		}
 
-		tagSet = PREFIX_MAPPING[code]
-		tagNameBuffer = []
-
-		effects.consume(code)
-		return blockName
-	}
-
-	function blockName(code: Code) {
-		if (code !== codes.eof && asciiAlpha(code)) {
-			tagNameBuffer.push(code)
+		function open(code: Code) {
+			if (code === codes.eof || markdownLineEndingOrSpace(code)) return nok(code)
+			tagSet = PREFIX_MAPPING[code] ?? null
+			tagNameBuffer = []
 			effects.consume(code)
 			return blockName
 		}
 
-		if (markdownLineEndingOrSpace(code) || code === codes.rightCurlyBrace) {
-			return closeBlockName(code)
-		}
+		// Block name
 
-		return nok(code)
-	}
-
-	function closeBlockName(code: Code) {
-		const name = String.fromCodePoint(...tagNameBuffer).toLowerCase()
-
-		if (tagSet?.has(name)) {
-			return isInterrupt() ? ok(code) : more(code)
-		}
-
-		return nok(code)
-	}
-
-	function more(code: Code) {
-		if (code === codes.eof) {
+		function blockName(code: Code) {
+			if (code !== codes.eof && asciiAlpha(code)) {
+				tagNameBuffer.push(code)
+				effects.consume(code)
+				return blockName
+			}
+			if (markdownLineEndingOrSpace(code) || code === codes.rightCurlyBrace) {
+				return closeBlockName(code)
+			}
 			return nok(code)
 		}
 
-		if (code === codes.rightCurlyBrace) {
+		function closeBlockName(code: Code) {
+			const name = String.fromCodePoint(...tagNameBuffer).toLowerCase()
+			if (!tagSet?.has(name)) return nok(code)
+			return isInterrupt() ? ok(code) : more(code)
+		}
+
+		// Body
+
+		function more(code: Code) {
+			if (code === codes.eof) return nok(code)
+			if (code === codes.rightCurlyBrace) {
+				effects.consume(code)
+				return beforeClose
+			}
+			if (markdownLineEnding(code)) {
+				effects.exit(types.htmlFlowData)
+				return checkNonLazy(code)
+			}
+			effects.consume(code)
+			return more
+		}
+
+		function beforeClose(code: Code) {
+			if (code === codes.eof || markdownLineEnding(code)) {
+				effects.exit(types.htmlFlowData)
+				return done(code)
+			}
 			effects.consume(code)
 			return beforeClose
 		}
 
-		if (markdownLineEnding(code)) {
-			effects.exit(types.htmlFlowData)
-			return checkNonLazy(code)
+		// Exit
+
+		function done(code: Code) {
+			effects.exit(types.htmlFlow)
+			return ok(code)
 		}
 
-		effects.consume(code)
-		return more
-	}
+		// Multi-line
 
-	function beforeClose(code: Code) {
-		if (code === codes.eof || markdownLineEnding(code)) {
-			effects.exit(types.htmlFlowData)
-			return done(code)
+		function checkNonLazy(code: Code) {
+			return effects.attempt(nonLazyPartialTokenizer, checkNextLine, done)(code)
 		}
 
-		effects.consume(code)
-		return beforeClose
-	}
-
-	function done(code: Code) {
-		effects.exit(types.htmlFlow)
-		return ok(code)
-	}
-
-	// check non lazy line
-	// non lazy: continua
-	// lazy: done
-	function checkNonLazy(code: Code) {
-		return effects.attempt(nonLazyPartialTokenizer, checkNextLine, done)(code)
-	}
-
-	function checkNextLine(code: Code) {
-		if (code === codes.eof || markdownLineEnding(code)) {
-			return checkNonLazy(code)
+		function checkNextLine(code: Code) {
+			if (code === codes.eof || markdownLineEnding(code)) return checkNonLazy(code)
+			effects.enter(types.htmlFlowData)
+			return more(code)
 		}
 
-		effects.enter(types.htmlFlowData)
-		return more(code)
+		return start
 	}
+}
+
+export const svelteBlock: Extension = {
+	flow: { [codes.leftCurlyBrace]: svelteBlockTokenizer }
 }
