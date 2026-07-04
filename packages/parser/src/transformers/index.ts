@@ -7,6 +7,8 @@ import { directiveTransformer } from './directive.js'
 import { extractScriptTransformer } from './extract-script.js'
 import { stepTransformer } from './step.js'
 
+export type { CodeContainer, CodeHighlighter } from './codeblock.js'
+
 export interface TransformOptions {
 	codeblock?: CodeblockOptions
 }

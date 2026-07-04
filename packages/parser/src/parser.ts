@@ -6,12 +6,15 @@ import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 
 import { slidemdExtension } from './extensions/index.js'
-import { TransformOptions, applyTransformers } from './transformers/index.js'
+import { CodeContainer, CodeHighlighter, applyTransformers } from './transformers/index.js'
 import type { Directive, SlideParsed } from './types.js'
 import { asNumber, asString, parseYAML } from './utils.js'
 
+export type { CodeContainer, CodeHighlighter } from './transformers/index.js'
+
 export interface Options {
-	transform?: TransformOptions
+	codeContainer?: CodeContainer
+	codeHighlighter?: CodeHighlighter
 }
 
 export function setupProcessor(options?: Options) {
@@ -21,7 +24,12 @@ export function setupProcessor(options?: Options) {
 		.use(remarkGfm, { singleTilde: false })
 		.use(slidemdExtension)
 
-	applyTransformers(mdastTransform, options?.transform)
+	applyTransformers(mdastTransform, {
+		codeblock: {
+			container: options?.codeContainer,
+			highlight: options?.codeHighlighter
+		}
+	})
 
 	const hastTransform = mdastTransform.use(remark2Rehype, {
 		allowDangerousHtml: true

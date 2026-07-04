@@ -1,4 +1,4 @@
-import type { SlideData } from '@slidemd/slidemd/types.js'
+import type { SlideData } from '@slidemd/slidemd/types'
 
 export enum PageAction {
 	NEXT,
@@ -33,7 +33,7 @@ export class SlideState {
 	}
 
 	get maxStep() {
-		return this.#slide.pages[this.#page - 1].step
+		return this.#slide.pages[this.#page - 1].step || 0
 	}
 
 	get zoom() {

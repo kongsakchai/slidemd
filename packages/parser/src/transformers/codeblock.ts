@@ -1,4 +1,4 @@
-import type { ElementContent } from 'hast'
+import type { ElementContent, Root as HRoot, RootContent as HRootContent } from 'hast'
 import type { Code, Parent, Root, RootContent } from 'mdast'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
@@ -6,7 +6,11 @@ import { visit } from 'unist-util-visit'
 import { Attribute } from '../types.js'
 import { extractAttributes } from './utils.js'
 
-export type CodeHighlighter = (lang: string, code: string) => Promise<ElementContent>
+export type CodeHighlighter = (
+	lang: string,
+	code: string,
+	meta?: string
+) => Promise<HRootContent | ElementContent | HRoot>
 export type CodeContainer = (lang: string, attr: Attribute) => Promise<Parent>
 
 export interface CodeblockOptions {
@@ -47,8 +51,12 @@ async function transformCodeNode(
 	const containerEl = await container(lang, attr)
 	parent.children.splice(index, 1, containerEl as RootContent)
 
-	const html = await highlight(lang, node.value)
-	containerEl.data?.hChildren?.push(html)
+	const html = await highlight(lang, node.value, node.meta || undefined)
+	visit(html, 'text', (node) => {
+		node.value = escapeSpecialCharacters(node.value)
+	})
+
+	containerEl.data?.hChildren?.push(html as ElementContent)
 }
 
 async function defaultContainer(lang: string, attrs: Attribute): Promise<Parent> {
@@ -68,6 +76,6 @@ async function defaultHighlight(lang: string, code: string): Promise<ElementCont
 		type: 'element',
 		tagName: 'pre',
 		properties: { lang },
-		children: [{ type: 'text', value: escapeSpecialCharacters(code) }]
+		children: [{ type: 'text', value: code }]
 	}
 }
