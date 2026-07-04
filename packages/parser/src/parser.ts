@@ -44,7 +44,7 @@ export function createSlideParser(options?: Options) {
 	const parser = setupProcessor(options)
 
 	async function parse(markdown: string, data?: Directive): Promise<SlideParsed> {
-		const pages = markdown.split(/\r?\n---\r?\n/)
+		const pages = markdown.split(/\r?\n!---\r?\n/)
 		const slideData: SlideParsed = { slides: [], script: [], style: [] }
 
 		let global = { ...data }

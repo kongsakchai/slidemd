@@ -28,3 +28,10 @@ const app = mount(App, {
 
 export default app
 ```
+
+```mermaid
+flowchart LR
+    id
+```
+
+---

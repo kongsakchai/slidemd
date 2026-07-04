@@ -3,6 +3,11 @@ export interface Options {
 	extension?: string
 }
 
+export enum Feature {
+	CODE,
+	MERMAID
+}
+
 export interface PageInfo {
 	page: number
 	enablePageNumber: boolean
@@ -14,6 +19,7 @@ export interface PageInfo {
 	style: string
 	layout: string
 	content: string
+	feature: Feature[]
 }
 
 // Component

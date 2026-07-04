@@ -55,7 +55,10 @@ export function createCodeHighlighter() {
 				hName: 'div',
 				hProperties: attrs,
 				hChildren: [
-					{ type: 'raw', value: `<button id="code-copy-btn" class="copy" onclick={copyCode}></button>` },
+					{
+						type: 'raw',
+						value: `<button title="copy code button" class="copy" onclick={copyCode}></button>`
+					},
 					{ type: 'raw', value: `<span class="lang">${lang}</span>` }
 				]
 			},

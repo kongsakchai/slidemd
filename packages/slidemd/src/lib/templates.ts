@@ -39,14 +39,30 @@ export function styleContent(styleTag: string[] = []) {
 	return styles.filter(Boolean).join('\n')
 }
 
+const mermaidScript = {
+	import: `import mermaid from 'mermaid'`,
+	script: [
+		`onMount(() => {`,
+		`mermaid.initialize({`,
+		`theme: 'default',`,
+		`htmlLabels: false,`,
+		`})`,
+		`mermaid.run().then(() => console.log('Mermaid diagrams rendered'))`,
+		`})`
+	]
+}
+
 export function scriptContent(slideData: SlideData, scriptTag: string[] = []) {
 	const scripts = [
 		`<script lang="ts" module>`,
-		`export const slide = ` + JSON.stringify(slideData),
+		`export const slide = ${JSON.stringify(slideData)}`,
 		`</script>`,
-		'<script lang="ts">',
-		"import {copyCode} from '@slidemd/slidemd/shared'",
-		'let { page=$bindable() } = $props()',
+		`<script lang="ts">`,
+		`import { onMount } from 'svelte'`,
+		`import {copyCode} from '@slidemd/slidemd/shared'`,
+		mermaidScript.import,
+		`let { page=$bindable() } = $props()`,
+		...mermaidScript.script,
 		...scriptTag,
 		'</script>'
 	]

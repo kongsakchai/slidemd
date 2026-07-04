@@ -34,7 +34,7 @@
 		</svg>
 	</button>
 	<div class=" border-border border-l"></div>
-	<button>
+	<button title="paginate button">
 		<p class="text-card-foreground m-0 min-w-21 px-2 text-center text-sm font-medium tabular-nums">
 			{slideState.page} / {slideState.maxPage}
 		</p>
