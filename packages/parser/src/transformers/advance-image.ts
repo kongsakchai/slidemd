@@ -3,7 +3,7 @@ import { Image, Parent, Root } from 'mdast'
 import type { Transformer } from 'unified'
 import { EXIT, visit } from 'unist-util-visit'
 
-import { asString } from '../utils'
+import { asString } from '../utils.js'
 
 export function advanceImageTransformer(): Transformer {
 	return (tree) => {

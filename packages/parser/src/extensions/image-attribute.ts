@@ -3,7 +3,7 @@ import { markdownLineEnding } from 'micromark-util-character'
 import { codes, types } from 'micromark-util-symbol'
 import { Code, Construct, Effects, Extension, State, TokenizeContext } from 'micromark-util-types'
 
-import { createAttributeTokenize } from './attribute'
+import { createAttributeTokenize } from './attribute.js'
 
 // Tokenize
 

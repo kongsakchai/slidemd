@@ -448,4 +448,8 @@
 	.dark [class*='language-'] span {
 		color: var(--shiki-dark);
 	}
+
+	.mermaid svg[id^='mermaid-'] {
+		max-height: 100%;
+	}
 }

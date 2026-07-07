@@ -44,8 +44,7 @@ const mermaidScript = {
 	script: [
 		`onMount(() => {`,
 		`mermaid.initialize({`,
-		`theme: 'default',`,
-		`htmlLabels: false,`,
+		`startOnLoad: false`,
 		`})`,
 		`mermaid.run().then(() => console.log('Mermaid diagrams rendered'))`,
 		`})`

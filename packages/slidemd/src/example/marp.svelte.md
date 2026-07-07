@@ -7,10 +7,9 @@ tags:
     - slide
 ---
 
-<!--
-split: 2
-layout: no-padding
--->
+<script>
+let s = $state(0)
+</script>
 
 :::div
 
@@ -29,9 +28,12 @@ const app = mount(App, {
 export default app
 ```
 
-```mermaid
-flowchart LR
-    id
-```
+```mermaid .h-[300px]
+sequenceDiagram
+    Alice->>John: Hello John, how are you?
+    John-->>Alice: Great!
+    Alice-)John: See you later!
+:::
 
 ---
+```

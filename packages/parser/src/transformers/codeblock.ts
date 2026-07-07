@@ -4,7 +4,6 @@ import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
 
 import { Attribute } from '../types.js'
-import { extractAttributes } from './utils.js'
 
 export type CodeHighlighter = (
 	lang: string,
@@ -78,4 +77,35 @@ async function defaultHighlight(lang: string, code: string): Promise<ElementCont
 		properties: { lang },
 		children: [{ type: 'text', value: code }]
 	}
+}
+
+const ATTR_REGEX = /([.#a-zA-Z][\w-@:()[\]]+)(?:=(["'])(.*?)\2|=({.*?})|=([^\s]*))?/g
+
+function extractAttributes(str?: string | null): Record<string, string> {
+	if (!str) return {}
+
+	const attrs: Record<string, string> = {}
+	const ids: string[] = []
+	const className: string[] = []
+
+	for (const match of str.matchAll(ATTR_REGEX)) {
+		const key = match[1]
+		const value = match[3] || match[4] || match[5] || ''
+
+		if (key === 'class') {
+			className.push(value)
+		} else if (key === 'id') {
+			ids.push(value)
+		} else if (key.startsWith('.')) {
+			className.push(key.slice(1) + value)
+		} else if (key.startsWith('#')) {
+			ids.push(key.slice(1) + value)
+		} else {
+			attrs[key] = value
+		}
+	}
+	if (className.length > 0) attrs['class'] = className.join(' ').trim()
+	if (ids.length > 0) attrs['id'] = ids.join(' ').trim()
+
+	return attrs
 }

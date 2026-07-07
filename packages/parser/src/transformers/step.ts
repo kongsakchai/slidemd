@@ -2,7 +2,7 @@ import { Root } from 'mdast'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
 
-import { asNumber } from '../utils'
+import { asNumber } from '../utils.js'
 
 const STEP_ATTR_PATTERN = /^step-(\d+)$/
 

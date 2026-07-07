@@ -7,7 +7,7 @@ import {
 	transformerNotationHighlight,
 	transformerNotationWordHighlight
 } from '@shikijs/transformers'
-import type { CodeContainer, CodeHighlighter } from '@slidemd/parser'
+import { type CodeContainer, type CodeHighlighter, asString } from '@slidemd/parser'
 
 import { type SpecialLanguage, createHighlighter } from 'shiki'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
@@ -38,6 +38,8 @@ const highlighter = await createHighlighter({
 export function createCodeHighlighter() {
 	const codeContainer: CodeContainer = async (lang, attrs) => {
 		if (lang === 'mermaid') {
+			attrs.class = asString(attrs.class, '').replace('language-mermaid', 'mermaid')
+
 			return {
 				type: 'container',
 				data: {
@@ -68,14 +70,7 @@ export function createCodeHighlighter() {
 
 	const codeHighlighter: CodeHighlighter = async (lang: string, code: string, meta?: string) => {
 		if (lang === 'mermaid') {
-			return {
-				type: 'element',
-				tagName: 'pre',
-				properties: {
-					class: 'mermaid'
-				},
-				children: [{ type: 'text', value: code }]
-			}
+			return { type: 'text', value: code }
 		}
 
 		try {

@@ -6,11 +6,13 @@ import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 
 import { slidemdExtension } from './extensions/index.js'
-import { CodeContainer, CodeHighlighter, applyTransformers } from './transformers/index.js'
-import type { Directive, SlideParsed } from './types.js'
-import { asNumber, asString, parseYAML } from './utils.js'
+import { CodeContainer, CodeHighlighter } from './transformers/codeblock.js'
+import { applyTransformers } from './transformers/index.js'
+import { PAGE_BREAK_KEY } from './transformers/page-break.js'
+import type { Directive, SlideContext, SlideInfo, SlideResult } from './types.js'
+import { parseYAML } from './utils.js'
 
-export type { CodeContainer, CodeHighlighter } from './transformers/index.js'
+export type { CodeContainer, CodeHighlighter }
 
 export interface Options {
 	codeContainer?: CodeContainer
@@ -43,34 +45,40 @@ export function setupProcessor(options?: Options) {
 export function createSlideParser(options?: Options) {
 	const parser = setupProcessor(options)
 
-	async function parse(markdown: string, data?: Directive): Promise<SlideParsed> {
-		const pages = markdown.split(/\r?\n!---\r?\n/)
-		const slideData: SlideParsed = { slides: [], script: [], style: [] }
-
-		let global = { ...data }
-		for (const [index, page] of pages.entries()) {
-			const file = await parser.process({ value: page, data: { global: global, local: {} } })
-			const slide = {
-				index: index,
-				content: file.toString(),
-				global: file.data.global as Directive,
-				local: file.data.local as Directive,
-				title: asString(file.data.title),
-				note: asString(file.data.note),
-				step: asNumber(file.data.step)
-			}
-
-			slideData.slides.push(slide)
-			if (file.data.script) slideData.script.push(asString(file.data.script, ''))
-			if (file.data.style) slideData.style.push(asString(file.data.style, ''))
-
-			global = { ...slide.global }
+	async function parse(markdown: string, data?: Directive): Promise<SlideResult> {
+		const context: SlideContext = {
+			slides: [{ breakIndex: 0, global: data }],
+			style: [],
+			script: []
 		}
 
-		return slideData
+		const parsed = await parser.process({ value: markdown, data: { context } })
+		return covertSlideResult(context, parsed.toString())
 	}
 
 	return { parse }
+}
+
+function covertSlideResult(ctx: SlideContext, str: string): SlideResult {
+	const slideInfo: SlideInfo[] = str.split(PAGE_BREAK_KEY).map((content, index) => {
+		const previous = index === 0 ? undefined : ctx.slides[index - 1]
+		const slide = ctx.slides[index]
+		return {
+			index,
+			content,
+			global: { ...slide.global, ...previous?.global },
+			local: slide.local,
+			title: slide.title,
+			note: slide.note,
+			step: slide.step
+		}
+	})
+
+	return {
+		slides: slideInfo,
+		script: ctx.script,
+		style: ctx.style
+	}
 }
 
 const FRONT_MATTER = /^---\r?\n([\s\S]*?)---/
