@@ -15,16 +15,14 @@
 
 	let layoutWidth = $state(0)
 	let layoutHeight = $state(0)
-	let slideSize = $derived(resolvePageSize(width, height, layoutWidth, layoutHeight))
-
-	export function resolvePageSize(width: number, height: number, viewWidth: number, viewHeight: number) {
+	let slideSize = $derived.by(() => {
 		const aspect = width / height
-		const tempHeight = viewWidth / aspect
-		const isOverHeight = tempHeight > viewHeight
-		const finalWidth = isOverHeight ? viewHeight * aspect : viewWidth
+		const tempHeight = layoutWidth / aspect
+		const isOverHeight = tempHeight > layoutHeight
+		const finalWidth = isOverHeight ? layoutHeight * aspect : layoutWidth
 
 		return finalWidth / width
-	}
+	})
 </script>
 
 <section
@@ -48,3 +46,9 @@
 
 	{@render overlay?.()}
 </section>
+
+<style lang="postcss">
+	#slide-container {
+		transform: translate(-50%, -50%) scale(var(--slide-scale));
+	}
+</style>

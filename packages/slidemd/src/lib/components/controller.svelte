@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { SlideState } from '@slidemd/slidemd/state'
 
-	import Appearance from './controller/appearance.svelte'
-	import Navigator from './controller/navigator.svelte'
-	import Tools from './controller/tools.svelte'
+	import Appearance from './appearancer.svelte'
+	import Navigator from './navigator.svelte'
+	import Tools from './tools.svelte'
 
 	interface Props {
 		slideState: SlideState

@@ -12,6 +12,7 @@
 		"build": "npm run build:parse && npm run build:slidemd",
 		"build:parser": "npm run build -w @slidemd/parser",
 		"build:slidemd": "npm run build -w @slidemd/slidemd",
+		"prepack:slidemd": "npm run prepack -w @slidemd/slidemd",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"test": "npm run test:parse && npm run test:slidemd",

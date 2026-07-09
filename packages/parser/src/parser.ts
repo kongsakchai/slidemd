@@ -38,7 +38,8 @@ export function setupProcessor(options?: Options) {
 	})
 
 	return hastTransform.use(stringify, {
-		allowDangerousHtml: true
+		allowDangerousHtml: true,
+		allowDangerousCharacters: true
 	})
 }
 
@@ -49,7 +50,8 @@ export function createSlideParser(options?: Options) {
 		const context: SlideContext = {
 			slides: [{ breakIndex: 0, global: data }],
 			style: [],
-			script: []
+			script: [],
+			codeLanguage: new Set<string>()
 		}
 
 		const parsed = await parser.process({ value: markdown, data: { context } })
@@ -77,7 +79,8 @@ function covertSlideResult(ctx: SlideContext, str: string): SlideResult {
 	return {
 		slides: slideInfo,
 		script: ctx.script,
-		style: ctx.style
+		style: ctx.style,
+		codeLanguage: [...ctx.codeLanguage]
 	}
 }
 

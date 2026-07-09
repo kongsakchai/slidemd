@@ -45,7 +45,13 @@ export function slidemd(options?: Options): PreprocessorGroup {
 			})
 		})
 
-		return [scriptContent(slideData, slide.script), contents, styleContent(slide.style)].join('\n')
+		const script = scriptContent({
+			data: slideData,
+			scripts: slide.script,
+			codeLanguage: slide.codeLanguage
+		})
+
+		return [script, ...contents, styleContent(slide.style)].join('\n')
 	}
 
 	return {

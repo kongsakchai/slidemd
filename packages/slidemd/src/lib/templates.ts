@@ -39,30 +39,34 @@ export function styleContent(styleTag: string[] = []) {
 	return styles.filter(Boolean).join('\n')
 }
 
-const mermaidScript = {
-	import: `import mermaid from 'mermaid'`,
-	script: [
-		`onMount(() => {`,
-		`mermaid.initialize({`,
-		`startOnLoad: false`,
-		`})`,
-		`mermaid.run().then(() => console.log('Mermaid diagrams rendered'))`,
-		`})`
-	]
+interface ScriptOptions {
+	data: SlideData
+	scripts: string[]
+	codeLanguage: string[]
 }
 
-export function scriptContent(slideData: SlideData, scriptTag: string[] = []) {
+export function scriptContent(opt: ScriptOptions) {
+	const imports: string[] = []
+	const actions: string[] = []
+	if (opt.codeLanguage.length > 0) {
+		imports.push('import {initCopyCode} from "@slidemd/slidemd/logic/code"')
+		actions.push('initCopyCode()')
+
+		if (opt.codeLanguage.includes('mermaid')) {
+			imports.push('import {renderMermaid} from "@slidemd/slidemd/logic/mermaid"')
+			actions.push('renderMermaid()')
+		}
+	}
+
 	const scripts = [
 		`<script lang="ts" module>`,
-		`export const slide = ${JSON.stringify(slideData)}`,
+		`export const slide = ${JSON.stringify(opt.data)}`,
 		`</script>`,
 		`<script lang="ts">`,
-		`import { onMount } from 'svelte'`,
-		`import {copyCode} from '@slidemd/slidemd/shared'`,
-		mermaidScript.import,
+		...imports,
+		...actions,
 		`let { page=$bindable() } = $props()`,
-		...mermaidScript.script,
-		...scriptTag,
+		...opt.scripts,
 		'</script>'
 	]
 

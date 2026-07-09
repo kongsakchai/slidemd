@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build && npm run prepack",
+		"build": "vite build",
 		"preview": "vite preview",
 		"prepack": "svelte-package && publint",
 		"check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
@@ -21,10 +21,6 @@
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js"
 		},
-		"./shared": {
-			"types": "./dist/shared/index.d.ts",
-			"import": "./dist/shared/index.js"
-		},
 		"./components": {
 			"types": "./dist/components/index.d.ts",
 			"import": "./dist/components/index.js",
@@ -33,6 +29,10 @@
 		"./themes/*": {
 			"import": "./dist/themes/*",
 			"style": "./dist/themes/*"
+		},
+		"./logic/*": {
+			"import": "./dist/logic/*",
+			"style": "./dist/logic/*"
 		}
 	},
 	"files": [

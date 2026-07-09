@@ -39,6 +39,7 @@ export function createCodeHighlighter() {
 	const codeContainer: CodeContainer = async (lang, attrs) => {
 		if (lang === 'mermaid') {
 			attrs.class = asString(attrs.class, '').replace('language-mermaid', 'mermaid')
+			attrs.name = 'mermaid'
 
 			return {
 				type: 'container',
@@ -59,7 +60,7 @@ export function createCodeHighlighter() {
 				hChildren: [
 					{
 						type: 'raw',
-						value: `<button title="copy code button" class="copy" onclick={copyCode}></button>`
+						value: `<button title="copy code button" class="copy" onclick={window.copyCode}></button>`
 					},
 					{ type: 'raw', value: `<span class="lang">${lang}</span>` }
 				]
@@ -70,7 +71,12 @@ export function createCodeHighlighter() {
 
 	const codeHighlighter: CodeHighlighter = async (lang: string, code: string, meta?: string) => {
 		if (lang === 'mermaid') {
-			return { type: 'text', value: code }
+			return {
+				type: 'element',
+				tagName: 'pre',
+				properties: {},
+				children: [{ type: 'text', value: code }]
+			}
 		}
 
 		try {

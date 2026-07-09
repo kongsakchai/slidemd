@@ -3,7 +3,7 @@ import type { Code, Parent, Root, RootContent } from 'mdast'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
 
-import { Attribute } from '../types.js'
+import { Attribute, SlideContext } from '../types.js'
 
 export type CodeHighlighter = (
 	lang: string,
@@ -21,11 +21,14 @@ export function codeblockTransformer(options?: CodeblockOptions): Transformer {
 	const container = options?.container ?? defaultContainer
 	const highlight = options?.highlight ?? defaultHighlight
 
-	return async (tree) => {
+	return async (tree, vfile) => {
+		const ctx = vfile.data.context as SlideContext
+
 		const codeProcess: Promise<void>[] = []
 		visit(tree as Root, 'code', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
 			codeProcess.push(transformCodeNode(node, index, parent, highlight, container))
+			ctx.codeLanguage.add(node.lang || 'plaintext')
 		})
 
 		await Promise.all(codeProcess)
@@ -33,7 +36,7 @@ export function codeblockTransformer(options?: CodeblockOptions): Transformer {
 }
 
 function escapeSpecialCharacters(str: string) {
-	return str.replaceAll(/[&<>{}:]/g, (char) => `{'${char}'}`)
+	return str.replaceAll(/[{}]/g, (char) => `{'${char}'}`)
 }
 
 async function transformCodeNode(

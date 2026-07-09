@@ -14,6 +14,7 @@ export interface SlideContext {
 	slides: (SlideData & { breakIndex: number })[]
 	style: string[]
 	script: string[]
+	codeLanguage: Set<string>
 }
 
 export interface SlideInfo extends SlideData {
@@ -25,4 +26,5 @@ export interface SlideResult {
 	slides: SlideInfo[]
 	style: string[]
 	script: string[]
+	codeLanguage: string[]
 }

@@ -1,4 +1,4 @@
-export function loadTheme() {
+export function applyThemeMode() {
 	const themeMode = localStorage.getItem('slidemd.mode') || 'light'
 	if (themeMode === 'dark') {
 		document.documentElement.classList.add('dark')
