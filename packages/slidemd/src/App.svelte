@@ -3,6 +3,6 @@
 	import { Presenter } from './lib/components'
 </script>
 
-<main class="h-full w-full">
+<main class="h-full w-full rounded-sm">
 	<Presenter slide={Slide} data={slide} />
 </main>

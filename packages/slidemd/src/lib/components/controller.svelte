@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SlideState } from '@slidemd/slidemd/state'
+	import { SlideState } from '@slidemd/slidemd/state/slide.svelte'
 
 	import Appearance from './appearancer.svelte'
 	import Navigator from './navigator.svelte'
@@ -27,7 +27,7 @@
 			@apply bg-card border-border text-card-foreground flex gap-0.5 rounded-md border p-0.5 shadow-2xl;
 		}
 		.menu-btn {
-			@apply hover:bg-accent hover:text-accent-foreground h-8.5 w-8.5 content-center;
+			@apply hover:bg-accent hover:text-accent-foreground h-8.5 w-8.5 appearance-none content-center;
 		}
 		input[type='range'] {
 			@apply bg-input h-2 appearance-none rounded-full p-0.5;

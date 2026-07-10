@@ -176,7 +176,7 @@ function enterAttributeSequence(this: CompileContext): void {
 
 function exitAttributeKey(this: CompileContext, token: Token): void {
 	const key = this.sliceSerialize(token)
-	if (/^[a-zA-Z][\w-@:()[\]]+$/.test(key)) {
+	if (/^[a-zA-Z][\w-:]+$/.test(key)) {
 		this.data.attributeKey = key
 	}
 }

@@ -82,7 +82,8 @@ async function defaultHighlight(lang: string, code: string): Promise<ElementCont
 	}
 }
 
-const ATTR_REGEX = /([.#a-zA-Z][\w-@:()[\]]+)(?:=(["'])(.*?)\2|=({.*?})|=([^\s]*))?/g
+const ATTR_REGEX = /([.#a-zA-Z][.\w-:@[\]/]+)(?:=(["'])(.*?)\2|=({.*?})|=([^\s]*))?/g
+const EXCEPTED_KEY_REGEX = /[@[\]/]/
 
 function extractAttributes(str?: string | null): Record<string, string> {
 	if (!str) return {}
@@ -103,7 +104,7 @@ function extractAttributes(str?: string | null): Record<string, string> {
 			className.push(key.slice(1) + value)
 		} else if (key.startsWith('#')) {
 			ids.push(key.slice(1) + value)
-		} else {
+		} else if (!EXCEPTED_KEY_REGEX.test(key)) {
 			attrs[key] = value
 		}
 	}

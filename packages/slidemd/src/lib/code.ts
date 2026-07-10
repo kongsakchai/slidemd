@@ -38,7 +38,7 @@ const highlighter = await createHighlighter({
 export function createCodeHighlighter() {
 	const codeContainer: CodeContainer = async (lang, attrs) => {
 		if (lang === 'mermaid') {
-			attrs.class = asString(attrs.class, '').replace('language-mermaid', 'mermaid')
+			attrs.class = asString(attrs.class, '').replace('language-mermaid', 'mermaid-container')
 			attrs.name = 'mermaid'
 
 			return {

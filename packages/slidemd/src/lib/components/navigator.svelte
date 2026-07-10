@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PageAction, SlideState } from '@slidemd/slidemd/state'
+	import { PageAction, SlideState } from '@slidemd/slidemd/state/slide.svelte'
 
 	interface Props {
 		slideState: SlideState

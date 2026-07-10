@@ -30,6 +30,8 @@ const DEFAULT_FILTER_ATTRIBUTE: Record<string, string | number> = {
 	sepia: 1
 }
 
+const OBJECT_FIT_ATTRIBUTE = ['fill', 'contain', 'cover', 'scale-down']
+
 const STYLE_ATTRIBUTE: Record<string, string> = {
 	w: 'width',
 	h: 'height'
@@ -58,6 +60,13 @@ function applyImageStyles(props?: Properties) {
 		if (isStringOrNumber(props[key])) {
 			styles.push(`${cssKey}:${props[key]}`)
 			delete props[key]
+		}
+	}
+	for (const key of OBJECT_FIT_ATTRIBUTE) {
+		if (props[key] != null) {
+			styles.push(`object-fit:${key}`)
+			delete props[key]
+			break
 		}
 	}
 

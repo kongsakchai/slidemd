@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SlideState } from '../state'
+	import { SlideState } from '../state/slide.svelte'
 	import type { SlideComponent, SlideData } from '../types'
 	import Controller from './controller.svelte'
 	import Layout from './layout.svelte'
@@ -14,7 +14,7 @@
 
 	const { data, slide: Slide, width = 1280, height = 720 }: Props = $props()
 
-	const slideState = new SlideState(data)
+	const slideState = $derived(new SlideState(data))
 </script>
 
 <Layout {slideState} {width} {height}>

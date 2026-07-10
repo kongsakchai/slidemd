@@ -11,7 +11,6 @@ export class SlideState {
 
 	#page = $state(1)
 	#step = $state(0)
-
 	#zoom = $state(1)
 	#fontSize = $state(16)
 	#scale = $state(1)

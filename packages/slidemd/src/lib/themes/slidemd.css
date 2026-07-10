@@ -10,7 +10,7 @@
 	--font-primary: 'Sarabun', system-ui, -apple-system, sans-serif;
 	--font-mono: 'Geist Mono', ui-monospace, 'Menlo', 'Monaco', 'Courier New', monospace;
 
-	--radius: 0.625rem;
+	--border-radius: 0.375rem;
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.129 0.042 264.695);
 	--card: oklch(1 0 0);
@@ -21,8 +21,8 @@
 	--secondary-foreground: oklch(0.6574 0.2411 354.52);
 	--muted: oklch(0.968 0.007 247.896);
 	--muted-foreground: oklch(0.554 0.046 257.417);
-	--accent: oklch(0.968 0.007 247.896);
-	--accent-foreground: oklch(0.208 0.042 265.755);
+	--accent: oklch(0.9744 0.0141 343.2);
+	--accent-foreground: oklch(0.6574 0.2411 354.52);
 	--destructive: oklch(0.5505 0.2155 19.81);
 	--border: oklch(0.929 0.013 255.508);
 	--input: oklch(0.929 0.013 255.508);
@@ -52,8 +52,8 @@
 	--secondary-foreground: oklch(0.6574 0.2411 354.52);
 	--muted: oklch(0.279 0.041 260.031);
 	--muted-foreground: oklch(0.704 0.04 256.788);
-	--accent: oklch(0.279 0.041 260.031);
-	--accent-foreground: oklch(0.984 0.003 247.858);
+	--accent: oklch(0.2975 0.0712 326.08);
+	--accent-foreground: oklch(0.6574 0.2411 354.52);
 	--destructive: oklch(0.704 0.191 22.216);
 	--border: oklch(1 0 0 / 10%);
 	--input: oklch(1 0 0 / 15%);
@@ -76,10 +76,16 @@
 	--font-primary: var(--font-primary);
 	--font-mono: var(--font-mono);
 
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius: calc(var(--border-radius) - 2px);
+	--radius-xs: calc(var(--border-radius) - 4px);
+	--radius-sm: calc(var(--border-radius) - 2px);
+	--radius-md: calc(var(--border-radius));
+	--radius-lg: calc(var(--border-radius) + 2px);
+	--radius-xl: calc(var(--border-radius) + 6px);
+	--radius-2xl: calc(var(--border-radius) + 10px);
+	--radius-3xl: calc(var(--border-radius) + 18px);
+	--radius-4xl: calc(var(--border-radius) + 26px);
+
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -447,5 +453,34 @@
 
 	.dark [class*='language-'] span {
 		color: var(--shiki-dark);
+	}
+
+	/* Mermaid */
+
+	.mermaid-container {
+		@apply rounded-md;
+	}
+
+	/* Element */
+	button.btn {
+		@apply hover:bg-accent hover:text-accent-foreground bg-card text-card-foreground border-border rounded-md border hover:scale-110;
+		transition: all 0.35s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+		font-size: 0.875em;
+		padding: 6px 12px;
+	}
+
+	button.btn.primary {
+		@apply bg-primary text-primary-foreground border-0;
+	}
+
+	button.btn.secondary {
+		@apply bg-secondary text-secondary-foreground border-0;
+	}
+
+	input,
+	input[type='text'] {
+		@apply bg-card text-card-foreground;
+		font-size: 0.875em;
+		padding: 3px 6px;
 	}
 }

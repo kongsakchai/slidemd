@@ -8,32 +8,14 @@ tags:
 ---
 
 :::div
+<button class="btn">Default</button>
+<button class="btn primary">Primary</button>
+<button class="btn secondary">Secondary</button>
+<input/>
+:::
 
-```mermaid
----
-title: Animal example
----
-classDiagram
-    note "**From Duck till Zebra**"
-    Animal <|-- Duck
-    note for Duck "can fly<br>can swim<br>can dive<br>can help in debugging"
-    Animal <|-- Fish
-    Animal <|-- Zebra
-    Animal : +int age
-    Animal : +String gender
-    Animal: +isMammal()
-    Animal: +mate()
-    class Duck{
-        +String beakColor
-        +swim()
-        +quack()
-    }
-    class Fish{
-        -int sizeInFeet
-        -canEat()
-    }
-    class Zebra{
-        +bool is_wild
-        +run()
-    }
-```
+| Month    | Savings |
+| -------- | ------- |
+| January  | $250    |
+| February | $80     |
+| March    | $420    |
