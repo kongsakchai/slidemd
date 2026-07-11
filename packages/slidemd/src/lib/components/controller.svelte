@@ -30,7 +30,7 @@
 			@apply hover:bg-accent hover:text-accent-foreground h-8.5 w-8.5 appearance-none content-center;
 		}
 		input[type='range'] {
-			@apply bg-input h-2 appearance-none rounded-full p-0.5;
+			@apply h-2 appearance-none rounded-full p-0.5;
 
 			&::-webkit-slider-thumb {
 				@apply bg-card ring-primary relative h-3 w-3 appearance-none rounded-full ring-2;
