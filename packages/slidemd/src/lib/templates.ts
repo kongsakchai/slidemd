@@ -18,7 +18,7 @@ export function pageContent(content: string, page: number, opt: PageOptions = {}
 		`<section class='${className}' ${style} data-page='${page}' hidden='{page !== ${page}}' layout='${layout}'>`,
 		opt.background ? `<div class='slide-background' style='${opt.background}'></div>` : '',
 		opt.pageNumber ? `<div class="slide-page-number">${opt.pageNumber}</div>` : '',
-		opt.split ? `<div class="split" ${opt.split}>${content}</div>` : content,
+		opt.split ? `<div class="split" style="${opt.split}">${content}</div>` : content,
 		`</section>`
 	]
 

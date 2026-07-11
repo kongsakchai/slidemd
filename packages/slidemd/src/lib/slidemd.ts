@@ -4,6 +4,7 @@ import MagicString from 'magic-string'
 import type { PreprocessorGroup } from 'svelte/compiler'
 
 import { createCodeHighlighter } from './code'
+import { ATTRIBUTE_PROCESS, CUSTOM_CONTAINER } from './container'
 import { resolvePaginate, toBackgroundStyles, toSplitStyles } from './directive'
 import { pageContent, scriptContent, styleContent } from './templates'
 import type { Options, SlideData } from './types'
@@ -12,7 +13,9 @@ export function slidemd(options?: Options): PreprocessorGroup {
 	const codeHighlighter = createCodeHighlighter()
 	const parser = createSlideParser({
 		codeContainer: codeHighlighter.codeContainer,
-		codeHighlighter: codeHighlighter.codeHighlighter
+		codeHighlighter: codeHighlighter.codeHighlighter,
+		customContainer: CUSTOM_CONTAINER,
+		attributeProcess: ATTRIBUTE_PROCESS
 	})
 
 	const parse = async (markdown: string) => {

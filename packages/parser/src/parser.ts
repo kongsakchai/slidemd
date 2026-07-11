@@ -7,19 +7,22 @@ import { unified } from 'unified'
 
 import { slidemdExtension } from './extensions/index.js'
 import { CodeContainer, CodeHighlighter } from './transformers/codeblock.js'
+import { AttributeProcess } from './transformers/container.js'
 import { applyTransformers } from './transformers/index.js'
 import { PAGE_BREAK_KEY } from './transformers/page-break.js'
 import type { Directive, SlideContext, SlideInfo, SlideResult } from './types.js'
 import { parseYAML } from './utils.js'
 
-export type { CodeContainer, CodeHighlighter }
+export type { AttributeProcess, CodeContainer, CodeHighlighter }
 
 export interface Options {
 	codeContainer?: CodeContainer
 	codeHighlighter?: CodeHighlighter
+	customContainer?: string[]
+	attributeProcess?: Record<string, AttributeProcess>
 }
 
-export function setupProcessor(options?: Options) {
+function setupProcessor(options?: Options) {
 	const mdastTransform = unified()
 		.use(markdown)
 		.use(remarkGemoji)
@@ -30,6 +33,10 @@ export function setupProcessor(options?: Options) {
 		codeblock: {
 			container: options?.codeContainer,
 			highlight: options?.codeHighlighter
+		},
+		container: {
+			customContainer: options?.customContainer,
+			attributeProcess: options?.attributeProcess
 		}
 	})
 

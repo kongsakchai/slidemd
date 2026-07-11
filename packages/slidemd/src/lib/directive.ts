@@ -33,7 +33,7 @@ export function toSplitStyles(directive: Directive): string | undefined {
 	const split = directive.split
 
 	if (typeof split === 'number') {
-		return `style="--split-col: repeat(${split},1fr)"`
+		return `--split-col: repeat(${split},1fr)`
 	}
 
 	if (typeof split === 'string') {
@@ -42,8 +42,8 @@ export function toSplitStyles(directive: Directive): string | undefined {
 		const colStyle = colRaw?.trim() ? `--split-col: ${toSplitValue(colRaw)}` : ''
 		const rowStyle = rowRaw?.trim() ? `--split-row: ${toSplitValue(rowRaw)}` : ''
 
-		const styles = [colStyle, rowStyle].filter(Boolean).join('; ')
-		return styles ? `style="${styles}"` : undefined
+		const styles = [directive.style, colStyle, rowStyle].filter(Boolean).join('; ')
+		return styles || undefined
 	}
 
 	return undefined
