@@ -117,57 +117,6 @@
 }
 
 @layer base {
-	/* * {
-		@apply border-border outline-ring/50;
-	} */
-
-	/* Container */
-	section.slide {
-		@apply text-foreground;
-
-		position: relative;
-		font-size: 1em;
-		width: 100%;
-		height: 100%;
-		padding: 1.5rem;
-	}
-
-	section.slide::before {
-		@apply bg-background;
-		content: '';
-		position: absolute;
-		inset: 0;
-		z-index: -2;
-	}
-
-	section.slide .slide-background {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		inset: 0;
-		z-index: -1;
-		user-select: none;
-		border-radius: 0;
-	}
-
-	section.slide .slide-page-number {
-		@apply text-xs;
-		position: absolute;
-		bottom: 1rem;
-		right: 1rem;
-	}
-
-	section.slide .split {
-		display: grid;
-		grid-template-columns: var(--split-col);
-		grid-template-rows: var(--split-row);
-		gap: var(--split-gap);
-
-		position: relative;
-		width: 100%;
-		height: 100%;
-	}
-
 	/* Header */
 
 	h1,
@@ -323,6 +272,102 @@
 		padding: 3px 6px;
 	}
 
+	/* Element */
+
+	input {
+		@apply bg-input/10 border-border outline-ring/50 accent-primary rounded-md border focus-visible:outline-2;
+		font-size: 0.875em;
+		padding: 3px 6px;
+
+		&:disabled {
+			@apply bg-muted text-muted-foreground border-none outline-none;
+		}
+	}
+
+	input[type='color'] {
+		@apply bg-card;
+	}
+
+	input[type='image'] {
+		padding: 0;
+		background: transparent;
+		outline: none;
+		border: none;
+	}
+
+	input[type='button'],
+	input[type='reset'],
+	input[type='submit'] {
+		@apply hover:bg-accent hover:text-accent-foreground bg-card text-card-foreground hover:border-secondary hover:scale-110;
+		transition: all 0.35s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+		padding: 4px 8px;
+	}
+
+	input[type='range'] {
+		@apply my-auto h-2 appearance-none rounded-full p-0;
+
+		&::-webkit-slider-thumb,
+		&::-moz-range-thumb {
+			@apply bg-primary relative h-3.5 w-3.5 appearance-none rounded-full border-0;
+		}
+
+		&::-moz-range-progress {
+			@apply bg-primary h-full rounded-full;
+		}
+	}
+}
+
+@layer components {
+	/* Slide */
+
+	section.slide {
+		@apply text-foreground;
+
+		position: relative;
+		font-size: 1em;
+		width: 100%;
+		height: 100%;
+		padding: 1.5rem;
+	}
+
+	section.slide::before {
+		@apply bg-background;
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -2;
+	}
+
+	section.slide .slide-background {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		inset: 0;
+		z-index: -1;
+		user-select: none;
+		border-radius: 0;
+	}
+
+	section.slide .slide-page-number {
+		@apply text-xs;
+		position: absolute;
+		bottom: 1rem;
+		right: 1rem;
+	}
+
+	section.slide .split {
+		display: grid;
+		grid-template-columns: var(--split-col);
+		grid-template-rows: var(--split-row);
+		gap: var(--split-gap);
+
+		position: relative;
+		width: 100%;
+		height: 100%;
+	}
+
+	/* Code */
+
 	[class*='language-'] {
 		@apply bg-code-background rounded-md;
 		position: relative;
@@ -460,45 +505,19 @@
 	}
 
 	/* Element */
+
 	button.btn {
-		@apply hover:bg-accent hover:text-accent-foreground bg-card text-card-foreground border-border rounded-md border hover:scale-110 hover:border-transparent;
+		@apply hover:bg-accent hover:text-accent-foreground bg-card text-card-foreground border-border hover:border-secondary rounded-md border hover:scale-110;
 		transition: all 0.35s cubic-bezier(0.68, -0.6, 0.32, 1.6);
 		font-size: 0.875em;
-		padding: 6px 12px;
+		padding: 4px 8px;
 	}
 
 	button.btn.primary {
-		@apply bg-primary text-primary-foreground border-0;
+		@apply bg-primary text-primary-foreground border-none;
 	}
 
 	button.btn.secondary {
-		@apply bg-secondary text-secondary-foreground border-0;
-	}
-
-	input {
-		@apply bg-input/50 border-border outline-ring/50 rounded-md border focus-visible:outline-2;
-		font-size: 0.875em;
-		padding: 3px 6px;
-	}
-
-	input[type='range'] {
-		@apply my-auto h-2 appearance-none rounded-full p-0;
-
-		&::-webkit-slider-thumb {
-			@apply bg-primary relative h-3.5 w-3.5 appearance-none rounded-full;
-		}
-
-		&::-moz-range-track {
-			@apply bg-primary relative h-3.5 w-3.5 appearance-none rounded-full;
-		}
-
-		&::-moz-range-progress {
-			@apply bg-primary;
-		}
-	}
-
-	input[type='radio'],
-	input[type='checkbox'] {
-		@apply accent-primary;
+		@apply bg-secondary text-secondary-foreground border-none;
 	}
 }
