@@ -50,6 +50,7 @@ export function scriptContent(opt: ScriptOptions) {
 	const actions: string[] = []
 	if (opt.codeLanguage.length > 0) {
 		imports.push('import {initCopyCode} from "@slidemd/slidemd/logic/code"')
+		imports.push('import {CodeStepBlock} from "@slidemd/slidemd/components"')
 		actions.push('initCopyCode()')
 
 		if (opt.codeLanguage.includes('mermaid')) {

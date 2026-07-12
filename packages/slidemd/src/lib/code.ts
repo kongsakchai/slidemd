@@ -1,3 +1,4 @@
+import { codeToKeyedTokens, createMagicMoveMachine } from '@shikijs/magic-move/core'
 import {
 	transformerMetaHighlight,
 	transformerMetaWordHighlight,
@@ -7,8 +8,9 @@ import {
 	transformerNotationHighlight,
 	transformerNotationWordHighlight
 } from '@shikijs/transformers'
-import { type CodeContainer, type CodeHighlighter, asString } from '@slidemd/parser'
+import { type Attribute, type CodeContainer, type CodeHighlighter, asString } from '@slidemd/parser'
 
+import lz from 'lz-string'
 import { type SpecialLanguage, createHighlighter } from 'shiki'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 
@@ -34,6 +36,8 @@ const highlighter = await createHighlighter({
 	themes: ['github-light', 'github-dark'],
 	engine: jsEngine
 })
+
+const CODE_SPLIT_REGEX = /^>>>>>$/gm
 
 export function createCodeHighlighter() {
 	const codeContainer: CodeContainer = async (lang, attrs) => {
@@ -69,7 +73,7 @@ export function createCodeHighlighter() {
 		}
 	}
 
-	const codeHighlighter: CodeHighlighter = async (lang: string, code: string, meta?: string) => {
+	const codeHighlighter: CodeHighlighter = async (lang: string, code: string, attr?: Attribute, meta?: string) => {
 		if (lang === 'mermaid') {
 			return {
 				type: 'element',
@@ -88,17 +92,41 @@ export function createCodeHighlighter() {
 			lang = 'plaintext'
 		}
 
-		const hast = highlighter.codeToHast(code, {
-			lang: lang,
-			meta: {
-				__raw: meta
-			},
-			defaultColor: false,
-			themes: themes,
-			transformers
-		})
+		if (attr?.step == null) {
+			return highlighter.codeToHast(code, {
+				lang: lang,
+				meta: {
+					__raw: meta
+				},
+				defaultColor: false,
+				themes: themes,
+				transformers
+			})
+		}
 
-		return hast
+		const magicMove = createMagicMoveMachine((code) =>
+			codeToKeyedTokens(
+				highlighter,
+				code,
+				{
+					lang: lang as SpecialLanguage,
+					defaultColor: false,
+					themes: themes
+				},
+				true
+			)
+		)
+
+		const codeSteps = code.split(CODE_SPLIT_REGEX)
+		const compressed = JSON.stringify(codeSteps.map((code) => magicMove.commit(code.trim()).current))
+
+		attr.step = codeSteps.length
+		return {
+			type: 'element',
+			tagName: 'CodeStepBlock',
+			properties: { code: lz.compressToBase64(compressed) },
+			children: []
+		}
 	}
 
 	return { codeContainer, codeHighlighter }

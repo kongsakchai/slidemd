@@ -8,6 +8,7 @@ import { Attribute, SlideContext } from '../types.js'
 export type CodeHighlighter = (
 	lang: string,
 	code: string,
+	attr?: Attribute,
 	meta?: string
 ) => Promise<HRootContent | ElementContent | HRoot>
 export type CodeContainer = (lang: string, attr: Attribute) => Promise<Parent>
@@ -53,7 +54,7 @@ async function transformCodeNode(
 	const containerEl = await container(lang, attr)
 	parent.children.splice(index, 1, containerEl as RootContent)
 
-	const html = await highlight(lang, node.value, node.meta || undefined)
+	const html = await highlight(lang, node.value, attr, node.meta || undefined)
 	visit(html, 'text', (node) => {
 		node.value = escapeSpecialCharacters(node.value)
 	})
