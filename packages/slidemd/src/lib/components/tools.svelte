@@ -1,13 +1,9 @@
 <script lang="ts">
-	import { SlideState } from '@slidemd/slidemd/state/slide.svelte'
-
-	interface Props {
-		slideState: SlideState
-	}
-
-	let { slideState }: Props = $props()
+	import { useViewContext } from '@slidemd/slidemd/state'
 
 	let fullscreen = $state(!!document.fullscreenElement)
+
+	const viewContext = useViewContext()
 
 	function onFullscreen() {
 		if (!document.fullscreenElement) {
@@ -90,8 +86,8 @@
 		id="zoom-panel"
 		class="text-card-foreground zoom-panel bg-card border-border rounded-md border p-2 px-4"
 	>
-		<input type="range" class="w-40" min="1" max="3" step="0.01" bind:value={slideState.zoom} />
-		<span class="w-10 text-right text-sm">{Math.round(slideState.zoom * 100)}%</span>
+		<input type="range" class="w-40" min="1" max="3" step="0.01" bind:value={viewContext.zoom} />
+		<span class="w-10 text-right text-sm">{Math.round(viewContext.zoom * 100)}%</span>
 	</div>
 </div>
 

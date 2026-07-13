@@ -1,18 +1,14 @@
 <script lang="ts">
-	import { PageAction, SlideState } from '@slidemd/slidemd/state/slide.svelte'
+	import { PageAction, useSlideContext } from '@slidemd/slidemd/state'
 
-	interface Props {
-		slideState: SlideState
-	}
-
-	let { slideState }: Props = $props()
+	const slideContext = useSlideContext()
 
 	function nextPage() {
-		slideState.update(PageAction.NEXT)
+		slideContext.update(PageAction.NEXT)
 	}
 
 	function previousPage() {
-		slideState.update(PageAction.PREVIOUS)
+		slideContext.update(PageAction.PREVIOUS)
 	}
 </script>
 
@@ -36,7 +32,7 @@
 	<div class=" border-border border-l"></div>
 	<button title="paginate button">
 		<p class="text-card-foreground m-0 min-w-21 px-2 text-center text-sm font-medium tabular-nums">
-			{slideState.page} / {slideState.maxPage}
+			{slideContext.page} / {slideContext.totalPage}
 		</p>
 	</button>
 	<div class=" border-border border-l"></div>

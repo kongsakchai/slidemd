@@ -1,33 +1,12 @@
 <script lang="ts">
-	import type { SlideState } from '@slidemd/slidemd/state/slide.svelte'
+	import { themeState, useViewContext } from '@slidemd/slidemd/state'
 
-	import { onMount } from 'svelte'
-
-	interface Props {
-		slideState: SlideState
-	}
-
-	let { slideState }: Props = $props()
-
-	let themeMode = $state('')
-
-	onMount(() => {
-		themeMode = localStorage.getItem('slidemd.mode') || 'light'
-		if (themeMode === 'dark' && !document.documentElement.classList.contains('dark')) {
-			document.documentElement.classList.add('dark')
-		}
-	})
-
-	function switchTheme() {
-		document.documentElement.classList.toggle('dark')
-		themeMode = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
-		localStorage.setItem('slidemd.mode', themeMode)
-	}
+	const viewContext = useViewContext()
 </script>
 
 <div class="menu">
-	<button onclick={switchTheme} title="switch-theme" class="menu-btn rounded-l-sm">
-		{#if themeMode === 'light'}
+	<button onclick={themeState.toggleMode} title="switch-theme" class="menu-btn rounded-l-sm">
+		{#if themeState.mode === 'light'}
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="20"
@@ -50,7 +29,7 @@
 				<path d="m6.34 17.66-1.41 1.41" />
 				<path d="m19.07 4.93-1.41 1.41" />
 			</svg>
-		{:else if themeMode === 'dark'}
+		{:else if themeState.mode === 'dark'}
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="20"
@@ -116,17 +95,17 @@
 		class="text-card-foreground setting-panel bg-card border-border rounded-md border p-2 px-4"
 	>
 		<span class=" text-sm">Font Size</span>
-		<input type="range" min="10" max="64" step="1" bind:value={slideState.fontSize} />
-		<span class=" text-sm">{slideState.fontSize}px</span>
-		<button title="reset-font" class="menu-btn rounded-sm" onclick={() => slideState.resetFontSize()}>
+		<input type="range" min="10" max="64" step="1" bind:value={viewContext.fontSize} />
+		<span class=" text-sm">{viewContext.fontSize}px</span>
+		<button title="reset-font" class="menu-btn rounded-sm" onclick={() => (viewContext.fontSize = 16)}>
 			{@render resetIcon()}
 		</button>
 
-		<span class="text-sm">Slide Scale</span>
-		<input type="range" min="0.1" max="1" step="0.01" bind:value={slideState.scale} />
-		<span class=" text-sm">{Math.round(slideState.scale * 100)}%</span>
+		<span class="text-sm">Slide Size</span>
+		<input type="range" min="0.1" max="1" step="0.01" bind:value={viewContext.size} />
+		<span class=" text-sm">{Math.round(viewContext.scale * 100)}%</span>
 
-		<button title="reset-scale" class="menu-btn rounded-sm" onclick={() => slideState.resetScale()}>
+		<button title="reset-scale" class="menu-btn rounded-sm" onclick={() => (viewContext.size = 1)}>
 			{@render resetIcon()}
 		</button>
 	</div>

@@ -8,9 +8,19 @@ tags:
 ---
 
 ```js step
-console.log("66666")
-
+console.log(`Step ${1}`)
+console.log(`Step ${1 + 1}`)
+console.log(`Step ${3}` as string)
 >>>>>
+console.log(`Step ${1}`)
+console.log(`Step ${1 + 1}`)
+console.log(`Step ${4}` as string)
+```
 
-console.log("77777")
+```js
+console.log(`Step ${1}`)
+>>>>>
+console.log(`Step ${1 + 1}`)
+>>>>>
+console.log(`Step ${3}` as string)
 ```

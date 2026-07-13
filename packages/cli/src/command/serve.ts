@@ -25,7 +25,7 @@ function slidemdPlugin(root: string): Plugin {
 			return slideyouts[layoutId]
 		},
 		read(this, slideId) {
-			return readMarkdown(path.join(this.root, slides[slideId])) || ''
+			return readMarkdown(path.join(this.root, slides[slideId])) ?? ''
 		}
 	}
 

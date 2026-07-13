@@ -1,11 +1,11 @@
 import mermaid from 'mermaid'
 import { onMount } from 'svelte'
 
-mermaid.initialize({
-	startOnLoad: false
-})
-
 export async function renderMermaid() {
+	mermaid.initialize({
+		startOnLoad: false
+	})
+
 	onMount(async () => {
 		const renderContainer = document.createElement('div')
 		renderContainer.id = 'mermaid-render'

@@ -261,10 +261,8 @@
 
 	/* Code */
 
-	code {
-		@apply font-mono;
-		font-size: 0.875em;
-		line-height: 1.75;
+	pre {
+		@apply font-mono text-sm leading-6;
 	}
 
 	:not(pre) > code {
@@ -376,15 +374,15 @@
 
 	[class*='language-'] pre {
 		position: relative;
-		padding: 20px 0px;
+		padding: 20px 24px;
 		overflow: auto;
 	}
 
 	[class*='language-'] code {
 		display: block;
 		width: fit-content;
-		padding: 0px 24px;
 		min-width: 100%;
+		counter-reset: line;
 
 		.diff,
 		.highlighted {
@@ -437,6 +435,13 @@
 		}
 	}
 
+	[class*='language-'] .line::before {
+		@apply mr-4 inline-block text-right opacity-30;
+		counter-increment: line;
+		content: counter(line);
+		color: var(--shiki-light);
+	}
+
 	[class*='language-'] span {
 		color: var(--shiki-light);
 	}
@@ -451,12 +456,11 @@
 	}
 
 	[class*='language-'] > span.lang {
-		@apply text-muted-foreground font-mono;
+		@apply text-muted-foreground font-mono text-xs;
 		position: absolute;
 		top: 5px;
 		right: 10px;
 		user-select: none;
-		font-size: 12px;
 
 		opacity: 0.5;
 		transition: all 0.2s ease-in-out;
