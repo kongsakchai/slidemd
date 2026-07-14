@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Slide, { slide } from './example/marp.svelte.md'
-	import { Presenter } from './lib/components'
+	import SlideViewer from './lib/components/slide-viewer.svelte'
 </script>
 
 <main class="h-full w-full rounded-sm">
-	<Presenter slide={Slide} data={slide} />
+	<SlideViewer slide={Slide} data={slide} />
 </main>

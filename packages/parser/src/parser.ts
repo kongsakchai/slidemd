@@ -6,8 +6,8 @@ import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 
 import { slidemdExtension } from './extensions/index.js'
+import { AttributeProcess } from './transformers/attribute.js'
 import { CodeContainer, CodeHighlighter } from './transformers/codeblock.js'
-import { AttributeProcess } from './transformers/container.js'
 import { applyTransformers } from './transformers/index.js'
 import { PAGE_BREAK_KEY } from './transformers/page-break.js'
 import type { Directive, SlideContext, SlideInfo, SlideResult } from './types.js'
@@ -19,7 +19,7 @@ export interface Options {
 	codeContainer?: CodeContainer
 	codeHighlighter?: CodeHighlighter
 	customContainer?: string[]
-	attributeProcess?: Record<string, AttributeProcess>
+	attributeProcess?: AttributeProcess[]
 }
 
 function setupProcessor(options?: Options) {
@@ -35,7 +35,9 @@ function setupProcessor(options?: Options) {
 			highlight: options?.codeHighlighter
 		},
 		container: {
-			customContainer: options?.customContainer,
+			customContainer: options?.customContainer
+		},
+		attribute: {
 			attributeProcess: options?.attributeProcess
 		}
 	})

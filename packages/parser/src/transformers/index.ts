@@ -1,17 +1,18 @@
 import type { Root as MRoot } from 'mdast'
 import { Processor } from 'unified'
 
-import { advanceImageTransformer } from './advance-image.js'
+import { AttributeOptions, attributeTransformer } from './attribute.js'
 import { CodeblockOptions, codeblockTransformer } from './codeblock.js'
-import { ContainerOption, containerTransformer } from './container.js'
+import { ContainerOptions, containerTransformer } from './container.js'
 import { directiveTransformer } from './directive.js'
+import { imageTransformer } from './image.js'
 import { pageBreakTransformer } from './page-break.js'
 import { extractScriptTransformer } from './script.js'
-import { stepTransformer } from './step.js'
 
 export interface TransformOptions {
 	codeblock?: CodeblockOptions
-	container?: ContainerOption
+	container?: ContainerOptions
+	attribute?: AttributeOptions
 }
 
 export function applyTransformers(
@@ -22,7 +23,8 @@ export function applyTransformers(
 	process.use(codeblockTransformer, options?.codeblock)
 	process.use(extractScriptTransformer)
 	process.use(directiveTransformer)
-	process.use(stepTransformer)
-	process.use(advanceImageTransformer)
+	// process.use(stepTransformer)
+	process.use(imageTransformer)
 	process.use(containerTransformer, options?.container)
+	process.use(attributeTransformer, options?.attribute)
 }

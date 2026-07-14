@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { SlideState } from '@slidemd/slidemd/state/slide.svelte'
+	import { useViewContext } from '@slidemd/slidemd/state'
 
 	import { type Snippet } from 'svelte'
 
 	interface Props {
-		slideState: SlideState
 		children: Snippet
 	}
 
@@ -16,11 +15,13 @@
 		panX: number
 	}
 
-	let { slideState, children }: Props = $props()
+	let { children }: Props = $props()
+
+	const viewContext = useViewContext()
 
 	let zoomEl: HTMLElement
 
-	let zoomActive = $derived(slideState.zoom != 1)
+	let zoomActive = $derived(viewContext.zoom != 1)
 
 	let zoom = $state<ZoomState>({
 		isDragging: false,
@@ -32,8 +33,8 @@
 
 	let layoutLimit = $derived.by(() => {
 		return {
-			x: ((zoomEl?.clientWidth || 0) * (slideState.zoom - 1)) / 2,
-			y: ((zoomEl?.clientHeight || 0) * (slideState.zoom - 1)) / 2
+			x: ((zoomEl?.clientWidth || 0) * (viewContext.zoom - 1)) / 2,
+			y: ((zoomEl?.clientHeight || 0) * (viewContext.zoom - 1)) / 2
 		}
 	})
 
@@ -77,7 +78,7 @@
 		e.preventDefault()
 
 		if (e.ctrlKey) {
-			slideState.zoom = Math.min(Math.max(slideState.zoom - e.deltaY / 100, 1), 3)
+			viewContext.zoom = Math.min(Math.max(viewContext.zoom - e.deltaY / 100, 1), 3)
 		} else if (zoomActive) {
 			zoom.panX = clamp(zoom.panX - e.deltaX, -layoutLimit.x, layoutLimit.x)
 			zoom.panY = clamp(zoom.panY - e.deltaY, -layoutLimit.y, layoutLimit.y)
@@ -90,7 +91,7 @@
 	id="zoom-contrainer"
 	role="presentation"
 	class="flex h-full w-full"
-	style:scale={slideState.zoom}
+	style:scale={viewContext.zoom}
 	style:translate="{translateX}px {translateY}px"
 	onpointerdown={onPointerdown}
 	onpointermove={onPointermove}

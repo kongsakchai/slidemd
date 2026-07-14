@@ -1,21 +1,13 @@
 <script lang="ts">
-	import { SlideState } from '@slidemd/slidemd/state/slide.svelte'
-
 	import Appearance from './appearancer.svelte'
 	import Navigator from './navigator.svelte'
 	import Tools from './tools.svelte'
-
-	interface Props {
-		slideState: SlideState
-	}
-
-	let { slideState }: Props = $props()
 </script>
 
 <div class="controller absolute bottom-10 left-10 flex gap-4">
-	<Navigator {slideState} />
-	<Tools {slideState} />
-	<Appearance {slideState} />
+	<Navigator />
+	<Tools />
+	<Appearance />
 </div>
 
 <style lang="postcss">

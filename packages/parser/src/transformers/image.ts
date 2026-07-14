@@ -5,7 +5,7 @@ import { EXIT, visit } from 'unist-util-visit'
 
 import { asString } from '../utils.js'
 
-export function advanceImageTransformer(): Transformer {
+export function imageTransformer(): Transformer {
 	return (tree) => {
 		visit(tree as Root, 'image', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent || node.data?.processed) return
