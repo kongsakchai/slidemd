@@ -1,4 +1,3 @@
-// import type { SlideData } from '@slidemd/slidemd/types'
 import { createContext } from 'svelte'
 
 export interface ViewContext {
@@ -24,13 +23,15 @@ export function createViewContext(source?: Partial<ViewContext>) {
 		size: source?.size ?? 1
 	})
 	setViewContext(ctx)
-
-	return ctx
+	return wrapViewContext(ctx)
 }
 
 export function useViewContext() {
 	const ctx = getViewContext()
+	return wrapViewContext(ctx)
+}
 
+function wrapViewContext(ctx: ViewContext) {
 	return {
 		get width() {
 			return ctx.width
@@ -75,13 +76,13 @@ export function useViewContext() {
 			ctx.size = val
 		},
 		get scale() {
+			if (ctx.width <= 0 || ctx.height <= 0 || ctx.viewportWidth <= 0 || ctx.viewportHeight <= 0) {
+				return 0
+			}
 			const aspect = ctx.width / ctx.height
-			if (aspect === 0) return 0
-
 			const tempHeight = ctx.viewportWidth / aspect
 			const isOverHeight = tempHeight > ctx.viewportHeight
 			const finalWidth = isOverHeight ? ctx.viewportHeight * aspect : ctx.viewportWidth
-
 			return (finalWidth / ctx.width) * ctx.size
 		}
 	}

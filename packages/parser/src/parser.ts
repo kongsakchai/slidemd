@@ -80,8 +80,7 @@ function covertSlideResult(ctx: SlideContext, str: string): SlideResult {
 			global: { ...slide.global, ...previous?.global },
 			local: slide.local,
 			title: slide.title,
-			note: slide.note,
-			step: slide.step
+			extra: slide.extra
 		}
 	})
 

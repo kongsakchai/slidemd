@@ -1,20 +1,19 @@
-import { asString, createSlideParser, extractFrontmatter } from '@slidemd/parser'
+import { asNumber, asString, createSlideParser, extractFrontmatter } from '@slidemd/parser'
 
 import MagicString from 'magic-string'
 import type { PreprocessorGroup } from 'svelte/compiler'
 
-import { ATTRIBUTE_PROCESS } from './attribute'
-import { createCodeHighlighter } from './code'
+import { attributeProcess } from './attribute'
+import { codeContainer, codeHighlighter } from './code'
 import { resolvePaginate, toBackgroundStyles, toSplitStyles } from './directive'
 import { pageContent, scriptContent, styleContent } from './templates'
 import type { Options, SlideData } from './types'
 
 export function slidemd(options?: Options): PreprocessorGroup {
-	const codeHighlighter = createCodeHighlighter()
 	const parser = createSlideParser({
-		codeContainer: codeHighlighter.codeContainer,
-		codeHighlighter: codeHighlighter.codeHighlighter,
-		attributeProcess: ATTRIBUTE_PROCESS
+		codeContainer: codeContainer,
+		codeHighlighter: codeHighlighter,
+		attributeProcess: attributeProcess
 	})
 
 	const parse = async (markdown: string) => {
@@ -30,8 +29,8 @@ export function slidemd(options?: Options): PreprocessorGroup {
 		let page = { show: false, current: 0 }
 		const contents = slide.slides.map((slide) => {
 			slideData.pages.push({
-				step: slide.step,
-				note: slide.note
+				step: asNumber(slide.extra?.step),
+				note: asString(slide.extra?.note)
 			})
 
 			const directive = { ...slide.global, ...slide.local }

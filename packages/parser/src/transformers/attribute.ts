@@ -1,14 +1,14 @@
-import { Root } from 'mdast'
+import { Root, RootContent } from 'mdast'
 import type { Transformer } from 'unified'
-import { visit } from 'unist-util-visit'
+import { visitParents } from 'unist-util-visit-parents'
 
-import { Attribute } from '../types'
+import { Attribute, Directive, SlideContext } from '../types.js'
 
 export type AttributeProcessFn = (
 	key: string,
 	value: Attribute[string],
 	attribute: Attribute,
-	fileData?: Record<string, unknown>
+	fileData?: Directive
 ) => void
 
 export interface AttributeProcess {
@@ -52,10 +52,20 @@ export function attributeTransformer(opt?: AttributeOptions): Transformer {
 	const registryByNodeType = buildProcessorRegistry(opt?.attributeProcess)
 
 	return (tree, vfile) => {
-		visit(tree as Root, (node, index, parent) => {
-			if (typeof index !== 'number' || !parent) return
+		const ctx = vfile.data.context as SlideContext
+
+		const root = tree as Root
+		visitParents(root, (node, ancestors) => {
 			if (!('data' in node && node.data)) return
 			if (!('hProperties' in node.data && node.data.hProperties)) return
+
+			const index =
+				ancestors.length > 1
+					? root.children.indexOf(ancestors[1] as RootContent)
+					: root.children.indexOf(node as RootContent)
+
+			const slide = ctx.slides.findLast((p) => index >= p.breakIndex)
+			if (slide) slide.extra ??= {}
 
 			const registry = [...(registryByNodeType[node.type] ?? []), ...(registryByNodeType[ANY_NODE_TYPE] ?? [])]
 			if (registry.length === 0) return
@@ -63,7 +73,7 @@ export function attributeTransformer(opt?: AttributeOptions): Transformer {
 			const hProperties = node.data.hProperties
 			for (const [attributeName, attributeValue] of Object.entries(hProperties)) {
 				const process = findAttributeProcessFn(registry, attributeName)
-				process.forEach((p) => p(attributeName, attributeValue, hProperties, vfile.data))
+				process.forEach((p) => p(attributeName, attributeValue, hProperties, slide?.extra))
 			}
 		})
 	}

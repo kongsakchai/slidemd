@@ -5,9 +5,8 @@ export type Directive = Record<string, unknown>
 export interface SlideData {
 	global?: Directive
 	local?: Directive
+	extra?: Directive
 	title?: string
-	note?: string
-	step?: number
 }
 
 export interface SlideContext {

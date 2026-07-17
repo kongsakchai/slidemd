@@ -24,13 +24,16 @@ export function createSlideContext(slide: SlideData, page?: number) {
 		step: 0
 	})
 	setSlideContext(ctx)
-
-	return ctx
+	return wrapSlideContext(ctx)
 }
 
 export function useSlideContext() {
 	const ctx = getSlideContext()
-	const maxStep = $derived(ctx.slide.pages[ctx.page].step || 0)
+	return wrapSlideContext(ctx)
+}
+
+function wrapSlideContext(ctx: SlideContext) {
+	const maxStep = $derived(ctx.slide.pages[ctx.page - 1].step || 0)
 
 	return {
 		get slide() {
@@ -43,7 +46,7 @@ export function useSlideContext() {
 			return ctx.page
 		},
 		set page(val: number) {
-			if (val > ctx.totalPage || ctx.page < 1) return
+			if (val > ctx.totalPage || val < 1) return
 			ctx.page = val
 		},
 		get step() {
@@ -52,6 +55,9 @@ export function useSlideContext() {
 		set step(val: number) {
 			if (val > maxStep || val < 0) return
 			ctx.step = val
+		},
+		get maxStep() {
+			return maxStep
 		},
 		update(action: PageAction) {
 			switch (action) {

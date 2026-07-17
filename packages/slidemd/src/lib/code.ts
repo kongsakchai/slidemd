@@ -39,95 +39,93 @@ const highlighter = await createHighlighter({
 
 const CODE_SPLIT_REGEX = /^>>>>>$/gm
 
-export function createCodeHighlighter() {
-	const codeContainer: CodeContainer = async (lang, attrs) => {
-		if (lang === 'mermaid') {
-			attrs.class = asString(attrs.class, '').replace('language-mermaid', 'mermaid-container')
-			attrs.name = 'mermaid'
-
-			return {
-				type: 'container',
-				data: {
-					hName: 'div',
-					hProperties: attrs,
-					hChildren: []
-				},
-				children: []
-			}
-		}
+export const codeContainer: CodeContainer = async (lang, attrs) => {
+	if (lang === 'mermaid') {
+		attrs.class = asString(attrs.class, '').replace('language-mermaid', 'mermaid-container')
+		attrs.name = 'mermaid'
 
 		return {
 			type: 'container',
 			data: {
 				hName: 'div',
 				hProperties: attrs,
-				hChildren: [
-					{
-						type: 'raw',
-						value: `<button title="copy code button" class="copy" onclick={window.copyCode}></button>`
-					},
-					{ type: 'raw', value: `<span class="lang">${lang}</span>` }
-				]
+				hChildren: []
 			},
 			children: []
 		}
 	}
 
-	const codeHighlighter: CodeHighlighter = async (lang: string, code: string, attr?: Attribute, meta?: string) => {
-		if (lang === 'mermaid') {
-			return {
-				type: 'element',
-				tagName: 'pre',
-				properties: {},
-				children: [{ type: 'text', value: code }]
-			}
-		}
-
-		try {
-			if (!highlighter.getLoadedLanguages().includes(lang)) {
-				await highlighter.loadLanguage(lang as SpecialLanguage)
-			}
-		} catch {
-			console.warn(`\x1b[43m\x1b[30m WARN \x1b[0m\x1b[33m Failed to load language: ${lang}`)
-			lang = 'plaintext'
-		}
-
-		if (attr?.step == null) {
-			return highlighter.codeToHast(code, {
-				lang: lang,
-				meta: {
-					__raw: meta
-				},
-				defaultColor: false,
-				themes: themes,
-				transformers
-			})
-		}
-
-		const magicMove = createMagicMoveMachine((code) =>
-			codeToKeyedTokens(
-				highlighter,
-				code,
+	return {
+		type: 'container',
+		data: {
+			hName: 'div',
+			hProperties: attrs,
+			hChildren: [
 				{
-					lang: lang as SpecialLanguage,
-					defaultColor: false,
-					themes: themes
+					type: 'raw',
+					value: `<button title="copy code button" class="copy" onclick={window.copyCode}></button>`
 				},
-				true
-			)
-		)
+				{ type: 'raw', value: `<span class="lang">${lang}</span>` }
+			]
+		},
+		children: []
+	}
+}
 
-		const codeSteps = code.split(CODE_SPLIT_REGEX)
-		const compressed = JSON.stringify(codeSteps.map((code) => magicMove.commit(code.trim()).current))
-
-		attr.step = codeSteps.length
+export const codeHighlighter: CodeHighlighter = async (lang: string, code: string, attr?: Attribute, meta?: string) => {
+	if (lang === 'mermaid') {
 		return {
 			type: 'element',
-			tagName: 'CodeStepBlock',
-			properties: { code: lz.compressToBase64(compressed) },
-			children: []
+			tagName: 'pre',
+			properties: {},
+			children: [{ type: 'text', value: code }]
 		}
 	}
 
-	return { codeContainer, codeHighlighter }
+	try {
+		if (!highlighter.getLoadedLanguages().includes(lang)) {
+			await highlighter.loadLanguage(lang as SpecialLanguage)
+		}
+	} catch {
+		console.warn(`\x1b[43m\x1b[30m WARN \x1b[0m\x1b[33m Failed to load language: ${lang}`)
+		lang = 'plaintext'
+	}
+
+	if (attr?.step == null) {
+		return highlighter.codeToHast(code, {
+			lang: lang,
+			meta: {
+				__raw: meta
+			},
+			defaultColor: false,
+			themes: themes,
+			transformers
+		})
+	}
+
+	const magicMove = createMagicMoveMachine((code) =>
+		codeToKeyedTokens(
+			highlighter,
+			code,
+			{
+				lang: lang as SpecialLanguage,
+				defaultColor: false,
+				themes: themes
+			},
+			true
+		)
+	)
+
+	const codeSteps = code.split(CODE_SPLIT_REGEX)
+	const compressed = JSON.stringify(codeSteps.map((code) => magicMove.commit(code.trim()).current))
+
+	const start = Number.parseInt(asString(attr.startAt?.toString(), '0'), 10) || 0
+	attr!.step = start + codeSteps.length - 1
+
+	return {
+		type: 'element',
+		tagName: 'CodeStepBlock',
+		properties: { code: lz.compressToBase64(compressed), step: codeSteps.length, start: start },
+		children: []
+	}
 }

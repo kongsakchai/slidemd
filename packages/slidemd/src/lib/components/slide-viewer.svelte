@@ -4,6 +4,7 @@
 
 	import Container from './container.svelte'
 	import Controller from './controller.svelte'
+	import StepProgress from './step-progress.svelte'
 	import ZoomLayout from './zoom-layout.svelte'
 
 	interface Props {
@@ -30,6 +31,7 @@
 	<ZoomLayout>
 		<!-- Slide -->
 		<Slide bind:page={slideContext.page} bind:step={slideContext.step} />
+		<StepProgress />
 	</ZoomLayout>
 
 	{#snippet overlay()}
