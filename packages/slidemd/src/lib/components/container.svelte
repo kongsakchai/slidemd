@@ -22,7 +22,7 @@
 		id="slide-container"
 		class="absolute top-1/2 left-1/2 flex overflow-hidden select-none"
 		class:rounded-xl={viewContext.size < 1}
-		style:font-size={viewContext.fontSize + 'px'}
+		style:font-size="{viewContext.fontSize}px"
 		style:width="{viewContext.width}px"
 		style:height="{viewContext.height}px"
 		style:translate="-50% -50%"

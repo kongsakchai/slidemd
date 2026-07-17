@@ -263,6 +263,8 @@
 
 	pre {
 		@apply font-mono text-sm leading-6;
+		font-size: 0.875em;
+		line-height: 1.75;
 	}
 
 	:not(pre) > code {

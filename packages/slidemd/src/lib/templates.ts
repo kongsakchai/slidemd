@@ -48,6 +48,9 @@ interface ScriptOptions {
 export function scriptContent(opt: ScriptOptions) {
 	const imports: string[] = []
 	const actions: string[] = []
+
+	imports.push('import {initStep} from "@slidemd/slidemd/logic/step.svelte"')
+	actions.push('initStep()')
 	if (opt.codeLanguage.length > 0) {
 		imports.push('import {initCopyCode} from "@slidemd/slidemd/logic/code"')
 		imports.push('import {CodeStepBlock} from "@slidemd/slidemd/components"')

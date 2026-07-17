@@ -7,12 +7,4 @@ tags:
     - slide
 ---
 
-```js step startAt=1
-console.log(`Step ${1}`)
-console.log(`Step ${1 + 1}`)
-console.log(`Step ${3}` as string)
->>>>>
-console.log(`Step ${1}`)
-console.log(`Step ${1 + 1}`)
-console.log(`Step ${4}` as string)
-```
+5555 @{ step-1="bg-red-500"}
