@@ -2,9 +2,15 @@ import { onMount } from 'svelte'
 
 import { useSlideContext } from '../state'
 
+interface StepData {
+	step: number
+	classes: string[]
+}
+
 interface Stepper {
 	element: Element
-	step: Map<number, string[]>
+	steps: StepData[]
+	curIndex: number
 }
 
 const STEP_ATTR_PATTERN = /^step-(\d+)$/
@@ -25,8 +31,7 @@ export function initStep() {
 			const steppers: Stepper[] = []
 
 			for (const el of elements) {
-				// eslint-disable-next-line svelte/prefer-svelte-reactivity
-				const stepMap = new Map<number, string[]>()
+				const steps: StepData[] = []
 
 				for (const key of el.getAttributeNames()) {
 					const match = STEP_ATTR_PATTERN.exec(key)
@@ -36,11 +41,11 @@ export function initStep() {
 					slide.step = Math.max(slide.step ?? 0, step)
 
 					const classes = el.getAttribute(key)?.split(/\s+/).filter(Boolean) ?? []
-					if (classes.length > 0) stepMap.set(step, classes)
+					if (classes.length > 0) steps.push({ step, classes: classes })
 				}
 
-				if (stepMap.size > 0) {
-					steppers.push({ element: el, step: stepMap })
+				if (steps.length > 0) {
+					steppers.push({ element: el, steps: steps, curIndex: 0 })
 				}
 			}
 
@@ -50,17 +55,24 @@ export function initStep() {
 
 	$effect(() => {
 		const currentPage = slideContext.page
-		const currentStep = slideContext.step
+		const targetStep = slideContext.step
 
 		const steppers = record.get(currentPage)
 		if (!steppers) return
 
-		for (const st of steppers) {
-			for (const [step, classes] of st.step) {
-				if (step <= currentStep) {
-					st.element.classList.add(...classes)
-				} else {
-					st.element.classList.remove(...classes)
+		for (const sp of steppers) {
+			const curStep = sp.steps[sp.curIndex].step
+			if (curStep <= targetStep) {
+				for (let i = sp.curIndex; i < sp.steps.length; i++) {
+					if (sp.steps[i].step > targetStep) break
+					sp.curIndex = i
+					sp.element.classList.add(...sp.steps[i].classes)
+				}
+			} else if (curStep > targetStep) {
+				for (let i = sp.curIndex; i >= 0; i--) {
+					if (sp.steps[i].step <= targetStep) break
+					sp.curIndex = i
+					sp.element.classList.remove(...sp.steps[i].classes)
 				}
 			}
 		}
