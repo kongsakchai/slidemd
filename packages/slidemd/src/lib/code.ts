@@ -8,11 +8,13 @@ import {
 	transformerNotationHighlight,
 	transformerNotationWordHighlight
 } from '@shikijs/transformers'
-import { type Attribute, type CodeContainer, type CodeHighlighter, asString } from '@slidemd/parser'
+import { type Attribute, type CodeContainer, type CodeHighlighter } from '@slidemd/parser'
 
 import lz from 'lz-string'
 import { type SpecialLanguage, createHighlighter } from 'shiki'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
+
+import { asString } from './utils'
 
 const jsEngine = createJavaScriptRegexEngine()
 

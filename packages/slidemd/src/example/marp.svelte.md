@@ -7,4 +7,6 @@ tags:
     - slide
 ---
 
-5555 @{ step-1="bg-red-500"}
+Test Click Step @{ step-1="bg-red-500"}
+
+<div step step-3="bg-red-300">Test Click Step</div>

@@ -9,7 +9,7 @@ export type AttributeProcessFn = (
 	value: Attribute[string],
 	attribute: Attribute,
 	fileData?: Directive
-) => void
+) => void | 'skip'
 
 export interface AttributeProcess {
 	types?: string[]
@@ -71,9 +71,14 @@ export function attributeTransformer(opt?: AttributeOptions): Transformer {
 			if (registry.length === 0) return
 
 			const hProperties = node.data.hProperties
+			const skip = new Set<AttributeProcessFn>()
 			for (const [attributeName, attributeValue] of Object.entries(hProperties)) {
 				const process = findAttributeProcessFn(registry, attributeName)
-				process.forEach((p) => p(attributeName, attributeValue, hProperties, slide?.extra))
+				process.forEach((p) => {
+					if (skip.has(p)) return
+					const val = p(attributeName, attributeValue, hProperties, slide?.extra)
+					if (val === 'skip') skip.add(p)
+				})
 			}
 		})
 	}

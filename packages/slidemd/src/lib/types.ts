@@ -3,25 +3,6 @@ export interface Options {
 	extension?: string
 }
 
-export enum Feature {
-	CODE,
-	MERMAID
-}
-
-export interface PageInfo {
-	page: number
-	enablePageNumber: boolean
-	pageNumber: number
-	enableSplit: boolean
-	backgroundStyle: string
-	split: string
-	class: string
-	style: string
-	layout: string
-	content: string
-	feature: Feature[]
-}
-
 // Component
 export type SlideComponent = import('svelte').Component<SlideProps>
 
@@ -38,6 +19,7 @@ export interface SlideData {
 }
 
 export interface PageData {
+	page: number
 	step?: number
 	note?: string
 }

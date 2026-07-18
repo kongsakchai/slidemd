@@ -6,14 +6,17 @@ import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 
 import { slidemdExtension } from './extensions/index.js'
-import { AttributeProcess } from './transformers/attribute.js'
-import { CodeContainer, CodeHighlighter } from './transformers/codeblock.js'
-import { applyTransformers } from './transformers/index.js'
-import { PAGE_BREAK_KEY } from './transformers/page-break.js'
+import {
+	AttributeProcess,
+	CodeContainer,
+	CodeHighlighter,
+	PAGE_BREAK_KEY,
+	applyTransformers,
+	parseYAML
+} from './transformers/index.js'
 import type { Directive, SlideContext, SlideInfo, SlideResult } from './types.js'
-import { parseYAML } from './utils.js'
 
-export type { AttributeProcess, CodeContainer, CodeHighlighter }
+export type { AttributeProcess, CodeContainer, CodeHighlighter } from './transformers/index.js'
 
 export interface Options {
 	codeContainer?: CodeContainer

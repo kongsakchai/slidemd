@@ -201,7 +201,7 @@ function exitAttributeSequence(this: CompileContext): void {
 	const { attr, attributeKey: key, attributeValue: value = '' } = this.data
 
 	if ((key === 'class' || key === 'id') && value) {
-		attr[key] = [asString(attr[key], ''), value].join(' ').trim()
+		attr[key] = [asString(attr[key]), value].filter(Boolean).join(' ').trim()
 	} else if (key) {
 		attr[key] = value
 	}

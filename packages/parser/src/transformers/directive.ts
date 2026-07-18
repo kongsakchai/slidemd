@@ -1,9 +1,9 @@
 import { Root } from 'mdast'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
+import YAML from 'yaml'
 
-import { SlideContext } from '../types.js'
-import { parseYAML } from '../utils.js'
+import { Directive, SlideContext } from '../types.js'
 
 const DIRECTIVE_REGEX = /^<!--(global\s)?([\s\S]*)-->$/
 
@@ -32,5 +32,14 @@ export function directiveTransformer(): Transformer {
 			parent.children.splice(index, 1)
 			return index
 		})
+	}
+}
+
+export function parseYAML(value: string) {
+	try {
+		return YAML.parse(value) as Directive
+	} catch {
+		console.warn(`\x1b[43m\x1b[30m WARN \x1b[0m\x1b[33m directive syntax invalid:\x1b[0m\n${value}`)
+		return {} as Directive
 	}
 }

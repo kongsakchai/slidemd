@@ -1,13 +1,17 @@
 import type { Root as MRoot } from 'mdast'
 import { Processor } from 'unified'
 
-import { AttributeOptions, attributeTransformer } from './attribute.js'
-import { CodeblockOptions, codeblockTransformer } from './codeblock.js'
+import { AttributeOptions, AttributeProcess, attributeTransformer } from './attribute.js'
+import { CodeContainer, CodeHighlighter, CodeblockOptions, codeblockTransformer } from './codeblock.js'
 import { ContainerOptions, containerTransformer } from './container.js'
-import { directiveTransformer } from './directive.js'
+import { directiveTransformer, parseYAML } from './directive.js'
 import { imageTransformer } from './image.js'
-import { pageBreakTransformer } from './page-break.js'
+import { PAGE_BREAK_KEY, pageBreakTransformer } from './page-break.js'
 import { extractScriptTransformer } from './script.js'
+
+export { PAGE_BREAK_KEY, parseYAML }
+
+export type { AttributeProcess, CodeContainer, CodeHighlighter }
 
 export interface TransformOptions {
 	codeblock?: CodeblockOptions
