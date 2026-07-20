@@ -7,11 +7,15 @@ export interface SlideContext {
 	totalPage: number
 	page: number
 	step: number
+	state: State
 }
 
-export enum PageAction {
+export enum State {
 	NEXT,
-	PREVIOUS
+	NEXT_PAGE,
+	PREVIOUS,
+	PREV_PAGE,
+	JUMP
 }
 
 const [getSlideContext, setSlideContext] = createContext<SlideContext>()
@@ -21,7 +25,8 @@ export function createSlideContext(slide: SlideData, page?: number) {
 		slide: slide,
 		totalPage: slide.pages.length,
 		page: page ?? 1,
-		step: 0
+		step: 0,
+		state: State.NEXT
 	})
 	setSlideContext(ctx)
 	return wrapSlideContext(ctx)
@@ -59,24 +64,31 @@ function wrapSlideContext(ctx: SlideContext) {
 		get maxStep() {
 			return maxStep
 		},
-		update(action: PageAction) {
+		get state() {
+			return ctx.state
+		},
+		update(action: State) {
 			switch (action) {
-				case PageAction.NEXT:
+				case State.NEXT:
 					if (ctx.step < maxStep) {
 						ctx.step += 1
+						ctx.state = action
 					} else if (ctx.page < ctx.totalPage) {
 						ctx.page += 1
 						ctx.step = 0
+						ctx.state = State.NEXT_PAGE
 					}
 					return
 
-				case PageAction.PREVIOUS:
+				case State.PREVIOUS:
 					if (ctx.step > 0) {
 						ctx.step -= 1
+						ctx.state = action
 					}
 					if (ctx.page > 1) {
 						ctx.page -= 1
-						ctx.step = ctx.slide.pages[ctx.page].step || 0
+						ctx.step = ctx.slide.pages[ctx.page - 1].step || 0
+						ctx.state = State.PREV_PAGE
 					}
 					return
 			}

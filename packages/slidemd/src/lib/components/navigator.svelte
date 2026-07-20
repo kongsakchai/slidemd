@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { PageAction, useSlideContext } from '@slidemd/slidemd/state'
+	import { State, useSlideContext } from '@slidemd/slidemd/state'
 
 	const slideContext = useSlideContext()
 
 	function nextPage() {
-		slideContext.update(PageAction.NEXT)
+		slideContext.update(State.NEXT)
 	}
 
 	function previousPage() {
-		slideContext.update(PageAction.PREVIOUS)
+		slideContext.update(State.PREVIOUS)
 	}
 </script>
 

@@ -1,7 +1,7 @@
 /* eslint-disable svelte/prefer-svelte-reactivity */
-import { onMount, untrack } from 'svelte'
+import { onMount, untrack } from 'svelte';
 
-import { State, useSlideContext } from '../state'
+import { State, useSlideContext } from '../state';
 
 interface StepData {
 	element: Element
@@ -31,7 +31,7 @@ export function initStep() {
 					if (!match) continue
 					const classes = el.getAttribute(key)?.split(/\s+/).filter(Boolean) ?? []
 
-					const stepAdd = Number.parseInt(match[1], 10)
+					const stepAdd = Number.parseInt(match[1])
 					if (!stepList.has(stepAdd)) stepList.set(stepAdd, [])
 					stepList.get(stepAdd)?.push({
 						element: el,
@@ -40,7 +40,7 @@ export function initStep() {
 					})
 
 					if (!match[2]) continue
-					const stepRm = Number.parseInt(match[2], 10)
+					const stepRm = Number.parseInt(match[2])
 					if (!stepList.has(stepRm)) stepList.set(stepRm, [])
 					stepList.get(stepRm)?.push({
 						element: el,
@@ -64,7 +64,7 @@ export function initStep() {
 
 	$effect(() => {
 		const slideList = record[slideContext.page]
-		if (!slideList || slideList.length === 0) return
+		if (slideList.length === 0) return
 
 		if (slideContext.state === State.NEXT) {
 			while (currentIndex < slideList.length && slideList[currentIndex][0] <= slideContext.step) {

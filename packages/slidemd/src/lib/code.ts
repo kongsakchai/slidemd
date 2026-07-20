@@ -121,7 +121,7 @@ export const codeHighlighter: CodeHighlighter = async (lang: string, code: strin
 	const codeSteps = code.split(CODE_SPLIT_REGEX)
 	const compressed = JSON.stringify(codeSteps.map((code) => magicMove.commit(code.trim()).current))
 
-	const start = Number.parseInt(asString(attr.startAt?.toString(), '0'), 10) || 0
+	const start = Number.parseInt(attr.at?.toString() || '0', 10) || 0
 	attr!.step = start + codeSteps.length - 1
 
 	return {
