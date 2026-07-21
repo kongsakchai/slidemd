@@ -127,7 +127,7 @@ export const codeHighlighter: CodeHighlighter = async (lang: string, code: strin
 	return {
 		type: 'element',
 		tagName: 'CodeStepBlock',
-		properties: { code: lz.compressToBase64(compressed), step: codeSteps.length, start: start },
+		properties: { code: lz.compressToBase64(compressed), start: start },
 		children: []
 	}
 }

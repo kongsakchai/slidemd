@@ -1,5 +1,4 @@
 export { default as Appearancer } from './appearancer.svelte'
-export { default as CodeStepBlock } from './code-step-block.svelte'
 export { default as Container } from './container.svelte'
 export { default as Controller } from './controller.svelte'
 export { default as Navigator } from './navigator.svelte'

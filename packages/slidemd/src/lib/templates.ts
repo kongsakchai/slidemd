@@ -47,19 +47,19 @@ interface ScriptOptions {
 
 export function scriptContent(opt: ScriptOptions) {
 	const imports: string[] = []
-	const actions: string[] = []
+	const initScript: string[] = []
 
-	imports.push('import {initStep} from "@slidemd/slidemd/logic/step.svelte"')
-	actions.push('initStep()')
+	imports.push('import { initStep } from "@slidemd/slidemd/logic/step.svelte"')
+	initScript.push('initStep()')
+
 	if (opt.codeLanguage.length > 0) {
-		imports.push('import {initCopyCode} from "@slidemd/slidemd/logic/code"')
-		imports.push('import {CodeStepBlock} from "@slidemd/slidemd/components"')
-		imports.push('import {renderMermaid} from "@slidemd/slidemd/logic/mermaid"')
+		imports.push('import { initCopyCode } from "@slidemd/slidemd/logic/code"')
+		initScript.push('initCopyCode()')
 
-		actions.push('initCopyCode()')
-
+		imports.push('import { CodeStepBlock } from "@slidemd/slidemd/builtin"') // auto remove when don't use
+		imports.push('import { renderMermaid } from "@slidemd/slidemd/logic/mermaid"') // auto remove when don't use
 		if (opt.codeLanguage.includes('mermaid')) {
-			actions.push('renderMermaid()')
+			initScript.push('renderMermaid()')
 		}
 	}
 
@@ -69,8 +69,8 @@ export function scriptContent(opt: ScriptOptions) {
 		`</script>`,
 		`<script lang="ts">`,
 		...imports,
-		...actions,
-		`let { page=$bindable() } = $props()`,
+		...initScript,
+		`let { page=$bindable(),step=$bindable() } = $props()`,
 		...opt.scripts,
 		'</script>'
 	]

@@ -20,4 +20,4 @@
 	let step = $derived(Math.max(0, Math.min(slideContext.step - start, steps.length)))
 </script>
 
-<ShikiMagicMovePrecompiled {step} {steps} options={{ globalScale: viewContext.scale }} />
+<ShikiMagicMovePrecompiled class="code-block" {step} {steps} options={{ globalScale: viewContext.scale }} />
