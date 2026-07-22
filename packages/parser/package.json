@@ -12,7 +12,7 @@
 	},
 	"scripts": {
 		"build": "tsdown",
-		"test": "npm run test:unit -- --run",
+		"test": "bun run test:unit -- --run",
 		"test:unit": "vitest",
 		"test:cover": "vitest --coverage"
 	},

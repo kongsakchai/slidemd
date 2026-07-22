@@ -2,6 +2,7 @@
 import { onMount } from 'svelte'
 
 import { State, useSlideContext } from '../state'
+import { CODE_BLOCK_PATTERN, STEP_ATTR_PATTERN } from './regex'
 
 interface StepData {
 	class: string[]
@@ -15,9 +16,6 @@ interface Stepper {
 	next: (step: number) => void
 	prev: (step: number) => void
 }
-
-const STEP_ATTR_PATTERN = /^step-(\d+)(?:-(\d+))?$/
-const CODE_BLOCK_PATTERN = /language-\w+/
 
 function extractSteps(el: Element): StepList {
 	const stepList = new Map<number, StepData[]>()

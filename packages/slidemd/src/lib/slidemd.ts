@@ -6,7 +6,7 @@ import type { PreprocessorGroup } from 'svelte/compiler'
 import { attributeProcess } from './attribute'
 import { codeContainer, codeHighlighter } from './code'
 import { resolvePaginate, toBackgroundStyles, toSplitStyles } from './directive'
-import { pageContent, scriptContent, styleContent } from './templates'
+import { checkBuiltIn, pageContent, scriptContent, styleContent } from './templates'
 import type { Options, SlideData } from './types'
 import { asString } from './utils'
 
@@ -50,7 +50,8 @@ export function slidemd(options?: Options): PreprocessorGroup {
 		const script = scriptContent({
 			data: slideData,
 			scripts: slide.script,
-			codeLanguage: slide.codeLanguage
+			codeLanguage: slide.codeLanguage,
+			buildIn: checkBuiltIn(contents)
 		})
 
 		return [script, ...contents, styleContent(slide.style)].join('\n')
