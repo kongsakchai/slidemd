@@ -43,6 +43,15 @@ interface ScriptOptions {
 	data: SlideData
 	scripts: string[]
 	codeLanguage: string[]
+	buildIn: string[]
+}
+
+const BUILT_IN_NAMES = ['CodeStepBlock']
+const BUILT_IN_REGEX = new RegExp(`[^\\w/](${BUILT_IN_NAMES.join('|')})[^\\w]`, 'g')
+
+export function checkBuiltIn(source: string[]) {
+	const inSource = source.flatMap((s) => [...s.matchAll(BUILT_IN_REGEX)].map((s) => s[1]))
+	return [...new Set(inSource)]
 }
 
 export function scriptContent(opt: ScriptOptions) {
@@ -56,10 +65,13 @@ export function scriptContent(opt: ScriptOptions) {
 		imports.push('import { initCopyCode } from "@slidemd/slidemd/logic/code"')
 		initScript.push('initCopyCode()')
 
-		imports.push('import { CodeStepBlock } from "@slidemd/slidemd/builtin"') // auto remove when don't use
 		imports.push('import { renderMermaid } from "@slidemd/slidemd/logic/mermaid"') // auto remove when don't use
 		if (opt.codeLanguage.includes('mermaid')) {
 			initScript.push('renderMermaid()')
+		}
+
+		if (opt.buildIn.length > 0) {
+			imports.push(`import { ${opt.buildIn.join(',')} } from "@slidemd/slidemd/builtin"`) // auto remove when don't use
 		}
 	}
 

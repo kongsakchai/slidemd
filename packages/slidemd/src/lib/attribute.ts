@@ -1,6 +1,7 @@
 import { type AttributeProcess } from '@slidemd/parser'
 
 import { toSplitStyles } from './directive'
+import { STEP_ATTR_PATTERN } from './logic/regex'
 
 const splitProcess: AttributeProcess = {
 	types: ['container'],
@@ -13,8 +14,6 @@ const splitProcess: AttributeProcess = {
 		}
 	}
 }
-
-const STEP_ATTR_PATTERN = /^step-(\d+)?$/
 
 const stepProcess: AttributeProcess = {
 	key: STEP_ATTR_PATTERN,

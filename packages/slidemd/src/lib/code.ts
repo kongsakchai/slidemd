@@ -14,6 +14,7 @@ import lz from 'lz-string'
 import { type SpecialLanguage, createHighlighter } from 'shiki'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 
+import { CODE_SPLIT_REGEX } from './logic/regex'
 import { asString } from './utils'
 
 const jsEngine = createJavaScriptRegexEngine()
@@ -38,8 +39,6 @@ const highlighter = await createHighlighter({
 	themes: ['github-light', 'github-dark'],
 	engine: jsEngine
 })
-
-const CODE_SPLIT_REGEX = /^>>>>>$/gm
 
 export const codeContainer: CodeContainer = async (lang, attrs) => {
 	if (lang === 'mermaid') {
