@@ -7,9 +7,8 @@ tags:
     - slide
 ---
 
-```js step
-console.log('Hello')
->>>>>
-console.log('Hello')
-console.log('Markdown');
-```
+55555 @{ transition:slide|global={{ delay:500 }} }
+
+---
+
+data @{ transition:fade|global={{ delay:500, }} }

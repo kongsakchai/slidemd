@@ -90,7 +90,7 @@
 	bind:this={zoomEl}
 	id="zoom-contrainer"
 	role="presentation"
-	class="flex h-full w-full"
+	class="grid h-full w-full"
 	style:scale={viewContext.zoom}
 	style:translate="{translateX}px {translateY}px"
 	onpointerdown={onPointerdown}

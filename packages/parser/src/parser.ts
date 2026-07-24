@@ -51,7 +51,8 @@ function setupProcessor(options?: Options) {
 
 	return hastTransform.use(stringify, {
 		allowDangerousHtml: true,
-		allowDangerousCharacters: true
+		allowDangerousCharacters: true,
+		collapseEmptyAttributes: true
 	})
 }
 

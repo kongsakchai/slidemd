@@ -1,25 +1,39 @@
 import mermaid from 'mermaid'
-import { onMount } from 'svelte'
 
-export async function renderMermaid() {
-	mermaid.initialize({
-		startOnLoad: false
-	})
+mermaid.initialize({
+	startOnLoad: false
+})
 
-	onMount(async () => {
-		const renderContainer = document.createElement('div')
-		renderContainer.id = 'mermaid-render'
-		document.body.appendChild(renderContainer)
+const cache = new Map<string, string>()
 
-		const mermaidBlocks = document.getElementsByName('mermaid')
-		for (let i = 0; i < mermaidBlocks.length; i++) {
-			const block = mermaidBlocks.item(i)
+let renderContainer: HTMLElement
 
-			const id = 'mermaid-' + Date.now().toString(16) + i
-			const { svg } = await mermaid.render(id, block.innerText, renderContainer)
-			block.innerHTML = svg
+export function mermaidRender(node: HTMLElement) {
+	const render = async () => {
+		if (!renderContainer) {
+			renderContainer = document.createElement('div')
+			renderContainer.id = 'mermaid-render'
+			document.body.appendChild(renderContainer)
 		}
 
-		console.log('process mermaid ' + mermaidBlocks.length)
-	})
+		const id = 'mermaid-' + (await hashString(node.innerText))
+		if (cache.has(id)) {
+			node.innerHTML = cache.get(id)!
+		} else {
+			const { svg } = await mermaid.render(id, node.innerText, renderContainer)
+			node.innerHTML = svg
+			cache.set(id, svg)
+		}
+	}
+
+	render()
+}
+
+async function hashString(str: string) {
+	const encoder = new TextEncoder()
+	const data = encoder.encode(str)
+	const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+
+	const hashArray = Array.from(new Uint8Array(hashBuffer))
+	return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 }

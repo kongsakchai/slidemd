@@ -83,7 +83,8 @@ async function defaultHighlight(lang: string, code: string): Promise<ElementCont
 	}
 }
 
-const ATTR_REGEX = /([.#a-zA-Z][.\w-:@[\]/]+)(?:=(["'])(.*?)\2|=({.*?})|=([^\s]*))?/g
+// allow @ in class for tailwind v4 @sm:, @container
+const ATTR_REGEX = /([.#a-zA-Z][.\w-:|@[\]/]+)(?:=(["'])(.*?)\2|=({.*?})|=([^\s]*))?/g
 const EXCEPTED_KEY_REGEX = /[@[\]/]/
 
 function extractAttributes(str?: string | null): Record<string, string> {

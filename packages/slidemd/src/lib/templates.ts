@@ -9,17 +9,22 @@ export interface PageOptions {
 	split?: string
 }
 
+const ALLOW_SPACE = /(@attach)&#x20;/g
+
 export function pageContent(content: string, page: number, opt: PageOptions = {}) {
 	const className = opt.class ? `slide ${opt.class}` : 'slide'
 	const style = opt.style ? `style="${opt.style}"` : ''
 	const layout = opt.layout || 'default'
 
+	content = content.replaceAll(ALLOW_SPACE, '$1 ')
 	const pages = [
-		`<section class='${className}' ${style} data-page='${page}' hidden='{page !== ${page}}' layout='${layout}'>`,
+		`{#if page === ${page}}`,
+		`<section class='${className}' ${style} data-page='${page}'  layout='${layout}' transition:fade>`,
 		opt.background ? `<div class='slide-background' style='${opt.background}'></div>` : '',
 		opt.pageNumber ? `<div class="slide-page-number">${opt.pageNumber}</div>` : '',
 		opt.split ? `<div class="split" style="${opt.split}">${content}</div>` : content,
-		`</section>`
+		`</section>`,
+		`{/if}`
 	]
 
 	return pages.filter(Boolean).join('\n')
@@ -58,26 +63,30 @@ export function scriptContent(opt: ScriptOptions) {
 	const imports: string[] = []
 	const initScript: string[] = []
 
+	// svelte - auto remove when don't use
+	imports.push(`import {blur,crossfade,draw,fade,fly,scale,slide as slide } from 'svelte/transition';`)
+
+	// auto remove when don't use
 	imports.push('import { initStep } from "@slidemd/slidemd/logic/step.svelte"')
 	initScript.push('initStep()')
+
+	if (opt.buildIn.length > 0) {
+		imports.push(`import { ${opt.buildIn.join(',')} } from "@slidemd/slidemd/builtin"`) // auto remove when don't use
+	}
 
 	if (opt.codeLanguage.length > 0) {
 		imports.push('import { initCopyCode } from "@slidemd/slidemd/logic/code"')
 		initScript.push('initCopyCode()')
 
-		imports.push('import { renderMermaid } from "@slidemd/slidemd/logic/mermaid"') // auto remove when don't use
 		if (opt.codeLanguage.includes('mermaid')) {
-			initScript.push('renderMermaid()')
-		}
-
-		if (opt.buildIn.length > 0) {
-			imports.push(`import { ${opt.buildIn.join(',')} } from "@slidemd/slidemd/builtin"`) // auto remove when don't use
+			imports.push('import { mermaidRender } from "@slidemd/slidemd/logic/mermaid"')
 		}
 	}
 
 	const scripts = [
 		`<script lang="ts" module>`,
-		`export const slide = ${JSON.stringify(opt.data)}`,
+		`const data = ${JSON.stringify(opt.data)}`,
+		`export { data as slide }`,
 		`</script>`,
 		`<script lang="ts">`,
 		...imports,
