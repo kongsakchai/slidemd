@@ -8,6 +8,27 @@ describe('parser', () => {
 		const resp = await processor.parse('# Slidemd', {})
 		expect(resp.slides[0].content).toEqual('<h1>Slidemd</h1>')
 	})
+
+	it('should split slides on thematic breaks and merge global directives', async () => {
+		const processor = createSlideParser()
+		const resp = await processor.parse(
+			`# first
+
+<!--global
+color: red
+-->
+
+---
+
+# second`,
+			{ title: 'base' }
+		)
+
+		expect(resp.slides).toHaveLength(2)
+		expect(resp.slides[0].content).contain('<h1>first</h1>')
+		expect(resp.slides[1].content).contain('<h1>second</h1>')
+		expect(resp.slides[1].global).toEqual({ title: 'base', color: 'red' })
+	})
 })
 
 describe('extract frontmatter', () => {

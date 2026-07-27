@@ -100,7 +100,7 @@ async function defaultHighlight(ctx: CodeContext): Promise<ElementContent> {
 const ATTR_REGEX = /([.#a-zA-Z][.\w-:|@[\]/]+)(?:=(["'])(.*?)\2|=({.*?})|=([^\s]*))?/g
 const EXCEPTED_KEY_REGEX = /[@[\]/]/
 
-function extractAttributes(str?: string | null): Record<string, string> {
+export function extractAttributes(str?: string | null): Record<string, string> {
 	if (!str) return {}
 
 	const attrs: Record<string, string> = {}
