@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { State, useSlideContext } from '@slidemd/slidemd/state'
 
-	const slideContext = useSlideContext()
+	const slideCtx = useSlideContext()
 
 	function nextPage() {
-		slideContext.update(State.NEXT)
+		slideCtx.update(State.NEXT)
 	}
 
 	function previousPage() {
-		slideContext.update(State.PREVIOUS)
+		slideCtx.update(State.PREVIOUS)
 	}
 </script>
 
@@ -32,7 +32,7 @@
 	<div class=" border-border border-l"></div>
 	<button title="paginate button">
 		<p class="text-card-foreground m-0 min-w-21 px-2 text-center text-sm font-medium tabular-nums">
-			{slideContext.page} / {slideContext.totalPage}
+			{slideCtx.page} / {slideCtx.totalPage}
 		</p>
 	</button>
 	<div class=" border-border border-l"></div>

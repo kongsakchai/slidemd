@@ -8,14 +8,17 @@ import {
 	transformerNotationHighlight,
 	transformerNotationWordHighlight
 } from '@shikijs/transformers'
-import { type Attribute, type CodeContainer, type CodeHighlighter } from '@slidemd/parser'
+import { type CodeContainer, type CodeHighlighter } from '@slidemd/parser'
 
 import lz from 'lz-string'
 import { type SpecialLanguage, createHighlighter } from 'shiki'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 
-import { CODE_SPLIT_REGEX } from './logic/regex'
+import { compresseAttribute } from './attribute'
+import { Feature, getFeatures } from './feature'
 import { asString } from './utils'
+
+export const CODE_SPLIT_REGEX = /^>>>>>$/gm
 
 const jsEngine = createJavaScriptRegexEngine()
 
@@ -40,17 +43,17 @@ const highlighter = await createHighlighter({
 	engine: jsEngine
 })
 
-export const codeContainer: CodeContainer = async (lang, attrs) => {
-	if (lang === 'mermaid') {
-		attrs.class = asString(attrs.class, '').replace('language-mermaid', 'mermaid-container')
-		attrs.name = 'mermaid'
-		attrs['use:mermaidRender'] = ''
+export const codeContainer: CodeContainer = async (ctx) => {
+	if (ctx.lang === 'mermaid') {
+		ctx.attrs.class = asString(ctx.attrs.class, '').replace('language-mermaid', 'mermaid-container')
+		ctx.attrs.name = 'mermaid'
+		compresseAttribute(ctx.attrs, '{@attach mermaidRender}')
 
 		return {
 			type: 'container',
 			data: {
 				hName: 'div',
-				hProperties: attrs,
+				hProperties: ctx.attrs,
 				hChildren: []
 			},
 			children: []
@@ -61,43 +64,47 @@ export const codeContainer: CodeContainer = async (lang, attrs) => {
 		type: 'container',
 		data: {
 			hName: 'div',
-			hProperties: attrs,
+			hProperties: ctx.attrs,
 			hChildren: [
 				{
 					type: 'raw',
 					value: `<button title="copy code button" class="copy" onclick={window.copyCode}></button>`
 				},
-				{ type: 'raw', value: `<span class="lang">${lang}</span>` }
+				{ type: 'raw', value: `<span class="lang">${ctx.lang}</span>` }
 			]
 		},
 		children: []
 	}
 }
 
-export const codeHighlighter: CodeHighlighter = async (lang: string, code: string, attr?: Attribute, meta?: string) => {
-	if (lang === 'mermaid') {
+export const codeHighlighter: CodeHighlighter = async (ctx) => {
+	const features = getFeatures(ctx.slideCtx.extra)
+
+	if (ctx.lang === 'mermaid') {
+		features.add(Feature.Mermaid)
 		return {
 			type: 'element',
 			tagName: 'pre',
 			properties: {},
-			children: [{ type: 'text', value: code }]
+			children: [{ type: 'text', value: ctx.code }]
 		}
 	}
 
 	try {
-		if (!highlighter.getLoadedLanguages().includes(lang)) {
-			await highlighter.loadLanguage(lang as SpecialLanguage)
+		if (!highlighter.getLoadedLanguages().includes(ctx.lang)) {
+			await highlighter.loadLanguage(ctx.lang as SpecialLanguage)
 		}
 	} catch {
-		console.warn(`\x1b[43m\x1b[30m WARN \x1b[0m\x1b[33m Failed to load language: ${lang}`)
-		lang = 'plaintext'
+		console.warn(`\x1b[43m\x1b[30m WARN \x1b[0m\x1b[33m Failed to load language: ${ctx.lang}`)
+		ctx.lang = 'plaintext'
 	}
 
-	if (attr?.step == null) {
-		return highlighter.codeToHast(code, {
-			lang: lang,
+	features.add(Feature.Code)
+	if (ctx.attrs.step == null) {
+		return highlighter.codeToHast(ctx.code, {
+			lang: ctx.lang,
 			meta: {
-				__raw: meta
+				__raw: ctx.meta
 			},
 			defaultColor: false,
 			themes: themes,
@@ -110,7 +117,7 @@ export const codeHighlighter: CodeHighlighter = async (lang: string, code: strin
 			highlighter,
 			code,
 			{
-				lang: lang as SpecialLanguage,
+				lang: ctx.lang as SpecialLanguage,
 				defaultColor: false,
 				themes: themes
 			},
@@ -118,16 +125,17 @@ export const codeHighlighter: CodeHighlighter = async (lang: string, code: strin
 		)
 	)
 
-	const codeSteps = code.split(CODE_SPLIT_REGEX)
-	const compressed = JSON.stringify(codeSteps.map((code) => magicMove.commit(code.trim()).current))
+	const codeSteps = ctx.code.split(CODE_SPLIT_REGEX)
+	const codeTokenInfo = JSON.stringify(codeSteps.map((code) => magicMove.commit(code.trim()).current))
 
-	const start = Number.parseInt(attr.at?.toString() || '0', 10) || 0
-	attr!.step = start + codeSteps.length - 1
+	const start = Number.parseInt(asString(ctx.attrs.at, '0'), 10) || 0
+	if (!ctx.slide.local) ctx.slide.local = {}
+	ctx.slide.local.step = start + codeSteps.length - 1
 
 	return {
 		type: 'element',
 		tagName: 'CodeStepBlock',
-		properties: { code: lz.compressToBase64(compressed), start: start },
+		properties: { code: lz.compressToBase64(codeTokenInfo), start: start },
 		children: []
 	}
 }

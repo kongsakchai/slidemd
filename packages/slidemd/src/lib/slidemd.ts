@@ -6,9 +6,10 @@ import type { PreprocessorGroup } from 'svelte/compiler'
 import { attributeProcess } from './attribute'
 import { codeContainer, codeHighlighter } from './code'
 import { resolvePaginate, toBackgroundStyles, toSplitStyles } from './directive'
-import { checkBuiltIn, pageContent, scriptContent, styleContent } from './templates'
+import { getFeatures } from './feature'
+import { pageContent, scriptContent, styleContent } from './templates'
 import type { Options, SlideData } from './types'
-import { asString } from './utils'
+import { asNumber, asString } from './utils'
 
 export function slidemd(options?: Options): PreprocessorGroup {
 	const parser = createSlideParser({
@@ -34,7 +35,8 @@ export function slidemd(options?: Options): PreprocessorGroup {
 
 			slideData.pages.push({
 				page: slide.index + 1,
-				note: asString(directive.note)
+				note: asString(directive.note),
+				step: asNumber(directive.step)
 			})
 
 			return pageContent(slide.content, slide.index + 1, {
@@ -50,8 +52,7 @@ export function slidemd(options?: Options): PreprocessorGroup {
 		const script = scriptContent({
 			data: slideData,
 			scripts: slide.script,
-			codeLanguage: slide.codeLanguage,
-			buildIn: checkBuiltIn(contents)
+			features: getFeatures(slide.extra)
 		})
 
 		return [script, ...contents, styleContent(slide.style)].join('\n')
