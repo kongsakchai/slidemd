@@ -1,15 +1,18 @@
-import { Root, RootContent } from 'mdast'
+import { Root } from 'mdast'
 import type { Transformer } from 'unified'
-import { visitParents } from 'unist-util-visit-parents'
+import { visit } from 'unist-util-visit'
 
-import { Attribute, Directive, SlideContext } from '../types.js'
+import { Attribute, SlideContext, SlideData } from '../types.js'
 
-export type AttributeProcessFn = (
-	key: string,
-	value: Attribute[string],
-	attribute: Attribute,
-	fileData?: Directive
-) => void | 'skip'
+export interface AttributeContext {
+	key: string
+	value: Attribute[string]
+	attribute: Attribute
+	slideCtx: SlideContext
+	slide: SlideData
+}
+
+export type AttributeProcessFn = (ctx: AttributeContext) => void | 'skip'
 
 export interface AttributeProcess {
 	types?: string[]
@@ -21,64 +24,35 @@ export interface AttributeOptions {
 	attributeProcess?: AttributeProcess[]
 }
 
-type ProcessorRegistryByNodeType = Record<string, AttributeProcess[]>
+const matchesKey = (p: AttributeProcess, key: string): boolean =>
+	typeof p.key === 'string' ? p.key === key : p.key.test(key)
 
-const ANY_NODE_TYPE = ''
-
-function buildProcessorRegistry(attributeProcess: AttributeProcess[] = []): ProcessorRegistryByNodeType {
-	const registryByNodeType: ProcessorRegistryByNodeType = {}
-	for (const attr of attributeProcess) {
-		for (const nodeType of attr.types ?? [ANY_NODE_TYPE]) {
-			const registry = (registryByNodeType[nodeType] ??= [])
-			registry.push(attr)
-		}
-	}
-	return registryByNodeType
-}
-
-function findAttributeProcessFn(list: AttributeProcess[], key: string): AttributeProcessFn[] {
-	return list
-		.filter((p) => {
-			if (typeof p.key === 'string') {
-				return p.key === key
-			} else {
-				return p.key.test(key)
-			}
-		})
-		.map((p) => p.process)
-}
+const matchesType = (p: AttributeProcess, nodeType: string): boolean =>
+	p.types === undefined || p.types.includes(nodeType)
 
 export function attributeTransformer(opt?: AttributeOptions): Transformer {
-	const registryByNodeType = buildProcessorRegistry(opt?.attributeProcess)
+	const processors = opt?.attributeProcess ?? []
 
 	return (tree, vfile) => {
 		const ctx = vfile.data.context as SlideContext
 
-		const root = tree as Root
-		visitParents(root, (node, ancestors) => {
-			if (!('data' in node && node.data)) return
-			if (!('hProperties' in node.data && node.data.hProperties)) return
+		visit(tree as Root, (node) => {
+			const hProperties = node.data?.hProperties as Attribute | undefined
+			if (!hProperties) return
 
-			const index =
-				ancestors.length > 1
-					? root.children.indexOf(ancestors[1] as RootContent)
-					: root.children.indexOf(node as RootContent)
+			const applicable = processors.filter((p) => matchesType(p, node.type))
+			if (applicable.length === 0) return
 
-			const slide = ctx.slides.findLast((p) => index >= p.breakIndex)
-			if (slide) slide.extra ??= {}
-
-			const registry = [...(registryByNodeType[node.type] ?? []), ...(registryByNodeType[ANY_NODE_TYPE] ?? [])]
-			if (registry.length === 0) return
-
-			const hProperties = node.data.hProperties
+			const slide = ctx.slides[node.indexGroup ?? 0]
 			const skip = new Set<AttributeProcessFn>()
-			for (const [attributeName, attributeValue] of Object.entries(hProperties)) {
-				const process = findAttributeProcessFn(registry, attributeName)
-				process.forEach((p) => {
-					if (skip.has(p)) return
-					const val = p(attributeName, attributeValue, hProperties, slide?.extra)
-					if (val === 'skip') skip.add(p)
-				})
+
+			for (const [key, value] of Object.entries(hProperties)) {
+				for (const p of applicable) {
+					if (skip.has(p.process) || !matchesKey(p, key)) continue
+					if (p.process({ key, value, attribute: hProperties, slideCtx: ctx, slide }) === 'skip') {
+						skip.add(p.process)
+					}
+				}
 			}
 		})
 	}

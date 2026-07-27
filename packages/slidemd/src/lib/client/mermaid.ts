@@ -9,6 +9,8 @@ const cache = new Map<string, string>()
 let renderContainer: HTMLElement
 
 export function mermaidRender(node: HTMLElement) {
+	node.hidden = true
+
 	const render = async () => {
 		if (!renderContainer) {
 			renderContainer = document.createElement('div')
@@ -24,6 +26,8 @@ export function mermaidRender(node: HTMLElement) {
 			node.innerHTML = svg
 			cache.set(id, svg)
 		}
+
+		node.hidden = false
 	}
 
 	render()

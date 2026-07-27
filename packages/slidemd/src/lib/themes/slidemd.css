@@ -333,14 +333,6 @@
 		grid-row: 1;
 	}
 
-	section.slide::before {
-		@apply bg-background;
-		content: '';
-		position: absolute;
-		inset: 0;
-		z-index: -2;
-	}
-
 	section.slide .slide-background {
 		position: absolute;
 		width: 100%;

@@ -19,7 +19,7 @@
 	// svelte-ignore state_referenced_locally
 	const viewContext = createViewContext({ width, height })
 	// svelte-ignore state_referenced_locally
-	const slideContext = createSlideContext(data)
+	const slideCtx = createSlideContext(data)
 
 	$effect(() => {
 		viewContext.width = width
@@ -30,9 +30,10 @@
 <Container>
 	<ZoomLayout>
 		<!-- Slide -->
-		<Slide bind:page={slideContext.page} bind:step={slideContext.step} />
-		<StepProgress />
+		<Slide bind:page={slideCtx.page} bind:step={slideCtx.step} />
 	</ZoomLayout>
+
+	<StepProgress />
 
 	{#snippet overlay()}
 		<Controller />

@@ -80,8 +80,8 @@ function applyImageStyles(props?: Properties) {
 	if (filters.length > 0) {
 		styles.push(`filter:${filters.join(' ')}`)
 	}
-	if (styles.length > 0) props.style = styles.join(';') || undefined
-	if (classNames.length > 0) props.class = classNames.join(' ') || undefined
+	if (styles.length > 0) props.style = styles.join(';')
+	if (classNames.length > 0) props.class = classNames.join(' ')
 }
 
 function hoistImageToParent(tree: Root, image: Image, index: number, parent: Parent) {

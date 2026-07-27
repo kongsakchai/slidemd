@@ -13,11 +13,11 @@
 	const { code: baseCode, start = 0 }: Props = $props()
 
 	const viewContext = useViewContext()
-	const slideContext = useSlideContext()
+	const slideCtx = useSlideContext()
 
 	// svelte-ignore state_referenced_locally
 	let steps = JSON.parse(lz.decompressFromBase64(baseCode))
-	let step = $derived(Math.max(0, Math.min(slideContext.step - start, steps.length)))
+	let step = $derived(Math.max(0, Math.min(slideCtx.step - start, steps.length)))
 </script>
 
 <ShikiMagicMovePrecompiled class="code-block" {step} {steps} options={{ globalScale: viewContext.scale }} />

@@ -1,49 +1,50 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { VFile } from 'vfile'
 import { describe, expect, it } from 'vitest'
 
-import { extractScriptTransformer } from '../../src/transformers/extract-script'
+import { extractScriptTransformer } from '../../src/transformers/script'
+import { buildVFile, contextOf } from './helper'
 
 describe('extract script', () => {
-	it('should return script', () => {
+	it('should extract script and style into the context', () => {
 		const tree = {
 			type: 'root',
 			children: [
-				{
-					type: 'html',
-					value: '<script lang="ts">console.log("Hello")</script>'
-				},
-				{
-					type: 'html',
-					value: '<style>.hello{ background: red; }</style>'
-				},
-				{
-					type: 'html',
-					value: '<h1>Hello</h1>'
-				}
+				{ type: 'html', value: '<script lang="ts">console.log("Hello")</script>' },
+				{ type: 'html', value: '<style>.hello{ background: red; }</style>' },
+				{ type: 'html', value: '<h1>Hello</h1>' }
 			]
 		}
-		const vfile = new VFile()
+		const vfile = buildVFile()
 
-		const transformer = extractScriptTransformer()
-		transformer(tree, vfile, null as any)
+		extractScriptTransformer()(tree, vfile, null as any)
 
+		const ctx = contextOf(vfile)
 		expect(tree.children.length).toEqual(1)
-		expect(vfile.data.script).toEqual('console.log("Hello")')
-		expect(vfile.data.style).toEqual('.hello{ background: red; }')
+		expect(ctx.script).toEqual(['console.log("Hello")'])
+		expect(ctx.style).toEqual(['.hello{ background: red; }'])
 	})
 
-	it('should return without parent', () => {
+	it('should ignore raw tags without a parent', () => {
+		const tree = { type: 'html', value: '<script lang="ts">console.log("Hello")</script>' }
+		const vfile = buildVFile()
+
+		extractScriptTransformer()(tree, vfile, null as any)
+
+		const ctx = contextOf(vfile)
+		expect(ctx.script).toEqual([])
+		expect(ctx.style).toEqual([])
+	})
+
+	it('should ignore html that is not a script or style tag', () => {
 		const tree = {
-			type: 'html',
-			value: '<script lang="ts">console.log("Hello")</script>'
+			type: 'root',
+			children: [{ type: 'html', value: '<div>stay</div>' }]
 		}
-		const vfile = new VFile()
+		const vfile = buildVFile()
 
-		const transformer = extractScriptTransformer()
-		transformer(tree, vfile, null as any)
+		extractScriptTransformer()(tree, vfile, null as any)
 
-		expect(vfile.data.script).toEqual(undefined)
-		expect(vfile.data.style).toEqual(undefined)
+		expect(tree.children.length).toEqual(1)
+		expect(contextOf(vfile).script).toEqual([])
 	})
 })

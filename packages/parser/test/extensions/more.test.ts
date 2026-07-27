@@ -8,8 +8,10 @@ import { describe, expect, test } from 'vitest'
 import { attributeBlockFromMarkdown } from '../../src/extensions/attribute-block'
 import { containerFromMarkdown } from '../../src/extensions/container'
 import { highlight, highlightFromMarkdown } from '../../src/extensions/highlight'
+import { imageAttributeFromMarkdown } from '../../src/extensions/image-attribute'
 import { partialBlankLineTokenizer } from '../../src/extensions/line'
-import { addFromMarkdownExtensions, addMicromarkExtensions, handleResolveAll } from '../../src/extensions/utils'
+import { addFromMarkdownExtensions, addMicromarkExtensions } from '../../src/extensions/index'
+import { handleResolveAll } from '../../src/extensions/helper'
 
 describe('more', () => {
 	describe('utils', () => {
@@ -121,6 +123,32 @@ describe('more', () => {
 					end: { _bufferIndex: 0, _index: 0, offset: 1, line: 1, column: 1 }
 				}
 			)
+		})
+
+		test("should don't assign attribute when last node isn't container", () => {
+			const exitContainerAttribute = containerFromMarkdown.exit?.['containerAttribute']
+
+			exitContainerAttribute?.call(
+				{
+					stack: [{ type: 'html', value: '' }],
+					data: { attr: { class: 'x' } }
+				} as any
+			)
+		})
+	})
+
+	describe('image attribute from markdown', () => {
+		test("should don't trim text when sibling isn't a fragment", () => {
+			const exitAttributeImage = imageAttributeFromMarkdown.exit?.['attributeImage']
+
+			exitAttributeImage?.call({
+				stack: [
+					{ type: 'root' },
+					{ type: 'image', data: { hProperties: {} } },
+					{ type: 'text', value: '  not a fragment  ' }
+				],
+				data: { attr: {} }
+			} as any)
 		})
 	})
 })

@@ -1,3 +1,5 @@
+import { decompresseContent } from './attribute'
+import { Feature } from './feature'
 import type { SlideData } from './types'
 
 export interface PageOptions {
@@ -9,14 +11,12 @@ export interface PageOptions {
 	split?: string
 }
 
-const ALLOW_SPACE = /(@attach)&#x20;/g
-
 export function pageContent(content: string, page: number, opt: PageOptions = {}) {
 	const className = opt.class ? `slide ${opt.class}` : 'slide'
 	const style = opt.style ? `style="${opt.style}"` : ''
 	const layout = opt.layout || 'default'
 
-	content = content.replaceAll(ALLOW_SPACE, '$1 ')
+	content = decompresseContent(content)
 	const pages = [
 		`{#if page === ${page}}`,
 		`<section class='${className}' ${style} data-page='${page}'  layout='${layout}' transition:fade>`,
@@ -47,41 +47,23 @@ export function styleContent(styleTag: string[] = []) {
 interface ScriptOptions {
 	data: SlideData
 	scripts: string[]
-	codeLanguage: string[]
-	buildIn: string[]
-}
-
-const BUILT_IN_NAMES = ['CodeStepBlock']
-const BUILT_IN_REGEX = new RegExp(`[^\\w/](${BUILT_IN_NAMES.join('|')})[^\\w]`, 'g')
-
-export function checkBuiltIn(source: string[]) {
-	const inSource = source.flatMap((s) => [...s.matchAll(BUILT_IN_REGEX)].map((s) => s[1]))
-	return [...new Set(inSource)]
+	features: Set<Feature>
 }
 
 export function scriptContent(opt: ScriptOptions) {
 	const imports: string[] = []
-	const initScript: string[] = []
+	const runs: string[] = []
 
-	// svelte - auto remove when don't use
-	imports.push(`import {blur,crossfade,draw,fade,fly,scale,slide as slide } from 'svelte/transition';`)
+	// // svelte - auto remove when don't use
+	imports.push(
+		`import {blur,crossfade,draw,fade,fly,scale,slide as slide } from 'svelte/transition'`,
+		`import { stepper } from '@slidemd/slidemd/client/stepper'`,
+		'import { initCopyCode } from "@slidemd/slidemd/client/code"',
+		'import { mermaidRender } from "@slidemd/slidemd/client/mermaid"',
+		`import { CodeStepBlock } from "@slidemd/slidemd/builtin"`
+	)
 
-	// auto remove when don't use
-	imports.push('import { initStep } from "@slidemd/slidemd/logic/step.svelte"')
-	initScript.push('initStep()')
-
-	if (opt.buildIn.length > 0) {
-		imports.push(`import { ${opt.buildIn.join(',')} } from "@slidemd/slidemd/builtin"`) // auto remove when don't use
-	}
-
-	if (opt.codeLanguage.length > 0) {
-		imports.push('import { initCopyCode } from "@slidemd/slidemd/logic/code"')
-		initScript.push('initCopyCode()')
-
-		if (opt.codeLanguage.includes('mermaid')) {
-			imports.push('import { mermaidRender } from "@slidemd/slidemd/logic/mermaid"')
-		}
-	}
+	if (opt.features.has(Feature.Code)) runs.push('initCopyCode()')
 
 	const scripts = [
 		`<script lang="ts" module>`,
@@ -90,7 +72,7 @@ export function scriptContent(opt: ScriptOptions) {
 		`</script>`,
 		`<script lang="ts">`,
 		...imports,
-		...initScript,
+		...runs,
 		`let { page=$bindable(),step=$bindable() } = $props()`,
 		...opt.scripts,
 		'</script>'
