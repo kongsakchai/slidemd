@@ -64,7 +64,7 @@ export function createSlideParser(options?: Options) {
 			slides: [{ breakIndex: 0, global: data }],
 			style: [],
 			script: [],
-			codeLanguage: new Set<string>()
+			extra: {}
 		}
 
 		const parsed = await parser.process({ value: markdown, data: { context } })
@@ -83,8 +83,7 @@ function covertSlideResult(ctx: SlideContext, str: string): SlideResult {
 			content,
 			global: { ...slide.global, ...previous?.global },
 			local: slide.local,
-			title: slide.title,
-			extra: slide.extra
+			title: slide.title
 		}
 	})
 
@@ -92,7 +91,7 @@ function covertSlideResult(ctx: SlideContext, str: string): SlideResult {
 		slides: slideInfo,
 		script: ctx.script,
 		style: ctx.style,
-		codeLanguage: [...ctx.codeLanguage]
+		extra: ctx.extra
 	}
 }
 

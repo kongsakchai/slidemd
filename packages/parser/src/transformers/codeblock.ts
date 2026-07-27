@@ -3,15 +3,20 @@ import type { Code, Parent, Root, RootContent } from 'mdast'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
 
-import { Attribute, SlideContext } from '../types.js'
+import { Attribute, SlideContext, SlideData } from '../types.js'
 
-export type CodeHighlighter = (
-	lang: string,
-	code: string,
-	attr?: Attribute,
-	meta?: string
-) => Promise<HRootContent | ElementContent | HRoot>
-export type CodeContainer = (lang: string, attr: Attribute) => Promise<Parent>
+export interface CodeContext {
+	lang: string
+	code: string
+	meta: string
+	attrs: Attribute
+	slideCtx: SlideContext
+	slide: SlideData
+}
+
+export type CodeHighlighter = (ctx: CodeContext) => Promise<HRootContent | ElementContent | HRoot>
+
+export type CodeContainer = (ctx: CodeContext) => Promise<Parent>
 
 export interface CodeblockOptions {
 	highlight?: CodeHighlighter
@@ -28,8 +33,7 @@ export function codeblockTransformer(options?: CodeblockOptions): Transformer {
 		const codeProcess: Promise<void>[] = []
 		visit(tree as Root, 'code', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
-			codeProcess.push(transformCodeNode(node, index, parent, highlight, container))
-			ctx.codeLanguage.add(node.lang || 'plaintext')
+			codeProcess.push(transformCodeNode(node, index, parent, highlight, container, ctx))
 		})
 
 		await Promise.all(codeProcess)
@@ -45,16 +49,23 @@ async function transformCodeNode(
 	index: number,
 	parent: Parent,
 	highlight: CodeHighlighter,
-	container: CodeContainer
+	container: CodeContainer,
+	slideCtx: SlideContext
 ) {
-	const lang = node.lang || 'plaintext'
-	const attr = extractAttributes(node.meta)
-	attr.class = `language-${lang} ${attr.class ?? ''}`.trim()
+	const ctx: CodeContext = {
+		lang: node.lang || 'plaintext',
+		code: node.value,
+		meta: node.meta ?? '',
+		attrs: extractAttributes(node.meta),
+		slideCtx,
+		slide: slideCtx.slides[node.indexGroup ?? 0]
+	}
+	ctx.attrs.class = `language-${ctx.lang} ${ctx.attrs.class ?? ''}`.trim()
 
-	const containerEl = await container(lang, attr)
+	const containerEl = await container(ctx)
 	parent.children.splice(index, 1, containerEl as RootContent)
 
-	const html = await highlight(lang, node.value, attr, node.meta || undefined)
+	const html = await highlight(ctx)
 	visit(html, 'text', (node) => {
 		node.value = escapeSpecialCharacters(node.value)
 	})
@@ -62,28 +73,30 @@ async function transformCodeNode(
 	containerEl.data?.hChildren?.push(html as ElementContent)
 }
 
-async function defaultContainer(lang: string, attrs: Attribute): Promise<Parent> {
+async function defaultContainer(ctx: CodeContext): Promise<Parent> {
 	return {
 		type: 'container',
 		data: {
 			hName: 'div',
-			hProperties: attrs,
-			hChildren: [{ type: 'raw', value: `<span class="lang">${lang}</span>` }]
+			hProperties: ctx.attrs,
+			hChildren: [{ type: 'raw', value: `<span class="lang">${ctx.lang}</span>` }]
 		},
 		children: []
 	}
 }
 
-async function defaultHighlight(lang: string, code: string): Promise<ElementContent> {
+async function defaultHighlight(ctx: CodeContext): Promise<ElementContent> {
 	return {
 		type: 'element',
 		tagName: 'pre',
-		properties: { lang },
-		children: [{ type: 'text', value: code }]
+		properties: { lang: ctx.lang },
+		children: [{ type: 'text', value: ctx.code }]
 	}
 }
 
 // allow @ in class for tailwind v4 @sm:, @container
+// allow : for svelte directive use: class: style:
+// allow | for svelte transtion transition:fade|global
 const ATTR_REGEX = /([.#a-zA-Z][.\w-:|@[\]/]+)(?:=(["'])(.*?)\2|=({.*?})|=([^\s]*))?/g
 const EXCEPTED_KEY_REGEX = /[@[\]/]/
 

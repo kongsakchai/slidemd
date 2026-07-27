@@ -40,34 +40,37 @@ declare module 'micromark-util-types' {
 }
 
 declare module 'mdast' {
+	interface Node {
+		indexGroup?: number
+	}
 	interface RootContentMap {
-		highlight: {
+		highlight: Node & {
 			type: 'highlight'
 			children: import('mdast').RootContentMap[]
 			data: {
 				hName: 'mark'
 			}
 		}
-		sub: {
+		sub: Node & {
 			type: 'sub'
 			children: import('mdast').RootContentMap[]
 			data: {
 				hName: 'sub'
 			}
 		}
-		sup: {
+		sup: Node & {
 			type: 'sup'
 			children: import('mdast').RootContentMap[]
 			data: {
 				hName: 'sup'
 			}
 		}
-		attributeBlock: {
+		attributeBlock: Node & {
 			type: 'attributeBlock'
 			value: ''
 			attr: Attribute
 		}
-		container: {
+		container: Node & {
 			type: 'container'
 			children: import('mdast').RootContentMap[]
 			data: {
@@ -75,7 +78,7 @@ declare module 'mdast' {
 				hProperties: Attribute
 			}
 		}
-		image: {
+		image: Node & {
 			processed: boolean
 		}
 	}

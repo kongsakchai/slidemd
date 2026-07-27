@@ -5,7 +5,6 @@ export type Directive = Record<string, unknown>
 export interface SlideData {
 	global?: Directive
 	local?: Directive
-	extra?: Directive
 	title?: string
 }
 
@@ -13,7 +12,7 @@ export interface SlideContext {
 	slides: (SlideData & { breakIndex: number })[]
 	style: string[]
 	script: string[]
-	codeLanguage: Set<string>
+	extra: Directive
 }
 
 export interface SlideInfo extends SlideData {
@@ -25,5 +24,5 @@ export interface SlideResult {
 	slides: SlideInfo[]
 	style: string[]
 	script: string[]
-	codeLanguage: string[]
+	extra: Directive
 }

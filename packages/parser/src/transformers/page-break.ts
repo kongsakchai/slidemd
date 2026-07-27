@@ -8,17 +8,21 @@ export const PAGE_BREAK_KEY = '\n---page-break---\n'
 
 export function pageBreakTransformer(): Transformer {
 	return (tree, vfile) => {
-		visit(tree as Root, 'thematicBreak', (_, index, parent) => {
+		const ctx = vfile.data.context as SlideContext
+
+		visit(tree as Root, (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
-			if (parent !== tree) return
 
-			const ctx = vfile.data.context as SlideContext
-			ctx.slides.push({ breakIndex: index })
+			if (node.type === 'thematicBreak' && parent === tree) {
+				ctx.slides.push({ breakIndex: index })
 
-			parent.children.splice(index, 1, {
-				type: 'text',
-				value: PAGE_BREAK_KEY
-			})
+				parent.children.splice(index, 1, {
+					type: 'text',
+					value: PAGE_BREAK_KEY
+				})
+			} else {
+				node.indexGroup = ctx.slides.length - 1
+			}
 		})
 	}
 }
