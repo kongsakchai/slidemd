@@ -30,9 +30,9 @@
 			"import": "./dist/themes/*",
 			"style": "./dist/themes/*"
 		},
-		"./logic/*": {
-			"import": "./dist/logic/*",
-			"style": "./dist/logic/*"
+		"./client/*": {
+			"import": "./dist/client/*",
+			"style": "./dist/client/*"
 		}
 	},
 	"files": [

@@ -1,8 +1,8 @@
-function createThemeState() {
-	let mode = $state('')
+import { untrack } from 'svelte'
 
-	mode = localStorage.getItem('slidemd.mode') || 'light'
-	if (mode === 'dark' && !document.documentElement.classList.contains('dark')) {
+function createThemeState() {
+	let mode = $state(localStorage.getItem('slidemd.mode') || 'light')
+	if (untrack(() => mode === 'dark') && !document.documentElement.classList.contains('dark')) {
 		document.documentElement.classList.add('dark')
 	}
 
