@@ -71,8 +71,9 @@ const run = async () => {
 	console.log(url)
 
 	async function shutdown() {
-		console.log('shutdown bye bye')
 		await server.close()
+		console.log('shutdown bye bye')
+		return 0
 	}
 	process.once('SIGINT', () => shutdown())
 	process.once('SIGTERM', () => shutdown())

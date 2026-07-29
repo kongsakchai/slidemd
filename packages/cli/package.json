@@ -24,6 +24,6 @@
 		"vite": "^8.0.8"
 	},
 	"dependencies": {
-		"@slidemd/slidemd": "*"
+		"@slidemd/slidemd": "workspace:*"
 	}
 }

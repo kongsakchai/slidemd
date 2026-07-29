@@ -11,7 +11,7 @@
 		"dev": "bun run --cwd packages/slidemd dev",
 		"build": "bun run build:parser && bun run build:slidemd",
 		"build:parser": "bun run --cwd packages/parser build",
-		"build:slidemd": "bun run --cwd packages/slidemd build ",
+		"build:slidemd": "bun run --cwd packages/slidemd build",
 		"prepack:slidemd": "bun run --cwd packages/slidemd prepack",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",

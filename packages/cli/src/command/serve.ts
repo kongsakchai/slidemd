@@ -1,77 +1,57 @@
-import { config } from '@/config'
-import { getMarkdowns, readMarkdown } from '@/contents'
-import { TemplateOptions, templateApp, templateSlide, templateSlideLayout } from '@/templates'
-import { makeMap, resolveSlideId, resolveSlideLayoutId } from '@/utils'
+import { findMarkdowns, readMarkdown } from '@/contents'
+import { Context, Module, createMarkdown, createSlide, renderAppHTML, slideIndex } from '@/module'
+import { rmMarkdownExtension } from '@/utils'
 
-import { generateAppHtml } from '@html'
 import { slidemd } from '@slidemd/slidemd'
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 import tailwindcss from '@tailwindcss/vite'
 
-import path from 'path'
+import { IncomingMessage, ServerResponse } from 'http'
 import type { InlineConfig, Plugin } from 'vite'
 import { createServer as createViteServer } from 'vite'
 
 function slidemdPlugin(root: string): Plugin {
-	const { markdowns } = getMarkdowns(root)
-	const slideyouts = makeMap(markdowns, resolveSlideLayoutId, resolveSlideId)
-	const slides = makeMap(markdowns, resolveSlideId, (v) => v)
-
-	const option: TemplateOptions = {
+	const ctx: Context = {
 		root,
-		markdowns,
-		themes: [],
-		getSlideId(this, layoutId) {
-			return slideyouts[layoutId]
-		},
-		read(this, slideId) {
-			return readMarkdown(path.join(this.root, slides[slideId])) ?? ''
-		}
+		markdowns: findMarkdowns(root),
+		read: readMarkdown
 	}
 
-	const modules = [
-		templateApp,
-		...markdowns.flatMap((m) => [
-			{ ...templateSlideLayout, id: resolveSlideLayoutId(m) },
-			{ ...templateSlide, id: resolveSlideId(m) }
-		])
-	]
+	const routes = new Map<string, string>([['', slideIndex.id]])
+	const modules = new Map<string, Module>([[slideIndex.id, slideIndex]])
 
-	const getModule = (id: string) => {
-		const find = modules.find((m) => m.id === id)
-		return find
-	}
-
-	const indexHtml = generateAppHtml(templateApp.id)
+	ctx.markdowns.forEach((md) => {
+		const module = createSlide(md)
+		const markdown = createMarkdown(md)
+		routes.set(md, module.id)
+		modules.set(module.id, module)
+		modules.set(markdown.id, markdown)
+	})
 
 	return {
 		name: 'slidemd-dev',
 		resolveId(id) {
-			return getModule(id)?.id
+			if (modules.has(id)) return id
 		},
 		async load(id) {
-			return getModule(id)?.getContent(option)
+			if (modules.has(id)) return modules.get(id)!.content(ctx)
 		},
 		configureServer(server) {
+			const htmlResponse = async (url: string, module: string, resp: ServerResponse<IncomingMessage>) => {
+				const html = await server.transformIndexHtml(rmMarkdownExtension(url), renderAppHTML(module))
+				resp.setHeader('Content-Type', 'text/html; charset=utf-8')
+				resp.statusCode = 200
+				resp.end(html)
+			}
+
 			server.middlewares.use(async (req, resp, next) => {
 				const url = req.url || '/'
+				const isNavigate = req.headers['sec-fetch-dest'] === 'document'
+				if (!isNavigate) return next()
 
-				let html = ''
-				if (url === '/') {
-					html = await server.transformIndexHtml(url, indexHtml)
-				} else if (url.endsWith('.md')) {
-					const module = resolveSlideLayoutId(url)
-					html = await server.transformIndexHtml(url, generateAppHtml(module))
-				}
-
-				if (html) {
-					resp.setHeader('Content-Type', 'text/html; charset=utf-8')
-					resp.statusCode = 200
-					resp.end(html)
-					return
-				}
-
-				next()
+				const moduleId = routes.get(url.replace(/^\//, '')) || ''
+				console.log({ moduleId, url, routes })
+				return htmlResponse(url, moduleId, resp)
 			})
 		}
 	}
@@ -81,11 +61,11 @@ export async function createServer(src: string) {
 	const inlineConfig: InlineConfig = {
 		configFile: false,
 		plugins: [
-			tailwindcss(),
 			slidemdPlugin(src),
+			tailwindcss(),
 			svelte({
-				extensions: ['.svelte', config.suffix],
-				preprocess: [slidemd({ extension: config.suffix }), vitePreprocess()]
+				extensions: ['.svelte', '.md'],
+				preprocess: [slidemd({ extension: '.md' }), vitePreprocess()]
 			})
 		],
 		server: {

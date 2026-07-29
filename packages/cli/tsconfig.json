@@ -5,11 +5,7 @@
 		"rootDir": "src",
 		"types": ["node", "svelte"],
 		"paths": {
-			"@/*": ["./src/*"],
-			"@command": ["./src/command"],
-			"@templates": ["./src/templates"],
-			"@html": ["./src/html"],
-			"@contents": ["./src/contents"]
+			"@/*": ["./src/*"]
 		}
 	},
 	"include": ["./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.svelte"]
