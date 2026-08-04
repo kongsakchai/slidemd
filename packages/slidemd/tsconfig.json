@@ -1,4 +1,7 @@
 {
 	"files": [],
+	"compilerOptions": {
+		"target": "es2023"
+	},
 	"references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }

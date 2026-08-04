@@ -1,0 +1,143 @@
+
+// /**
+//  * Absolute path to the CLI's `app.css`. Resolved robustly whether the CLI runs
+//  * from source (`src/plugin.ts`) or the bundled output (`dist/index.mjs`).
+//  */
+// const here = path.dirname(fileURLToPath(import.meta.url))
+// export const appCssPath = existsSync(path.join(here, 'app.css'))
+// 	? path.join(here, 'app.css')
+// 	: path.join(here, '..', 'src', 'app.css')
+
+// /** Virtual id that resolves to the real `app.css` on disk. */
+// export const APP_CSS_ID = 'slidemd:app.css'
+
+// export interface SlidemdPluginOptions {
+// 	/** Watch `root` for added/removed markdown files and live-reload. Default `true`. */
+// 	watch?: boolean
+// }
+
+// export interface SlidemdPlugin extends Plugin {
+// 	/** Route path (without leading slash) → virtual module id. */
+// 	routes: Map<string, string>
+// }
+
+// /** Build the route and module tables for the given markdown list. */
+// function buildTables(ctx: Context) {
+// 	const routes = new Map<string, string>([['', slideIndex.id]])
+// 	const modules = new Map<string, Module>([[slideIndex.id, slideIndex]])
+
+// 	for (const md of ctx.markdowns) {
+// 		const page = createSlide(md)
+// 		const markdown = createMarkdown(md)
+// 		routes.set(md, page.id)
+// 		modules.set(page.id, page)
+// 		modules.set(markdown.id, markdown)
+// 	}
+
+// 	return { routes, modules }
+// }
+
+// /** Register a single markdown into the tables. */
+// function addMarkdown(ctx: Context, routes: Map<string, string>, modules: Map<string, Module>, md: string) {
+// 	if (routes.has(md)) return
+// 	ctx.markdowns.push(md)
+// 	const page = createSlide(md)
+// 	const markdown = createMarkdown(md)
+// 	routes.set(md, page.id)
+// 	modules.set(page.id, page)
+// 	modules.set(markdown.id, markdown)
+// }
+
+// /** Remove a single markdown from the tables. */
+// function removeMarkdown(ctx: Context, routes: Map<string, string>, modules: Map<string, Module>, md: string) {
+// 	const pageId = routes.get(md)
+// 	if (!pageId) return
+// 	ctx.markdowns = ctx.markdowns.filter((m) => m !== md)
+// 	routes.delete(md)
+// 	modules.delete(pageId)
+// 	modules.delete(md)
+// }
+
+// export function createSlidemdPlugin(root: string, options: SlidemdPluginOptions = {}): SlidemdPlugin {
+// 	const watch = options.watch ?? true
+
+// 	const ctx: Context = {
+// 		root,
+// 		markdowns: findMarkdowns(root),
+// 		read: readMarkdown
+// 	}
+
+// 	const { routes, modules } = buildTables(ctx)
+
+// 	const plugin: SlidemdPlugin = {
+// 		name: 'slidemd',
+// 		routes,
+// 		resolveId(id) {
+// 			if (id === APP_CSS_ID) return appCssPath
+// 			if (modules.has(id)) return id
+// 		},
+// 		async load(id) {
+// 			if (modules.has(id)) return modules.get(id)!.content(ctx)
+// 		},
+// 		configureServer(server: ViteDevServer) {
+// 			configureMiddleware(server, routes)
+// 			if (watch) configureWatcher(server, ctx, routes, modules)
+// 		}
+// 	}
+
+// 	return plugin
+// }
+
+// function configureMiddleware(server: ViteDevServer, routes: Map<string, string>) {
+// 	const respond = async (url: string, moduleId: string, resp: ServerResponse<IncomingMessage>): Promise<void> => {
+// 		const html = await server.transformIndexHtml(url, renderAppHTML({ module: moduleId }))
+// 		resp.setHeader('Content-Type', 'text/html; charset=utf-8')
+// 		resp.statusCode = 200
+// 		resp.end(html)
+// 	}
+
+// 	server.middlewares.use(async (req, resp, next) => {
+// 		const url = req.url || '/'
+// 		if (req.headers['sec-fetch-dest'] !== 'document') return next()
+
+// 		const route = stripLeadingSlash(url.split('?')[0])
+// 		const moduleId = routes.get(route)
+// 		if (moduleId === undefined) {
+// 			resp.statusCode = 404
+// 			resp.setHeader('Content-Type', 'text/html; charset=utf-8')
+// 			resp.end('<!doctype html><h1>404 — slide not found</h1>')
+// 			return
+// 		}
+
+// 		return respond(url, moduleId, resp)
+// 	})
+// }
+
+// function configureWatcher(
+// 	server: ViteDevServer,
+// 	ctx: Context,
+// 	routes: Map<string, string>,
+// 	modules: Map<string, Module>
+// ) {
+// 	server.watcher.add(ctx.root)
+// 	server.watcher.on('add', (file) => onChange('add', file))
+// 	server.watcher.on('unlink', (file) => onChange('unlink', file))
+
+// 	function onChange(type: 'add' | 'unlink', file: string) {
+// 		if (!file.endsWith('.md')) return
+// 		const rel = relativeMarkdown(ctx.root, file)
+// 		if (!rel) return
+
+// 		if (type === 'add') addMarkdown(ctx, routes, modules, rel)
+// 		else removeMarkdown(ctx, routes, modules, rel)
+
+// 		server.ws.send({ type: 'full-reload' })
+// 	}
+// }
+
+// /** Convert an absolute file path to a path relative to `root`, posix-style. */
+// function relativeMarkdown(root: string, file: string): string | undefined {
+// 	const rel = path.relative(root, file)
+// 	if (rel.startsWith('..') || path.isAbsolute(rel)) return undefined
+// 	return rel.split(path.sep).join('/')
+// }

@@ -1,81 +1,53 @@
-// const VIRTUAL_ENTRY_ID = 'virtual:slidemd'
-import path from 'path'
+import { Command } from 'commander'
+import * as readline from 'node:readline'
 
-import { createServer } from './command/serve'
+import { createServer } from './command/serv'
 
-// const devMiddleware = (): Plugin => {
-// 	const indexHtml = readFileSync(config.template.indexTemplate, { encoding: 'utf-8' })
+const program = new Command('🚀 SlideMD')
 
-// 	return {
-// 		name: 'slidemd-dev',
-// 		resolveId(id) {
-// 			if (id === '@slidemd') {
-// 				return '@slidemd.svelte'
-// 			}
-// 		},
-// 		load(id) {
-// 			if (id === '@slidemd.svelte') {
-// 				return '<h1>Hello</h1>'
-// 			}
-// 		},
-// 		configureServer(server) {
-// 			server.middlewares.use(async (req, res, next) => {
-// 				const url = req.url ?? '/'
-// 				if (url !== '/' && url !== '/index.html') {
-// 					console.log('url' + url)
-// 					return next()
-// 				}
+function setupKeyboardShortcuts(server: Awaited<ReturnType<typeof createServer>>) {
+	// Keyboard shortcuts are only available in an interactive terminal.
+	if (!process.stdin.isTTY) return
 
-// 				const transformed = await server.transformIndexHtml(url, indexHtml)
-// 				res.statusCode = 200
-// 				res.setHeader('Content-Type', 'text/html; charset=utf-8')
-// 				res.end(transformed)
-// 			})
-// 		}
-// 	}
-// }
+	process.stdin.resume() // default mode is pause. must set to resume for binding
+	process.stdin.setEncoding('utf8')
 
-// const createViteConfig = () => {
-// 	return defineConfig({
-// 		plugins: [devMiddleware(), svelte()]
-// 	})
-// }
+	readline.emitKeypressEvents(process.stdin) // consume event
+	process.stdin.setRawMode(true) // process event when key is pressed without enter.
 
-// const args = process.argv.slice(2)
-// const sourceDir = args[0]
+	process.stdin.on('keypress', async (_input, key) => {
+		if (key.ctrl && key.name === 'c') {
+			process.exit(0)
+		}
 
-// async function createDevServer() {
-// 	const viteConfig = createViteConfig()
+		switch (key.name) {
+			case 'r':
+				await server.restart()
+				console.log('Server restarted.')
+				break
 
-// 	const serv = await createServer(viteConfig)
-// 	await serv.listen()
-// 	serv.printUrls()
+			case 'q':
+				console.log('Shutting down...')
 
-// 	return {
-// 		close: async () => {
-// 			await serv.close()
-// 		}
-// 	}
-// }
-
-const args = process.argv.slice(2)
-
-const run = async () => {
-	const src = path.resolve(args[0])
-
-	const server = await createServer(src)
-	await server.listen()
-
-	const resolvedPort = server.config.server.port
-	const url = `http://localhost:${resolvedPort}`
-	console.log(url)
-
-	async function shutdown() {
-		console.log('shutdown bye bye')
-		await server.close()
-	}
-	process.once('SIGINT', () => shutdown())
-	process.once('SIGTERM', () => shutdown())
+				try {
+					await server.close()
+				} finally {
+					process.exit(0)
+				}
+		}
+	})
 }
 
-run()
+program
+	.name('slidemd')
+	.description('Generate presentation slides from Markdown using Svelte.')
+	.version('1.0.0')
+	.argument('<src>', 'Path to a slide file or slide directory.')
+	.option('-p, --port <number>', 'Port number for the development server.')
+	.action(async (src, options) => {
+		const server = await createServer(src, options)
+		setupKeyboardShortcuts(server)
+	})
+	.showHelpAfterError()
+
+program.parse(process.argv)

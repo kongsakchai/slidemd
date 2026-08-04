@@ -40,7 +40,7 @@ export function compresseAttribute(attrs: Attribute, ...add: string[]) {
 
 export function decompresseContent(content: string) {
 	for (const match of content.matchAll(/@compressed="(.*?)"/g)) {
-		const decompress = match[1].split(' ').map((s) => lz.decompressFromBase64(match[1]))
+		const decompress = match[1].split(' ').map((s) => lz.decompressFromBase64(s))
 		content = content.replaceAll(match[0], decompress.join(' '))
 	}
 	return content
