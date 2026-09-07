@@ -1,5 +1,5 @@
 ---
-title: My Custom Marp
+title: SlideMD
 theme: main
 paginate: true
 tags:
@@ -7,9 +7,12 @@ tags:
     - slide
 ---
 
-Hello markdown @{ step-1-3="bg-red-500" }
+<!--
+style: "place-content: start;"
+split: 2
+-->
 
-Hello markdown @{ step-2-3="bg-red-500" step-3="bg-blue-500" }
+# Hello markdown
 
 ```js step at=3
 console.log("Hello Markdown")

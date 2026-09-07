@@ -2,15 +2,7 @@ import { createContext } from 'svelte'
 
 import type { SlideData } from '../types'
 
-export interface SlideContext {
-	slide: SlideData
-	totalPage: number
-	page: number
-	step: number
-	state: State
-}
-
-export enum State {
+export enum Action {
 	NEXT,
 	NEXT_PAGE,
 	PREVIOUS,
@@ -18,80 +10,84 @@ export enum State {
 	JUMP
 }
 
-const [getSlideContext, setSlideContext] = createContext<SlideContext>()
+interface SlideContext {
+	slide: SlideData
 
-export function createSlideContext(slide: SlideData, page?: number) {
-	const ctx = $state<SlideContext>({
-		slide: slide,
-		totalPage: slide.pages.length,
-		page: page ?? 1,
-		step: 0,
-		state: State.NEXT
-	})
-	setSlideContext(ctx)
-	return wrapSlideContext(ctx)
+	readonly page: number
+	readonly step: number
+	readonly action: number
+	readonly totalPage: number
+	readonly maxStep: number
+	getStep(page?: number): number
+	goto(page: number, step?: number, action?: Action): void
+	next(): void
+	previous(): void
 }
 
-export function useSlideContext() {
-	const ctx = getSlideContext()
-	return wrapSlideContext(ctx)
-}
+class Context implements SlideContext {
+	slide = $state<SlideData>({ title: '', pages: [] })
 
-function wrapSlideContext(ctx: SlideContext) {
-	const maxStep = $derived(ctx.slide.pages[ctx.page - 1].step || 0)
+	#page = $state(1)
+	#step = $state(0)
+	#action = $state<Action>(Action.NEXT)
 
-	return {
-		get slide() {
-			return ctx.slide
-		},
-		get totalPage() {
-			return ctx.totalPage
-		},
-		get page() {
-			return ctx.page
-		},
-		set page(val: number) {
-			if (val > ctx.totalPage || val < 1) return
-			ctx.page = val
-		},
-		get step() {
-			return ctx.step
-		},
-		set step(val: number) {
-			if (val > maxStep || val < 0) return
-			ctx.step = val
-		},
-		get maxStep() {
-			return maxStep
-		},
-		get state() {
-			return ctx.state
-		},
-		update(action: State) {
-			switch (action) {
-				case State.NEXT:
-					if (ctx.step < maxStep) {
-						ctx.step += 1
-						ctx.state = action
-					} else if (ctx.page < ctx.totalPage) {
-						ctx.page += 1
-						ctx.step = 0
-						ctx.state = State.NEXT_PAGE
-					}
-					return
+	get page() {
+		return this.#page
+	}
+	get step() {
+		return this.#step
+	}
+	get action() {
+		return this.#action
+	}
+	get totalPage() {
+		return this.slide.pages.length
+	}
+	get maxStep() {
+		return this.getStep()
+	}
 
-				case State.PREVIOUS:
-					if (ctx.step > 0) {
-						ctx.step -= 1
-						ctx.state = action
-					}
-					if (ctx.page > 1) {
-						ctx.page -= 1
-						ctx.step = ctx.slide.pages[ctx.page - 1].step || 0
-						ctx.state = State.PREV_PAGE
-					}
-					return
-			}
+	constructor(slide: SlideData) {
+		this.slide = slide
+	}
+
+	getStep(page = this.page) {
+		if (page < 1 || page > this.totalPage) return 0
+		return this.slide.pages[page - 1]?.step ?? 0
+	}
+
+	goto(page: number, step = 0, action = Action.JUMP) {
+		page = Math.max(1, Math.min(page, this.totalPage))
+		step = Math.max(0, Math.min(step, this.getStep(page)))
+
+		if (page === this.page && step === this.step) return
+
+		this.#page = page
+		this.#step = step
+		this.#action = action
+	}
+
+	next() {
+		if (this.step < this.maxStep) {
+			this.goto(this.page, this.step + 1, Action.NEXT)
+		} else if (this.page < this.totalPage) {
+			this.goto(this.page + 1, 0, Action.NEXT_PAGE)
 		}
 	}
+
+	previous() {
+		if (this.step > 0) {
+			this.goto(this.page, this.step - 1, Action.PREVIOUS)
+		} else if (this.page > 1) {
+			this.goto(this.page - 1, this.getStep(this.page - 1), Action.PREV_PAGE)
+		}
+	}
+}
+
+const [useSlideContext, setSlideContext] = createContext<SlideContext>()
+
+export { useSlideContext }
+
+export function createSlideContext(slide: SlideData) {
+	return setSlideContext(new Context(slide))
 }

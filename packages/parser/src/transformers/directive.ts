@@ -14,7 +14,7 @@ export function directiveTransformer(): Transformer {
 		visit(tree as Root, 'html', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent || parent !== tree) return
 
-			const page = ctx.slides.findLast((p) => index >= p.breakIndex)
+			const page = ctx.slides[node.indexGroup ?? 0]
 			if (!page) return
 
 			const match = DIRECTIVE_REGEX.exec(node.value)

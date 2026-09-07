@@ -1,12 +1,12 @@
 <script lang="ts">
 	import Appearance from './appearancer.svelte'
-	import Navigator from './navigator.svelte'
-	import Tools from './tools.svelte'
+	import Navigation from './navigation.svelte'
+	import ViewContral from './view-control.svelte'
 </script>
 
 <div class="controller absolute bottom-10 left-10 flex gap-4">
-	<Navigator />
-	<Tools />
+	<Navigation />
+	<ViewContral />
 	<Appearance />
 </div>
 

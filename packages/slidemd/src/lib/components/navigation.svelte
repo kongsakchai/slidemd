@@ -1,19 +1,11 @@
 <script lang="ts">
-	import { State, useSlideContext } from '@slidemd/slidemd/state'
+	import { useSlideContext } from '@slidemd/slidemd/state'
 
 	const slideCtx = useSlideContext()
-
-	function nextPage() {
-		slideCtx.update(State.NEXT)
-	}
-
-	function previousPage() {
-		slideCtx.update(State.PREVIOUS)
-	}
 </script>
 
 <div class="menu">
-	<button onclick={previousPage} title="previous button" class="menu-btn rounded-l-sm">
+	<button onclick={() => slideCtx.previous()} title="previous button" class="menu-btn rounded-l-sm">
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			width="22"
@@ -36,7 +28,7 @@
 		</p>
 	</button>
 	<div class=" border-border border-l"></div>
-	<button onclick={nextPage} title="next button" class="menu-btn rounded-r-sm">
+	<button onclick={() => slideCtx.next()} title="next button" class="menu-btn rounded-r-sm">
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			width="22"

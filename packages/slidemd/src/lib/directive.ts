@@ -31,9 +31,10 @@ function toSplitValue(value: string): string {
 
 export function toSplitStyles(directive: Directive): string | undefined {
 	const split = directive.split
+	const gap = directive['split-gap'] ? `gap: ${directive['split-gap']}` : ''
 
 	if (typeof split === 'number') {
-		return `--split-col: repeat(${split},1fr)`
+		return [`--split-col: repeat(${split},1fr)`, gap].filter(Boolean).join('; ')
 	}
 
 	if (typeof split === 'string') {
@@ -42,7 +43,7 @@ export function toSplitStyles(directive: Directive): string | undefined {
 		const colStyle = colRaw?.trim() ? `--split-col: ${toSplitValue(colRaw)}` : ''
 		const rowStyle = rowRaw?.trim() ? `--split-row: ${toSplitValue(rowRaw)}` : ''
 
-		const styles = [directive.style, colStyle, rowStyle].filter(Boolean).join('; ')
+		const styles = [directive.style, colStyle, rowStyle, gap].filter(Boolean).join('; ')
 		return styles || undefined
 	}
 

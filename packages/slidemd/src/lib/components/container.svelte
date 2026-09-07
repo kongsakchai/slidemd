@@ -4,11 +4,11 @@
 	import type { Snippet } from 'svelte'
 
 	interface Props {
-		overlay?: Snippet
+		outside?: Snippet
 		children: Snippet
 	}
 
-	let { children, overlay }: Props = $props()
+	let { children, outside }: Props = $props()
 
 	const viewContext = useViewContext()
 </script>
@@ -31,7 +31,7 @@
 		{@render children()}
 	</section>
 
-	{@render overlay?.()}
+	{@render outside?.()}
 </section>
 
 <style lang="postcss">

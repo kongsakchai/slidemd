@@ -75,11 +75,11 @@
 	}
 
 	function onWheel(e: WheelEvent) {
-		e.preventDefault()
-
 		if (e.ctrlKey) {
+			e.preventDefault()
 			viewContext.zoom = Math.min(Math.max(viewContext.zoom - e.deltaY / 100, 1), 3)
 		} else if (zoomActive) {
+			e.preventDefault()
 			zoom.panX = clamp(zoom.panX - e.deltaX, -layoutLimit.x, layoutLimit.x)
 			zoom.panY = clamp(zoom.panY - e.deltaY, -layoutLimit.y, layoutLimit.y)
 		}

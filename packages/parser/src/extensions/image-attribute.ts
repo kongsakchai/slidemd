@@ -63,6 +63,7 @@ function exitAttributeImage(this: CompileContext) {
 		node.data.hProperties = { ...node.data.hProperties, ...this.data.attr }
 		this.data.attr = {}
 
+		// trim alt image
 		const fragment = this.stack[index + 1]
 		if (fragment?.type === 'fragment') {
 			const firstChild = fragment.children[0]

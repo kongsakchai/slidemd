@@ -1,4 +1,4 @@
-import { State, useSlideContext } from '../state'
+import { Action, useSlideContext } from '../state'
 import type { Step, Stepper } from '../step'
 
 const next = (node: HTMLElement, stepper: Stepper, step: number) => {
@@ -42,7 +42,7 @@ export function stepper(page: number, steps: Step[]) {
 
 		const stepper = cache.get(node)!
 
-		if (slideCtx.state === State.PREVIOUS) {
+		if (slideCtx.action === Action.PREVIOUS) {
 			prev(node, stepper, slideCtx.step)
 		} else {
 			next(node, stepper, slideCtx.step)
