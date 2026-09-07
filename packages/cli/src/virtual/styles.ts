@@ -6,8 +6,8 @@ export const virtualAppCSS: VirtualModule = {
 		return [
 			`@import 'tailwindcss';`,
 			`@import 'tw-animate-css';`,
-			`@import '@slidemd/slidemd/themes/slidemd.css';`,
-			`@source './node_modules/@slidemd/slidemd/dist';`,
+			`@import '@decko/decko/themes/decko.css';`,
+			`@source './node_modules/@decko/decko/dist';`,
 			`@source '${this.root}';`,
 			`:root {`,
 			`	font-synthesis: none;`,

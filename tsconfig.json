@@ -14,8 +14,8 @@
 		"noUnusedLocals": true,
 		"noEmit": true,
 		"paths": {
-			"@slidemd/parser/*": ["./packages/parser/src/*"],
-			"@slidemd/slidemd/*": ["./packages/slidemd/src/*"]
+			"@decko/parser/*": ["./packages/parser/src/*"],
+			"@decko/decko/*": ["./packages/decko/src/*"]
 		}
 	}
 }

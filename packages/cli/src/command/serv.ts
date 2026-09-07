@@ -1,6 +1,6 @@
 import { createSlideLoader } from '@/plugin/loader'
 
-import { slidemd } from '@slidemd/slidemd'
+import { decko } from '@decko/decko'
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -19,7 +19,7 @@ export async function createServer(root: string, opt?: Options) {
 			tailwindcss(),
 			svelte({
 				extensions: ['.svelte', '.md'],
-				preprocess: [slidemd({ extension: '.md' }), vitePreprocess()]
+				preprocess: [decko({ extension: '.md' }), vitePreprocess()]
 			})
 		],
 		server: {

@@ -25,7 +25,7 @@ export const addFromMarkdownExtensions = (p: Processor, ...extensions: FromMarkd
 	fromMarkdownExtensions.push(...extensions)
 }
 
-export function slidemdExtension(this: Processor) {
+export function deckoExtension(this: Processor) {
 	addMicromarkExtensions(
 		this,
 		highlight,

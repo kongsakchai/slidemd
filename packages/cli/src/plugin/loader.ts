@@ -12,7 +12,7 @@ export function createSlideLoader(root: string): Plugin {
 	const ctx = { root, markdowns, read: readMarkdown }
 
 	return {
-		name: 'vite-slidemd',
+		name: 'vite-decko',
 		resolveId(id) {
 			if (id.startsWith('@slide:')) return id
 		},

@@ -9,14 +9,14 @@
 // 	: path.join(here, '..', 'src', 'app.css')
 
 // /** Virtual id that resolves to the real `app.css` on disk. */
-// export const APP_CSS_ID = 'slidemd:app.css'
+// export const APP_CSS_ID = 'decko:app.css'
 
-// export interface SlidemdPluginOptions {
+// export interface DeckoPluginOptions {
 // 	/** Watch `root` for added/removed markdown files and live-reload. Default `true`. */
 // 	watch?: boolean
 // }
 
-// export interface SlidemdPlugin extends Plugin {
+// export interface DeckoPlugin extends Plugin {
 // 	/** Route path (without leading slash) → virtual module id. */
 // 	routes: Map<string, string>
 // }
@@ -58,7 +58,7 @@
 // 	modules.delete(md)
 // }
 
-// export function createSlidemdPlugin(root: string, options: SlidemdPluginOptions = {}): SlidemdPlugin {
+// export function createDeckoPlugin(root: string, options: DeckoPluginOptions = {}): DeckoPlugin {
 // 	const watch = options.watch ?? true
 
 // 	const ctx: Context = {
@@ -69,8 +69,8 @@
 
 // 	const { routes, modules } = buildTables(ctx)
 
-// 	const plugin: SlidemdPlugin = {
-// 		name: 'slidemd',
+// 	const plugin: DeckoPlugin = {
+// 		name: 'decko',
 // 		routes,
 // 		resolveId(id) {
 // 			if (id === APP_CSS_ID) return appCssPath

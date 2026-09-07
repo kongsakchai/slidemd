@@ -1,8 +1,8 @@
 // import { resolveRoot } from '@/content'
-// import { createSlidemdPlugin } from '@/plugin'
+// import { createDeckoPlugin } from '@/plugin'
 // import { resolve } from '@/utils'
 
-// import { slidemd } from '@slidemd/slidemd'
+// import { decko } from '@decko/decko'
 // import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 // import tailwindcss from '@tailwindcss/vite'
 
@@ -24,12 +24,12 @@
 // function entryPlugin(entries: Entry[]): Plugin {
 // 	const sources = new Map<string, string>()
 // 	for (const entry of entries) {
-// 		const id = `slidemd:entry:${entry.name}`
+// 		const id = `decko:entry:${entry.name}`
 // 		sources.set(
 // 			id,
 // 			[
 // 				`import { mount } from 'svelte'`,
-// 				`import 'slidemd:app.css'`,
+// 				`import 'decko:app.css'`,
 // 				`import App from '${entry.module}'`,
 // 				`const el = document.getElementById('app')`,
 // 				`if (el) mount(App, { target: el })`
@@ -38,7 +38,7 @@
 // 	}
 
 // 	return {
-// 		name: 'slidemd:entry',
+// 		name: 'decko:entry',
 // 		resolveId(id) {
 // 			if (sources.has(id)) return id
 // 		},
@@ -55,7 +55,7 @@
 // 		`<head>`,
 // 		`<meta charset="UTF-8" />`,
 // 		`<meta name="viewport" content="width=device-width, initial-scale=1.0" />`,
-// 		`<title>slidemd</title>`,
+// 		`<title>decko</title>`,
 // 		`</head>`,
 // 		`<body>`,
 // 		`<div id="app"></div>`,
@@ -68,7 +68,7 @@
 // export async function build(root: string, options: BuildOptions = {}): Promise<void> {
 // 	const src = resolveRoot(root)
 // 	const outDir = path.resolve(options.out ?? 'dist')
-// 	const plugin = createSlidemdPlugin(src, { watch: false })
+// 	const plugin = createDeckoPlugin(src, { watch: false })
 
 // 	const entries: Entry[] = []
 // 	for (const [route, moduleId] of plugin.routes) {
@@ -76,7 +76,7 @@
 // 		entries.push({ name, module: moduleId })
 // 	}
 
-// 	const input = Object.fromEntries(entries.map((e) => [e.name, `slidemd:entry:${e.name}`]))
+// 	const input = Object.fromEntries(entries.map((e) => [e.name, `decko:entry:${e.name}`]))
 
 // 	const inlineConfig: InlineConfig = {
 // 		configFile: false,
@@ -86,7 +86,7 @@
 // 			tailwindcss(),
 // 			svelte({
 // 				extensions: ['.svelte', '.md'],
-// 				preprocess: [slidemd({ extension: '.md' }), vitePreprocess()]
+// 				preprocess: [decko({ extension: '.md' }), vitePreprocess()]
 // 			})
 // 		],
 // 		build: {

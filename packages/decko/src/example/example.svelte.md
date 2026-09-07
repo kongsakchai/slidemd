@@ -1,11 +1,16 @@
 ---
-title: 🚀 Decko
+title: Decko
 theme: main
 paginate: true
 tags:
     - marp
     - slide
 ---
+
+<!--
+style: "place-content: start;"
+split: 2
+-->
 
 # Hello markdown
 

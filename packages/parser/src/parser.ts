@@ -5,7 +5,7 @@ import markdown from 'remark-parse'
 import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 
-import { slidemdExtension } from './extensions/index.js'
+import { deckoExtension } from './extensions/index.js'
 import {
 	AttributeProcess,
 	CodeContainer,
@@ -30,7 +30,7 @@ function setupProcessor(options?: Options) {
 		.use(markdown)
 		.use(remarkGemoji)
 		.use(remarkGfm, { singleTilde: false })
-		.use(slidemdExtension)
+		.use(deckoExtension)
 
 	applyTransformers(mdastTransform, {
 		codeblock: {

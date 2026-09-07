@@ -3,7 +3,7 @@ import * as readline from 'node:readline'
 
 import { createServer } from './command/serv'
 
-const program = new Command('🚀 SlideMD')
+const program = new Command('🚀 Decko')
 
 function setupKeyboardShortcuts(server: Awaited<ReturnType<typeof createServer>>) {
 	// Keyboard shortcuts are only available in an interactive terminal.
@@ -39,7 +39,7 @@ function setupKeyboardShortcuts(server: Awaited<ReturnType<typeof createServer>>
 }
 
 program
-	.name('slidemd')
+	.name('decko')
 	.description('Generate presentation slides from Markdown using Svelte.')
 	.version('1.0.0')
 	.argument('<src>', 'Path to a slide file or slide directory.')

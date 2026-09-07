@@ -1,0 +1,101 @@
+<script lang="ts">
+	import { useViewContext } from '@decko/decko/state'
+
+	import { type Snippet } from 'svelte'
+
+	interface Props {
+		children: Snippet
+	}
+
+	interface ZoomState {
+		isDragging: boolean
+		startX: number
+		startY: number
+		panY: number
+		panX: number
+	}
+
+	let { children }: Props = $props()
+
+	const viewContext = useViewContext()
+
+	let zoomEl: HTMLElement
+
+	let zoomActive = $derived(viewContext.zoom != 1)
+
+	let zoom = $state<ZoomState>({
+		isDragging: false,
+		startX: 0,
+		startY: 0,
+		panX: 0,
+		panY: 0
+	})
+
+	let layoutLimit = $derived.by(() => {
+		return {
+			x: ((zoomEl?.clientWidth || 0) * (viewContext.zoom - 1)) / 2,
+			y: ((zoomEl?.clientHeight || 0) * (viewContext.zoom - 1)) / 2
+		}
+	})
+
+	let translateX = $derived(clamp(zoom.panX, -layoutLimit.x, layoutLimit.x))
+	let translateY = $derived(clamp(zoom.panY, -layoutLimit.y, layoutLimit.y))
+
+	$effect(() => {
+		if (!zoomActive) {
+			zoom.panX = 0
+			zoom.panY = 0
+		}
+	})
+
+	$effect(() => {
+		zoomEl.addEventListener('wheel', onWheel, { passive: false })
+		return () => zoomEl.removeEventListener('wheel', onWheel)
+	})
+
+	function clamp(val: number, min: number, max: number) {
+		return Math.max(min, Math.min(max, val))
+	}
+
+	function onPointerdown(e: PointerEvent) {
+		zoom.isDragging = zoomActive
+		zoom.startX = e.clientX - zoom.panX
+		zoom.startY = e.clientY - zoom.panY
+	}
+
+	function onPointermove(e: PointerEvent) {
+		if (!zoom.isDragging) return
+
+		zoom.panX = clamp(e.clientX - zoom.startX, -layoutLimit.x, layoutLimit.x)
+		zoom.panY = clamp(e.clientY - zoom.startY, -layoutLimit.y, layoutLimit.y)
+	}
+
+	function onPointerup() {
+		zoom.isDragging = false
+	}
+
+	function onWheel(e: WheelEvent) {
+		if (e.ctrlKey) {
+			e.preventDefault()
+			viewContext.zoom = Math.min(Math.max(viewContext.zoom - e.deltaY / 100, 1), 3)
+		} else if (zoomActive) {
+			e.preventDefault()
+			zoom.panX = clamp(zoom.panX - e.deltaX, -layoutLimit.x, layoutLimit.x)
+			zoom.panY = clamp(zoom.panY - e.deltaY, -layoutLimit.y, layoutLimit.y)
+		}
+	}
+</script>
+
+<section
+	bind:this={zoomEl}
+	id="zoom-contrainer"
+	role="presentation"
+	class="grid h-full w-full"
+	style:scale={viewContext.zoom}
+	style:translate="{translateX}px {translateY}px"
+	onpointerdown={onPointerdown}
+	onpointermove={onPointermove}
+	onpointerup={onPointerup}
+>
+	{@render children()}
+</section>

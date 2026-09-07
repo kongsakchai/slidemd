@@ -1,9 +1,9 @@
 {
-	"name": "@slidemd/cli",
+	"name": "@decko/cli",
 	"version": "1.0.0",
 	"type": "module",
 	"bin": {
-		"slidemd": "dist/index.mjs"
+		"decko": "dist/index.mjs"
 	},
 	"scripts": {
 		"dev": "tsx ./src/index.ts",
@@ -14,7 +14,7 @@
 	"license": "ISC",
 	"description": "",
 	"dependencies": {
-		"@slidemd/slidemd": "*",
+		"@decko/decko": "*",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
 		"@tailwindcss/vite": "^4.2.2",
 		"@types/node": "^25.6.0",

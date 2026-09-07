@@ -5,8 +5,8 @@ import { createSlideParser, extractFrontmatter } from '../src'
 describe('parser', () => {
 	it('create parser', async () => {
 		const processor = createSlideParser()
-		const resp = await processor.parse('# Slidemd', {})
-		expect(resp.slides[0].content).toEqual('<h1>Slidemd</h1>')
+		const resp = await processor.parse('# Decko', {})
+		expect(resp.slides[0].content).toEqual('<h1>Decko</h1>')
 	})
 
 	it('should split slides on thematic breaks and merge global directives', async () => {

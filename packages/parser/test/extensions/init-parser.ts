@@ -5,13 +5,13 @@ import markdown from 'remark-parse'
 import remark2Rehype from 'remark-rehype'
 import { unified } from 'unified'
 
-import { slidemdExtension } from '../../src/extensions/index'
+import { deckoExtension } from '../../src/extensions/index'
 
 const mdastTransform = unified()
 	.use(markdown)
 	.use(remarkGemoji)
 	.use(remarkGfm, { singleTilde: false })
-	.use(slidemdExtension)
+	.use(deckoExtension)
 
 const hastTransform = mdastTransform.use(remark2Rehype, {
 	allowDangerousHtml: true

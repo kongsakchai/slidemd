@@ -15,7 +15,7 @@ export const virtualLayout: VirtualModule = {
 		const markdown = this.id.slice(LAYOUT_ID.length, -SVELTE_EXT.length)
 		return [
 			`<script lang="ts">`,
-			`import { SlideViewer } from '@slidemd/slidemd/components'`,
+			`import { SlideViewer } from '@decko/decko/components'`,
 			`import Slide, { slide } from '${virtualMarkdown.id}${markdown}'`,
 			`</script>`,
 			`<svelte:head>`,
