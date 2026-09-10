@@ -1,3 +1,4 @@
+import { type CodeContainer, type CodeHighlighter } from '@decko/parser'
 import { codeToKeyedTokens, createMagicMoveMachine } from '@shikijs/magic-move/core'
 import {
 	transformerMetaHighlight,
@@ -8,13 +9,12 @@ import {
 	transformerNotationHighlight,
 	transformerNotationWordHighlight
 } from '@shikijs/transformers'
-import { type CodeContainer, type CodeHighlighter } from '@decko/parser'
 
 import lz from 'lz-string'
 import { type SpecialLanguage, createHighlighter } from 'shiki'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 
-import { compresseAttribute } from './attribute'
+import { compresseAttribute } from './extension'
 import { Feature, getFeatures } from './feature'
 import { asString } from './utils'
 

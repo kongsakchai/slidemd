@@ -7,11 +7,11 @@ import { describe, expect, test } from 'vitest'
 
 import { attributeBlockFromMarkdown } from '../../src/extensions/attribute-block'
 import { containerFromMarkdown } from '../../src/extensions/container'
+import { handleResolveAll } from '../../src/extensions/helper'
 import { highlight, highlightFromMarkdown } from '../../src/extensions/highlight'
 import { imageAttributeFromMarkdown } from '../../src/extensions/image-attribute'
-import { partialBlankLineTokenizer } from '../../src/extensions/line'
 import { addFromMarkdownExtensions, addMicromarkExtensions } from '../../src/extensions/index'
-import { handleResolveAll } from '../../src/extensions/helper'
+import { partialBlankLineTokenizer } from '../../src/extensions/line'
 
 describe('more', () => {
 	describe('utils', () => {
@@ -128,12 +128,10 @@ describe('more', () => {
 		test("should don't assign attribute when last node isn't container", () => {
 			const exitContainerAttribute = containerFromMarkdown.exit?.['containerAttribute']
 
-			exitContainerAttribute?.call(
-				{
-					stack: [{ type: 'html', value: '' }],
-					data: { attr: { class: 'x' } }
-				} as any
-			)
+			exitContainerAttribute?.call({
+				stack: [{ type: 'html', value: '' }],
+				data: { attr: { class: 'x' } }
+			} as any)
 		})
 	})
 

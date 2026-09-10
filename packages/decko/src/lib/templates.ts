@@ -1,4 +1,4 @@
-import { decompresseContent } from './attribute'
+import { decompresseContent } from './extension'
 import { Feature } from './feature'
 import type { SlideData } from './types'
 

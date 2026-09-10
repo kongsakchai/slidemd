@@ -69,7 +69,7 @@ describe('image transformer', () => {
 		expect(attribute).toEqual({ title: 'image' })
 	})
 
-	test('should hoist background image out of paragraph', () => {
+	test('should leave bg/absolute images in place (hoisting moved to extensions)', () => {
 		const attribute1: Attribute = { bg: '' }
 		const attribute2: Attribute = { class: 'absolute' }
 
@@ -89,9 +89,12 @@ describe('image transformer', () => {
 
 		transform(tree)
 
-		expect(attribute1).toEqual({ bg: '', class: 'slide-background' })
+		// imageTransformer no longer adds slide-background or hoists;
+		// that behavior now lives in decko's hoistExtension + `img[bg]` CSS
+		expect(attribute1).toEqual({ bg: '' })
 		expect(attribute2).toEqual({ class: 'absolute' })
 		expect(tree.children.length).toEqual(2)
+		expect(tree.children[0].children.length).toEqual(2)
 	})
 
 	test('should not process the same image twice', () => {

@@ -98,9 +98,7 @@ describe('codeblock syntax', () => {
 				type: 'container',
 				data: {
 					hName: 'div',
-					hChildren: [
-						{ type: 'raw', value: `<span class="lang">${ctx.lang}</span>` }
-					]
+					hChildren: [{ type: 'raw', value: `<span class="lang">${ctx.lang}</span>` }]
 				},
 				children: []
 			}),

@@ -34,7 +34,8 @@ export function toSplitStyles(directive: Directive): string | undefined {
 	const gap = directive['split-gap'] ? `gap: ${directive['split-gap']}` : ''
 
 	if (typeof split === 'number') {
-		return [`--split-col: repeat(${split},1fr)`, gap].filter(Boolean).join('; ')
+		const colStyle = `--split-col: repeat(${split},1fr)`
+		return [directive.style, colStyle, gap].filter(Boolean).join('; ') || undefined
 	}
 
 	if (typeof split === 'string') {

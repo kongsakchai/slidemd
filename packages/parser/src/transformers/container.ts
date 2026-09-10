@@ -3,11 +3,9 @@ import { htmlBlockNames } from 'micromark-util-html-tag-name'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
 
-const BASIC_TAGS = new Set(htmlBlockNames)
+import { ContainerOptions } from '../types.js'
 
-export interface ContainerOptions {
-	customContainer?: string[]
-}
+const BASIC_TAGS = new Set(htmlBlockNames)
 
 export function containerTransformer(opt?: ContainerOptions): Transformer {
 	const customContainer = new Set(opt?.customContainer)

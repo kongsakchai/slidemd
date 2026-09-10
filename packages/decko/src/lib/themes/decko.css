@@ -335,7 +335,8 @@
 		overflow-y: scroll;
 	}
 
-	section.slide .slide-background {
+	section.slide .slide-background,
+	section.slide img[bg] {
 		position: absolute;
 		width: 100%;
 		height: 100%;

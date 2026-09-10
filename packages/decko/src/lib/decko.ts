@@ -3,9 +3,9 @@ import { createSlideParser, extractFrontmatter } from '@decko/parser'
 import MagicString from 'magic-string'
 import type { PreprocessorGroup } from 'svelte/compiler'
 
-import { attributeProcess } from './attribute'
 import { codeContainer, codeHighlighter } from './code'
 import { resolvePaginate, toBackgroundStyles, toSplitStyles } from './directive'
+import { hoistExtension, splitContainerExtension, stepExtension } from './extension'
 import { getFeatures } from './feature'
 import { pageContent, scriptContent, styleContent } from './templates'
 import type { Options, SlideData } from './types'
@@ -15,7 +15,8 @@ export function decko(options?: Options): PreprocessorGroup {
 	const parser = createSlideParser({
 		codeContainer: codeContainer,
 		codeHighlighter: codeHighlighter,
-		attributeProcess: attributeProcess
+		extensions: [stepExtension, splitContainerExtension],
+		postExtension: [hoistExtension]
 	})
 
 	const parse = async (markdown: string) => {

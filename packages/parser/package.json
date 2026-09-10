@@ -2,12 +2,12 @@
 	"name": "@decko/parser",
 	"version": "1.0.0",
 	"type": "module",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"main": "dist/index.mjs",
+	"types": "dist/index.d.mts",
 	"exports": {
 		".": {
-			"import": "./dist/index.mjs",
-			"types": "./dist/index.d.mts"
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs"
 		}
 	},
 	"files": [
@@ -42,6 +42,7 @@
 		"remark-rehype": "^11.1.2",
 		"unified": "^11.0.5",
 		"unist-util-visit": "^5.1.0",
+		"unist-util-visit-parents": "^6.0.2",
 		"yaml": "^2.9.0"
 	},
 	"devDependencies": {

@@ -1,31 +1,13 @@
-import type { ElementContent, Root as HRoot, RootContent as HRootContent } from 'hast'
+import type { ElementContent } from 'hast'
 import type { Code, Parent, Root, RootContent } from 'mdast'
 import type { Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
 
-import { Attribute, SlideContext, SlideData } from '../types.js'
-
-export interface CodeContext {
-	lang: string
-	code: string
-	meta: string
-	attrs: Attribute
-	slideCtx: SlideContext
-	slide: SlideData
-}
-
-export type CodeHighlighter = (ctx: CodeContext) => Promise<HRootContent | ElementContent | HRoot>
-
-export type CodeContainer = (ctx: CodeContext) => Promise<Parent>
-
-export interface CodeblockOptions {
-	highlight?: CodeHighlighter
-	container?: CodeContainer
-}
+import { CodeContainer, CodeContext, CodeHighlighter, CodeblockOptions, SlideContext } from '../types.js'
 
 export function codeblockTransformer(options?: CodeblockOptions): Transformer {
 	const container = options?.container ?? defaultContainer
-	const highlight = options?.highlight ?? defaultHighlight
+	const highlighter = options?.highlighter ?? defaultHighlighter
 
 	return async (tree, vfile) => {
 		const ctx = vfile.data.context as SlideContext
@@ -33,7 +15,7 @@ export function codeblockTransformer(options?: CodeblockOptions): Transformer {
 		const codeProcess: Promise<void>[] = []
 		visit(tree as Root, 'code', (node, index, parent) => {
 			if (typeof index !== 'number' || !parent) return
-			codeProcess.push(transformCodeNode(node, index, parent, highlight, container, ctx))
+			codeProcess.push(transformCodeNode(node, index, parent, highlighter, container, ctx))
 		})
 
 		await Promise.all(codeProcess)
@@ -48,7 +30,7 @@ async function transformCodeNode(
 	node: Code,
 	index: number,
 	parent: Parent,
-	highlight: CodeHighlighter,
+	highlighter: CodeHighlighter,
 	container: CodeContainer,
 	slideCtx: SlideContext
 ) {
@@ -65,7 +47,7 @@ async function transformCodeNode(
 	const containerEl = await container(ctx)
 	parent.children.splice(index, 1, containerEl as RootContent)
 
-	const html = await highlight(ctx)
+	const html = await highlighter(ctx)
 	visit(html, 'text', (node) => {
 		node.value = escapeSpecialCharacters(node.value)
 	})
@@ -85,7 +67,7 @@ async function defaultContainer(ctx: CodeContext): Promise<Parent> {
 	}
 }
 
-async function defaultHighlight(ctx: CodeContext): Promise<ElementContent> {
+async function defaultHighlighter(ctx: CodeContext): Promise<ElementContent> {
 	return {
 		type: 'element',
 		tagName: 'pre',

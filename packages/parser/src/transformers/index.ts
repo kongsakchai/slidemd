@@ -1,26 +1,23 @@
 import type { Root as MRoot } from 'mdast'
-import { Processor } from 'unified'
+import type { Processor } from 'unified'
 
-import { AttributeOptions, attributeTransformer } from './attribute.js'
-import { CodeblockOptions, codeblockTransformer } from './codeblock.js'
-import { ContainerOptions, containerTransformer } from './container.js'
-import { directiveTransformer } from './directive.js'
+import { CodeContainer, CodeHighlighter, Extension, PostExtension } from '../types.js'
+import { codeblockTransformer } from './codeblock.js'
+import { containerTransformer } from './container.js'
+import { directiveTransformer, parseYAML } from './directive.js'
+import { extensionsTransform, hoistToParentExtension } from './extensions.js'
 import { imageTransformer } from './image.js'
-import { pageBreakTransformer } from './page-break.js'
+import { PAGE_BREAK_KEY, pageBreakTransformer } from './page-break.js'
 import { extractScriptTransformer } from './script.js'
 
-export { parseYAML } from './directive.js'
-
-export { PAGE_BREAK_KEY } from './page-break.js'
-
-export type { AttributeProcess } from './attribute.js'
-
-export type { CodeContainer, CodeContext, CodeHighlighter } from './codeblock.js'
+export { PAGE_BREAK_KEY, parseYAML, hoistToParentExtension }
 
 export interface TransformOptions {
-	codeblock?: CodeblockOptions
-	container?: ContainerOptions
-	attribute?: AttributeOptions
+	codeHighlighter?: CodeHighlighter
+	codeContainer?: CodeContainer
+	customContainer?: string[]
+	extensions?: Extension[]
+	postExtension?: PostExtension[]
 }
 
 export function applyTransformers(
@@ -28,11 +25,10 @@ export function applyTransformers(
 	options?: TransformOptions
 ) {
 	process.use(pageBreakTransformer)
-	process.use(codeblockTransformer, options?.codeblock)
+	process.use(codeblockTransformer, { highlighter: options?.codeHighlighter, container: options?.codeContainer })
 	process.use(extractScriptTransformer)
 	process.use(directiveTransformer)
-	// process.use(stepTransformer)
 	process.use(imageTransformer)
-	process.use(containerTransformer, options?.container)
-	process.use(attributeTransformer, options?.attribute)
+	process.use(containerTransformer, { customContainer: options?.customContainer })
+	process.use(extensionsTransform, { extensions: options?.extensions, postExtensions: options?.postExtension })
 }

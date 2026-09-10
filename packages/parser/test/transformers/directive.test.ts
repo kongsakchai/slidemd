@@ -158,7 +158,8 @@ background-color: "#e5e5f7"
 			type: 'root',
 			children: [
 				{ type: 'text', value: '---page-break---' },
-				{ type: 'html', value: '<!--\ncolor: blue\n-->' }
+				// indexGroup is normally assigned by pageBreakTransformer before this runs
+				{ type: 'html', value: '<!--\ncolor: blue\n-->', indexGroup: 1 }
 			]
 		}
 		const vfile = buildVFile({

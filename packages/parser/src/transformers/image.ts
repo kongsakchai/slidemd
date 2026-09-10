@@ -1,9 +1,7 @@
 import { Properties } from 'hast'
-import { Image, Parent, Root } from 'mdast'
+import { Root } from 'mdast'
 import type { Transformer } from 'unified'
-import { EXIT, visit } from 'unist-util-visit'
-
-import { asString } from '../utils.js'
+import { visit } from 'unist-util-visit'
 
 export function imageTransformer(): Transformer {
 	return (tree) => {
@@ -13,7 +11,6 @@ export function imageTransformer(): Transformer {
 			node.data.processed = true
 
 			applyImageStyles(node.data.hProperties)
-			hoistImageToParent(tree as Root, node, index, parent)
 		})
 	}
 }
@@ -39,22 +36,11 @@ const STYLE_ATTRIBUTE: Record<string, string> = {
 
 const isStringOrNumber = (val: unknown) => typeof val === 'string' || typeof val === 'number'
 
-const ABSOLUTE_CLASS = /[^|\s]absolute[$|\s]/
-const ABSOLUTE_STYLE = /[^|\s]display:\s?absolute[$|\s]/
-
-const isFloating = (props?: Properties) => {
-	if (!props) return false
-
-	return props.bg || asString(props.class)?.search(ABSOLUTE_CLASS) || asString(props.class)?.search(ABSOLUTE_STYLE)
-}
-
 function applyImageStyles(props?: Properties) {
 	if (!props) return
 
 	const styles = [props.styles].filter(Boolean)
 	const classNames = [props.class].filter(Boolean)
-
-	if (props.bg != null) classNames.push('slide-background')
 
 	for (const [key, cssKey] of Object.entries(STYLE_ATTRIBUTE)) {
 		if (isStringOrNumber(props[key])) {
@@ -82,22 +68,4 @@ function applyImageStyles(props?: Properties) {
 	}
 	if (styles.length > 0) props.style = styles.join(';')
 	if (classNames.length > 0) props.class = classNames.join(' ')
-}
-
-function hoistImageToParent(tree: Root, image: Image, index: number, parent: Parent) {
-	if (!isFloating(image.data?.hProperties)) return
-
-	parent.children.splice(index, 1)
-
-	visit(tree, parent, (parent, index, parentOfParent) => {
-		if (typeof index !== 'number' || !parentOfParent) return
-
-		if (parent.children.length === 0) {
-			parentOfParent.children.splice(index, 1, image)
-		} else {
-			parentOfParent.children.splice(index, 0, image)
-		}
-
-		return EXIT
-	})
 }

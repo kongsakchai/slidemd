@@ -7,23 +7,17 @@ import { unified } from 'unified'
 
 import { deckoExtension } from './extensions/index.js'
 import {
-	AttributeProcess,
-	CodeContainer,
-	CodeHighlighter,
 	PAGE_BREAK_KEY,
+	TransformOptions,
 	applyTransformers,
+	hoistToParentExtension,
 	parseYAML
 } from './transformers/index.js'
 import type { Directive, SlideContext, SlideInfo, SlideResult } from './types.js'
 
-export type { AttributeProcess, CodeContainer, CodeHighlighter } from './transformers/index.js'
+export { hoistToParentExtension }
 
-export interface Options {
-	codeContainer?: CodeContainer
-	codeHighlighter?: CodeHighlighter
-	customContainer?: string[]
-	attributeProcess?: AttributeProcess[]
-}
+export interface Options extends TransformOptions {}
 
 function setupProcessor(options?: Options) {
 	const mdastTransform = unified()
@@ -33,16 +27,11 @@ function setupProcessor(options?: Options) {
 		.use(deckoExtension)
 
 	applyTransformers(mdastTransform, {
-		codeblock: {
-			container: options?.codeContainer,
-			highlight: options?.codeHighlighter
-		},
-		container: {
-			customContainer: options?.customContainer
-		},
-		attribute: {
-			attributeProcess: options?.attributeProcess
-		}
+		codeContainer: options?.codeContainer,
+		codeHighlighter: options?.codeHighlighter,
+		customContainer: options?.customContainer,
+		extensions: options?.extensions,
+		postExtension: options?.postExtension
 	})
 
 	const hastTransform = mdastTransform.use(remark2Rehype, {
